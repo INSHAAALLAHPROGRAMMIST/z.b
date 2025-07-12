@@ -1,12 +1,11 @@
 /* Asosiy sozlamalar va shablon */
 :root {
     --primary-bg-light: #202D3B; /* Tinchlantiruvchi to'q ko'k-kulrang */
-    --primary-bg-dark: #121A22;  /* Undan ham to'qroq */
-    --accent-color: #6C5CE7;    /* Yorqin, ammo yumshoq binafsha-ko'k */
-    --accent-light: #8E7CEF;     /* Yorqinroq binafsha-ko'k */
+    --primary-bg-dark: #121A22; /* Undan ham to'qroq */
+    --accent-color: #6C5CE7; /* Yorqin, ammo yumshoq binafsha-ko'k */
+    --accent-light: #8E7CEF; /* Yorqinroq binafcha-ko'k */
     --text-color-light: #F0F4F8; /* Juda och ko'k-kulrang (deyarli oq) */
-    --text-color-dark: #3A4750;  /* To'qroq kulrang, umumiy matn uchun yaramaydi, lekin ba'zi fonlarda ishlatilishi mumkin */
-    /* --text-color-dark ni oldingi holatiga qaytardim, chunki endi uni hoverda kamroq ishlatamiz */
+    --text-color-dark: #3A4750; /* To'qroq kulrang, umumiy matn uchun yaramaydi, lekin ba'zi fonlarda ishlatilishi mumkin */
 
     --hover-text-color: var(--accent-light); /* YANGI O'ZGARUVCHI: Hover uchun yorqinroq rang */
     --glass-bg-color: rgba(255, 255, 255, 0.08); /* Yangi: Biroz shaffofroq */
@@ -15,12 +14,14 @@
     --border-radius: 12px; /* Umumiy yumaloq burchak */
 }
 
+/* Umumiy reset stillari */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Asosiy body stillari */
 body {
     font-family: 'Roboto', sans-serif;
     background: linear-gradient(135deg, var(--primary-bg-light), var(--primary-bg-dark));
@@ -30,6 +31,7 @@ body {
     font-size: 15px;
 }
 
+/* Container stillari */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -54,7 +56,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 8px;
     padding: 7px 11px;
-    color: var(--text-color-light); /* Asosiy matn rangi och rangda qoladi */
+    color: var(--text-color-light);
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
@@ -69,7 +71,7 @@ body {
     background: rgba(255, 255, 255, 0.25);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     transform: translateY(-2px);
-    color: var(--text-color-light); /* Tugma matni hoverda oq qolsin (foni o'zgaradi) */
+    color: var(--text-color-light);
 }
 
 .glassmorphism-input {
@@ -127,7 +129,7 @@ body {
 }
 
 .logo:hover {
-    color: var(--hover-text-color); /* YANGILANDI: Header matni uchun ochiqroq rang */
+    color: var(--hover-text-color);
 }
 
 .search-bar {
@@ -164,7 +166,7 @@ body {
 }
 
 .main-nav a:hover {
-    color: var(--hover-text-color); /* YANGILANDI: Header matni uchun ochiqroq rang */
+    color: var(--hover-text-color);
 }
 
 /* Dropdown menu */
@@ -197,7 +199,7 @@ body {
 
 .dropdown-content a:hover {
     background-color: rgba(255, 255, 255, 0.15);
-    color: var(--hover-text-color); /* YANGILANDI: Dropdown matni uchun ochiqroq rang */
+    color: var(--hover-text-color);
 }
 
 .dropdown:hover .dropdown-content {
@@ -217,9 +219,8 @@ body {
 }
 
 .user-actions .glassmorphism-button:hover {
-    color: var(--text-color-light); /* Tugma matni hoverda oq qolsin (foni o'zgaradi) */
+    color: var(--text-color-light);
 }
-
 
 .user-actions .cart-count {
     background-color: var(--accent-light);
@@ -233,40 +234,7 @@ body {
     color: #fff;
 }
 
-/* D:\zamon-books-frontend\src\index.css */
-
-/* ... Mavjud stillar ... */
-
-/* Kitob batafsil sahifasidagi rasm uchun stil */
-.book-detail-image {
-    max-width: 300px;
-    height: auto;
-    display: block;
-    margin: 0 auto 30px auto;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    object-fit: cover;
-}
-
-/* Kichik ekranlar (mobil) uchun responsivlik */
-@media (max-width: 768px) {
-    .book-detail-image {
-        max-width: 200px;
-        margin-bottom: 20px;
-    }
-}
-
-@media (max-width: 480px) {
-    .book-detail-card {
-        flex-direction: column;
-        align-items: center;
-    }
-    .book-detail-image {
-        margin: 0 auto 20px auto;
-    }
-}
-
-/* src/index.css ga qo'shish */
+/* Admin Dashboard styles */
 .admin-dashboard {
     display: flex;
     flex-direction: column;
@@ -309,7 +277,7 @@ body {
 .admin-header nav ul li a:hover,
 .admin-header nav ul li button:hover {
     background-color: #555;
-    color: var(--text-color-light); /* Admin paneli linklari/tugmalari uchun oq rang yaxshi */
+    color: var(--text-color-light);
 }
 
 .logout-button {
@@ -413,14 +381,12 @@ body {
     z-index: 2;
 }
 
-/* Yangi stil sarlavha uchun */
 .hero-title-small {
     font-size: 2em;
     margin-bottom: 3px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Yangi stil sub-sarlavha uchun */
 .hero-subtitle-small {
     font-size: 1em;
     line-height: 1.4;
@@ -433,7 +399,7 @@ body {
     font-weight: 700;
     background: var(--accent-color);
     border: 1px solid var(--accent-light);
-    color: #fff; /* Tugma matni oq qolsin */
+    color: #fff;
     border-radius: 8px;
     transition: all 0.3s ease;
     text-decoration: none;
@@ -443,9 +409,8 @@ body {
     background: var(--accent-light);
     box-shadow: 0 6px 20px rgba(0,0,0,0.4);
     transform: translateY(-2px);
-    color: #fff; /* Tugma matni hoverda ham oq qolsin */
+    color: #fff;
 }
-
 
 /* Section Titles */
 .section-title {
@@ -474,21 +439,33 @@ body {
     color: var(--text-color-light);
     text-decoration: none;
     transition: transform 0.3s ease, color 0.3s ease;
+    /* height: 100%; */ /* Bu endi pastga siljishga xalaqit berishi mumkin */
+    /* justify-content: space-between; */ /* Bu ham endi kerak emas */
 }
 
 .book-card:hover {
     transform: translateY(-5px);
-    color: var(--hover-text-color); /* YANGILANDI: Card ichidagi matn uchun ochiqroq rang */
+    color: var(--hover-text-color);
 }
 
-
 .book-card img {
-    width: 130px;
-    height: 180px;
+    width: 130px; /* Home sahifasidagi kitob kartalari uchun o'lcham */
+    height: 180px; /* Home sahifasidagi kitob kartalari uchun o'lcham */
     object-fit: cover;
     border-radius: 8px;
     margin-bottom: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0; /* Rasm o'lchamini kichraytirmaslik uchun */
+}
+
+.book-info {
+    flex-grow: 1; /* Bu blok mavjud bo'sh joyni egallasin */
+    display: flex; /* Ichidagi elementlarni boshqarish uchun */
+    flex-direction: column; /* Ichidagi elementlarni vertikal joylashtirish */
+    justify-content: flex-start; /* Yuqoridan boshlash */
+    align-items: center; /* Matnlarni markazga tekislash */
+    width: 100%; /* To'liq kenglikni egallasin */
+    margin-bottom: 10px; /* Narx va tugmadan oldingi bo'shliq */
 }
 
 .book-info h3 {
@@ -497,23 +474,43 @@ body {
     margin-bottom: 3px;
     color: var(--text-color-light);
     transition: color 0.3s ease;
+    /* Sarlavha qatorlari sonini cheklash va balandlikni bir xil ushlab turish */
+    min-height: 2.2em; /* Taxminan 2 qator sarlavha uchun */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 2 qatordan keyin ... qo'yish */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .book-card:hover .book-info h3 {
-    color: var(--hover-text-color); /* YANGILANDI: Card ichidagi sarlavha uchun ochiqroq rang */
+    color: var(--hover-text-color);
 }
 
 .book-info .author, .book-info .genre {
     font-size: 0.8em;
     color: rgba(255, 255, 255, 0.7);
     margin-bottom: 3px;
+    min-height: 1.5em; /* Muallif va janr uchun minimal balandlik (1-2 qator) */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .book-info .price {
     font-size: 1em;
     font-weight: 700;
     color: var(--accent-light);
-    margin-bottom: 10px;
+    /* Narxni tugmadan oldin joylashtiramiz */
+    margin-top: auto; /* book-info ichidagi mavjud bo'sh joyni egallaydi */
+    margin-bottom: 5px; /* Narx va tugma orasidagi bo'shliq */
+    min-height: 1.5em; /* Narx uchun minimal balandlik */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* O'zgarishga majbur bo'lmasin */
 }
 
 .add-to-cart {
@@ -521,6 +518,8 @@ body {
     justify-content: center;
     padding: 7px 9px;
     font-size: 0.85em;
+    margin-top: 0; /* Narxdan keyin darhol joylashadi */
+    flex-shrink: 0; /* O'zgarishga majbur bo'lmasin */
 }
 
 /* Genres Section */
@@ -545,7 +544,7 @@ body {
 
 .genre-card:hover {
     transform: translateY(-5px);
-    color: var(--hover-text-color); /* YANGILANDI: Card ichidagi matn uchun ochiqroq rang */
+    color: var(--hover-text-color);
 }
 
 .genre-card .genre-bg {
@@ -579,9 +578,8 @@ body {
 }
 
 .genre-card:hover .genre-name {
-    color: var(--hover-text-color); /* YANGILANDI: Card ichidagi janr nomi uchun ochiqroq rang */
+    color: var(--hover-text-color);
 }
-
 
 /* Footer */
 .glassmorphism-footer {
@@ -633,7 +631,7 @@ body {
 }
 
 .footer-col ul li a:hover {
-    color: var(--hover-text-color); /* YANGILANDI: Footer matni uchun ochiqroq rang */
+    color: var(--hover-text-color);
 }
 
 .social-icons {
@@ -658,9 +656,8 @@ body {
 
 .social-icons a:hover {
     background-color: var(--accent-color);
-    color: var(--hover-text-color); /* YANGILANDI: Social ikonka matni uchun ochiqroq rang */
+    color: var(--hover-text-color);
 }
-
 
 .copyright {
     text-align: center;
@@ -671,6 +668,17 @@ body {
     color: rgba(255, 255, 255, 0.6);
 }
 
+/* Kitob batafsil sahifasidagi rasm uchun stil */
+.book-detail-image {
+    width: 300px; /* Qat'iy kenglik */
+    height: 450px; /* Qat'iy balandlik (2:3 nisbatda) */
+    object-fit: cover; /* Bu juda muhim! Rasmni berilgan o'lchamga sig'dirish uchun uni kesadi, lekin cho'zmaydi va nisbatini saqlaydi. */
+    display: block; /* margin: auto ishlashi uchun */
+    margin: 0 auto 30px auto; /* Markazga tekislash va pastdan masofa */
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    flex-shrink: 0; /* Flex konteynerda o'lchamini o'zgartirmasligi uchun */
+}
 
 /* Responsivlik (Mobilga moslashish) */
 @media (max-width: 992px) {
@@ -729,6 +737,7 @@ body {
     .book-card img {
         width: 100px;
         height: 150px;
+        flex-shrink: 0;
     }
 
     .genre-card {
@@ -754,6 +763,18 @@ body {
 }
 
 @media (max-width: 768px) {
+    .book-detail-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .book-detail-image {
+        width: 200px;
+        height: 300px;
+        margin-bottom: 20px;
+    }
+
     .hero-card {
         padding: 20px 30px;
     }
@@ -761,7 +782,7 @@ body {
         font-size: 1.6em;
     }
     .hero-card p {
-        font-size: 0.8em;
+        font-size: 0.9em;
     }
     .cta-button {
         padding: 8px 18px;
@@ -791,6 +812,18 @@ body {
     .hero-card p {
         font-size: 0.7em;
     }
+    
+    .book-detail-card {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .book-detail-image {
+        width: 150px;
+        height: 225px;
+        margin: 0 auto 20px auto;
+    }
+
     .book-grid, .genre-grid {
         grid-template-columns: 1fr;
         gap: 12px;
@@ -799,19 +832,43 @@ body {
         flex-direction: row;
         text-align: left;
         padding: 12px;
+        align-items: flex-start;
     }
     .book-card img {
         margin-right: 8px;
         margin-bottom: 0;
         width: 90px;
         height: 130px;
+        flex-shrink: 0;
     }
     .book-info {
         flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between; /* Bu yerda bu kerak bo'lishi mumkin */
+        align-items: flex-start;
+    }
+    .book-info h3 {
+        min-height: auto;
+        -webkit-line-clamp: unset;
+        white-space: normal;
+    }
+    .book-info .author, .book-info .genre {
+        min-height: auto;
+        -webkit-line-clamp: unset;
+        white-space: normal;
+    }
+    .book-info .price {
+        margin-top: 0; /* Tugmaga yaqin bo'lishi uchun */
+        margin-bottom: 5px; /* Narx bilan tugma orasidagi bo'shliq */
+        justify-content: flex-start;
+        flex-shrink: 0;
     }
     .add-to-cart {
-        margin-top: 6px;
+        margin-top: auto; /* Mobil ko'rinishda tugma pastga tushadi */
         font-size: 0.8em;
+        width: auto;
+        align-self: flex-start;
     }
     .footer-col ul {
         list-style: none;

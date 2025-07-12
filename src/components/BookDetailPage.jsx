@@ -105,9 +105,9 @@ function BookDetailPage() {
                 const response = await databases.getDocument(
                     DATABASE_ID,
                     BOOKS_COLLECTION_ID,
-                    bookId,
+                    bookId, // bookId ni URL dan olamiz
                     [
-                        Query.select(['*', 'author', 'genres']),
+                        Query.select(['*', 'author', 'genres']), // 'genres' munosabatini olamiz
                     ]
                 );
                 setBook(response);
@@ -134,14 +134,25 @@ function BookDetailPage() {
         return <div className="container" style={{ textAlign: 'center', padding: '50px', minHeight: 'calc(100vh - 200px)' }}>Kitob topilmadi.</div>;
     }
 
+    // --- Cloudinary transformatsiya URL'ini hosil qilish logikasi ---
+    // Bu funksiya siz bergan https://res.cloudinary.com/dcn4maral/image/upload/v1752309073/hidoyat_Allohdandir_kwle5m.jpg
+    // kabi linklarni to'g'ri formatga o'tkazadi
+    const transformedImageUrl = book.imageUrl
+        ? book.imageUrl.replace(
+            "/upload/", // Cloudinary URL'larida har doim mavjud bo'lgan qism
+            "/upload/w_300,h_450,c_fill,g_auto,q_auto,f_auto/" // <-- Transformatsiya parametrlari shu yerga qo'yiladi
+          )
+        : 'https://placehold.co/300x450/3A4750/F0F4F8?text=NO+IMAGE'; // Agar URL bo'lmasa, placeholder rasm
+
     return (
         <main className="container" style={{ padding: '40px 20px', minHeight: 'calc(100vh - 200px)' }}>
             {/* Bu komponent faqat o'zining kontentini render qilishi kerak. Header va Footer MainLayout tomonidan ta'minlanadi. */}
-            <div className="book-detail-card glassmorphism-card" style={{ display: 'flex', gap: '30px', padding: '30px', flexWrap: 'wrap' }}>
+            <div className="book-detail-card glassmorphism-card" style={{ display: 'flex', gap: '30px', padding: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
                 <img
-                    src={book.imageUrl}
+                    src={transformedImageUrl} // <-- Endi transformatsiya qilingan URL ishlatiladi
                     alt={book.title}
-                    className="book-detail-image"
+                    className="book-detail-image" // Bu klassga CSS qo'shilgan
+                    // style={{ minWidth: '300px', height: '450px', objectFit: 'cover' }} // Inline style'lar CSS faylidan yuklangani afzal
                 />
                 <div className="book-detail-info" style={{ flex: 1, minWidth: '300px' }}>
                     <h1 style={{ fontFamily: 'Montserrat', fontSize: '2.5em', marginBottom: '15px', color: 'var(--text-color-light)' }}>{book.title}</h1>
@@ -152,7 +163,7 @@ function BookDetailPage() {
                         <p style={{ fontSize: '1.1em', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '15px' }}>Janrlar: {book.genres.map(g => g.name).join(', ')}</p>
                     )}
                     <p style={{ fontSize: '1.1em', color: 'var(--text-color-light)', marginBottom: '20px' }}>
-                        **Tavsif:** {book.description || 'Bu kitob haqida tavsif mavjud emas.'}
+                        Tavsif: {book.description || 'Bu kitob haqida tavsif mavjud emas.'}
                     </p>
                     <p style={{ fontSize: '1.8em', fontWeight: '700', color: 'var(--accent-light)', marginBottom: '25px' }}>
                         Narxi: {parseFloat(book.price).toFixed(2)} so'm

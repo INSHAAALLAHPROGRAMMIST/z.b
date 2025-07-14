@@ -1,3 +1,8 @@
+*,*::after,*::before{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 /* Custom CSS Variables - DEFAULT: Dark Mode */
 :root {
     /* Primary Color: Used for main interactive elements like links and active states. */
@@ -32,7 +37,13 @@
     --neo-button-shadow: 4px 4px 8px var(--neo-shadow-dark), -4px -4px 8px var(--neo-shadow-light); /* Complex shadow for depth */
     --neo-inner-shadow: inset 2px 2px 5px var(--neo-shadow-dark), inset -3px -3px 7px var(--neo-shadow-light); /* Inner shadow for embossed effect */
 }
-
+#root{
+    overflow:hidden ;
+}
+#genre-dropdown{
+    background: rgba(26,26,46,0.7);
+    
+}
 /* Light Mode Variables: Overrides for light theme, typically activated by a 'light-mode' class on the body. */
 body.light-mode {
     /* Primary Color: Often a standard blue for links/actions. */
@@ -180,6 +191,8 @@ a:hover {
     top: 0;
     z-index: 1000; /* Ensures header is above other content. */
     transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+    position: fixed;
+    width: 100%;
 }
 
 .glassmorphism-header .container {
@@ -527,7 +540,8 @@ section {
     margin-bottom: 40px;
     color: var(--neo-text);
     position: relative;
-    padding-bottom: 10px;
+    padding: 10px;
+    padding-top: 2rem;
     transition: color 0.5s ease;
 }
 
@@ -600,9 +614,6 @@ section {
     color: var(--neo-text);
     min-height: 2.4em; /* Ikki qatorli sarlavha uchun (For two-line heading) */
     max-height: 2.4em; /* Qat'iy ikki qator (Strictly two lines) */
-    display: -webkit-box;
-    -webkit-line-clamp: 2; /* Ikki qatorga cheklash (Limit to two lines) */
-    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     transition: color 0.5s ease;
@@ -766,7 +777,7 @@ body.light-mode .genre-card.glassmorphism-card {
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 957px) {
     .glassmorphism-header .container {
         flex-wrap: wrap; /* Allows items to wrap to the next line. */
         justify-content: space-between;
@@ -1116,7 +1127,7 @@ html, body {
     transform: rotate(90deg); /* Kichik animatsiya (Small animation) */
 }
 
-@media (max-width: 768px) {
+@media (max-width: 957px) {
     /* Agar close-menu-button menyuning ichida bo'lsa va menyu active bo'lsa ko'rsatish (Show close-menu-button if it's inside the menu and the menu is active) */
     .glassmorphism-header .main-nav.active .close-menu-button {
         display: block;

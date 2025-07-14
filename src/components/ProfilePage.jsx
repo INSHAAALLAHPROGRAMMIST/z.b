@@ -33,7 +33,7 @@ const ProfilePage = () => {
             console.log("Muvaffaqiyatli tizimdan chiqdingiz!");
             navigate('/auth'); // Kirish sahifasiga yo'naltirish
             // Savat hisobini yangilash uchun global event yuborish
-            window.dispatchEvent(new CustomEvent('cartUpdated')); 
+            window.dispatchEvent(new CustomEvent('cartUpdated'));
         } catch (err) {
             console.error("Tizimdan chiqishda xato:", err);
             setError("Tizimdan chiqishda xato yuz berdi.");

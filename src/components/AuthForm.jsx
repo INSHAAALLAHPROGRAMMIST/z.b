@@ -23,6 +23,8 @@ const AuthForm = ({ onSuccess }) => {
             if (isLogin) {
                 // Tizimga kirish
                 await account.createEmailPasswordSession(email, password);
+                const loggedInUser = await account.get();
+                console.log(loggedInUser);
                 console.log('Muvaffaqiyatli kirdingiz!');
             } else {
                 // Ro'yxatdan o'tish

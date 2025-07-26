@@ -5,16 +5,15 @@ import '../index.css'; // Global CSS faylingiz
 // --- Appwrite konsolidan olingan ID'lar ---
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
-const AUTHORS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_AUTHORS_ID;
 const GENRES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_GENRES_ID;
 const CART_ITEMS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_CART_ITEMS_ID;
-const USERS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_USERS_ID;
 
 const HomePage = () => {
     const [books, setBooks] = useState([]);
     const [genres, setGenres] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [cartItems, setCartItems] = useState([]); // Savatdagi kitoblar
 
     const addToCart = async (bookToAdd) => {
         try {
@@ -27,12 +26,14 @@ const HomePage = () => {
                 localStorage.setItem('appwriteGuestId', currentUserId);
             }
 
+
+
             const existingCartItems = await databases.listDocuments(
                 DATABASE_ID,
                 CART_ITEMS_COLLECTION_ID,
                 [
-                    Query.equal('users', currentUserId),
-                    Query.equal('books', bookToAdd.$id)
+                    Query.equal('userId', currentUserId),
+                    Query.equal('bookId', bookToAdd.$id)
                 ]
             );
 
@@ -47,23 +48,26 @@ const HomePage = () => {
                         quantity: newQuantity
                     }
                 );
-                console.log(`Kitob miqdori oshirildi: ${bookToAdd.title}, Yangi miqdor: ${newQuantity}`);
+
             } else {
                 await databases.createDocument(
                     DATABASE_ID,
                     CART_ITEMS_COLLECTION_ID,
                     ID.unique(),
                     {
-                        users: currentUserId,
-                        books: bookToAdd.$id,
+                        userId: currentUserId,
+                        bookId: bookToAdd.$id,
                         quantity: 1,
                         priceAtTimeOfAdd: parseFloat(bookToAdd.price)
                     }
                 );
-                console.log(`Kitob savatga qo'shildi: ${bookToAdd.title}`);
+
             }
             alert(`${bookToAdd.title} savatga qo'shildi!`);
             window.dispatchEvent(new CustomEvent('cartUpdated'));
+            
+            // Cart items'ni yangilash
+            fetchCartItems();
 
         }
         catch (err) {
@@ -80,6 +84,14 @@ const HomePage = () => {
                     BOOKS_COLLECTION_ID,
                     [Query.limit(8), Query.select(['*', 'author', 'genres'])]
                 );
+                
+                // Debug: HomePage'da qanday ma'lumotlar kelayotganini ko'rish
+                if (booksResponse.documents.length > 0) {
+                    console.log('HomePage - Kitob ma\'lumotlari:', booksResponse.documents[0]);
+                    console.log('HomePage - Author:', booksResponse.documents[0].author);
+                    console.log('HomePage - Genres:', booksResponse.documents[0].genres);
+                }
+                
                 setBooks(booksResponse.documents);
 
                 const genresResponse = await databases.listDocuments(
@@ -98,7 +110,113 @@ const HomePage = () => {
         };
 
         fetchBooksAndGenres();
+        fetchCartItems();
     }, []);
+
+    // Savatdagi kitoblarni yuklash
+    const fetchCartItems = async () => {
+        try {
+            const currentUser = await account.get().catch(() => null);
+            let currentUserId = currentUser ? currentUser.$id : localStorage.getItem('appwriteGuestId');
+
+            if (!currentUserId) {
+                return;
+            }
+
+            const response = await databases.listDocuments(
+                DATABASE_ID,
+                CART_ITEMS_COLLECTION_ID,
+                [
+                    Query.equal('userId', currentUserId)
+                ]
+            );
+            
+            setCartItems(response.documents);
+        } catch (err) {
+            console.error("Savat elementlarini yuklashda xato:", err);
+        }
+    };
+
+    // Kitobning savatdagi miqdorini olish
+    const getBookQuantityInCart = (bookId) => {
+        const cartItem = cartItems.find(item => item.bookId === bookId);
+        const quantity = cartItem ? cartItem.quantity : 0;
+        return quantity;
+    };
+
+    // Savatdagi kitob miqdorini yangilash
+    const updateBookQuantityInCart = async (bookId, newQuantity) => {
+        try {
+            const currentUser = await account.get().catch(() => null);
+            let currentUserId = currentUser ? currentUser.$id : localStorage.getItem('appwriteGuestId');
+
+            if (!currentUserId) {
+                currentUserId = ID.unique();
+                localStorage.setItem('appwriteGuestId', currentUserId);
+            }
+
+            const cartItem = cartItems.find(item => item.bookId === bookId);
+
+            if (cartItem) {
+                if (newQuantity <= 0) {
+                    // Kitobni savatdan o'chirish
+                    await databases.deleteDocument(
+                        DATABASE_ID,
+                        CART_ITEMS_COLLECTION_ID,
+                        cartItem.$id
+                    );
+                } else {
+                    // Hujjatni o'chirib, yangisini yaratish (workaround)
+                    await databases.deleteDocument(
+                        DATABASE_ID,
+                        CART_ITEMS_COLLECTION_ID,
+                        cartItem.$id
+                    );
+                    
+                    // Yangi hujjat yaratish
+                    const book = books.find(b => b.$id === bookId);
+                    if (book) {
+                        await databases.createDocument(
+                            DATABASE_ID,
+                            CART_ITEMS_COLLECTION_ID,
+                            ID.unique(),
+                            {
+                                userId: currentUserId,
+                                bookId: bookId,
+                                quantity: newQuantity,
+                                priceAtTimeOfAdd: cartItem.priceAtTimeOfAdd || parseFloat(book.price)
+                            }
+                        );
+                    }
+                }
+            } else if (newQuantity > 0) {
+                // Yangi cart item yaratish (agar kitob savatda bo'lmasa va + bosilsa)
+                const book = books.find(b => b.$id === bookId);
+                if (book) {
+                    await databases.createDocument(
+                        DATABASE_ID,
+                        CART_ITEMS_COLLECTION_ID,
+                        ID.unique(),
+                        {
+                            userId: currentUserId,
+                            bookId: bookId,
+                            quantity: newQuantity,
+                            priceAtTimeOfAdd: parseFloat(book.price)
+                        }
+                    );
+                }
+            }
+            
+            // Local state'ni yangilash
+            setTimeout(() => {
+                fetchCartItems();
+                window.dispatchEvent(new CustomEvent('cartUpdated'));
+            }, 100); // 100ms kechikish
+        } catch (err) {
+            console.error("Savat miqdorini yangilashda xato:", err);
+            alert("Miqdorni yangilashda xato yuz berdi.");
+        }
+    };
 
     if (loading) {
         return <div className="container" style={{ textAlign: 'center', padding: '50px', minHeight: 'calc(100vh - 200px)' }}>Yuklanmoqda...</div>;
@@ -128,16 +246,72 @@ const HomePage = () => {
                                 {book.author && book.author.name && <p className="author">{book.author.name}</p>}
                                 {book.genres && book.genres.length > 0 && <p className="genre">{book.genres[0].name}</p>}
                                 <p className="price">{parseFloat(book.price).toFixed(2)} so'm</p>
-                                <button
-                                    className="add-to-cart glassmorphism-button"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        addToCart(book);
-                                    }}
-                                >
-                                    <i className="fas fa-shopping-cart"></i> Savatga qo'shish
-                                </button>
+                                
+                                {getBookQuantityInCart(book.$id) === 0 ? (
+                                    <button
+                                        className="add-to-cart glassmorphism-button"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            addToCart(book);
+                                        }}
+                                    >
+                                        <i className="fas fa-shopping-cart"></i> Savatga qo'shish
+                                    </button>
+                                ) : (
+                                    <div className="quantity-controls" style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '10px',
+                                        marginTop: '10px'
+                                    }}>
+                                        <button
+                                            className="glassmorphism-button"
+                                            style={{ 
+                                                width: '35px', 
+                                                height: '35px', 
+                                                padding: '0',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                updateBookQuantityInCart(book.$id, getBookQuantityInCart(book.$id) - 1);
+                                            }}
+                                        >
+                                            -
+                                        </button>
+                                        <span style={{ 
+                                            fontSize: '1.1rem', 
+                                            fontWeight: 'bold', 
+                                            minWidth: '30px', 
+                                            textAlign: 'center' 
+                                        }}>
+                                            {getBookQuantityInCart(book.$id)}
+                                        </span>
+                                        <button
+                                            className="glassmorphism-button"
+                                            style={{ 
+                                                width: '35px', 
+                                                height: '35px', 
+                                                padding: '0',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                updateBookQuantityInCart(book.$id, getBookQuantityInCart(book.$id) + 1);
+                                            }}
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </Link>
                     ))}

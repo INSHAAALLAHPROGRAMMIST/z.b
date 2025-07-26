@@ -1,0 +1,380 @@
+/* Admin Dashboard Styles */
+
+.admin-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* === WELCOME SECTION === */
+.dashboard-welcome {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 16px;
+    padding: 32px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-welcome::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(50%, -50%);
+}
+
+.welcome-content h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-content p {
+    font-size: 1.1rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.welcome-actions .btn-primary {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.welcome-actions .btn-primary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* === STATS GRID === */
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.admin-stat-card {
+    background: linear-gradient(135deg, var(--neo-element-bg), rgba(var(--neo-background-rgb), 0.8));
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.08),
+        0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(var(--glass-border-rgb, 255, 255, 255), 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+        0 8px 30px rgba(0, 0, 0, 0.12),
+        0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.admin-stat-card:hover::before {
+    opacity: 1;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.books-icon {
+    background-color: rgba(106, 138, 255, 0.2);
+    color: var(--primary-color);
+}
+
+.orders-icon {
+    background-color: rgba(139, 255, 106, 0.2);
+    color: var(--accent-color);
+}
+
+.users-icon {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.revenue-icon {
+    background-color: rgba(233, 69, 96, 0.2);
+    color: var(--neo-accent);
+}
+
+.stat-details {
+    flex: 1;
+}
+
+.stat-details h3 {
+    font-size: 0.9rem;
+    margin: 0 0 5px;
+    color: var(--light-text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+    color: var(--neo-text);
+}
+
+.stat-trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    font-weight: 500;
+}
+
+.stat-trend i {
+    font-size: 0.7rem;
+}
+
+.stat-trend.negative {
+    color: #dc3545;
+}
+
+.stat-trend.negative i {
+    transform: rotate(180deg);
+}
+
+/* === DASHBOARD GRID === */
+.admin-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+.admin-card {
+    background-color: var(--neo-element-bg);
+    border-radius: 10px;
+    box-shadow: var(--neo-button-shadow);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(var(--neo-background-rgb), 0.1);
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--neo-text);
+}
+
+.view-all-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.view-all-btn:hover {
+    text-decoration: underline;
+}
+
+.card-content {
+    padding: 20px;
+}
+
+/* === RECENT ACTIVITY === */
+.recent-activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 1rem;
+}
+
+.activity-icon.book {
+    background-color: rgba(106, 138, 255, 0.2);
+    color: var(--primary-color);
+}
+
+.activity-icon.order {
+    background-color: rgba(139, 255, 106, 0.2);
+    color: var(--accent-color);
+}
+
+.activity-icon.user {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.activity-details {
+    flex: 1;
+}
+
+.activity-title {
+    font-weight: 500;
+    color: var(--neo-text);
+    margin: 0 0 4px;
+    font-size: 0.95rem;
+}
+
+.activity-time {
+    font-size: 0.8rem;
+    color: var(--light-text-color);
+    margin: 0;
+}
+
+/* === TOP SELLING === */
+.top-selling-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.top-selling-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.top-selling-item:last-child {
+    border-bottom: none;
+}
+
+.rank {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 15px;
+    font-size: 0.9rem;
+}
+
+.book-info {
+    flex: 1;
+}
+
+.book-info h4 {
+    margin: 0 0 5px;
+    font-size: 1rem;
+    color: var(--neo-text);
+}
+
+.book-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--light-text-color);
+}
+
+.book-price {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* === MOBILE === */
+@media (max-width: 992px) {
+    .admin-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-stat-card {
+        padding: 15px;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .card-content {
+        padding: 15px;
+    }
+}
+
+/* === LIGHT MODE === */
+body.light-mode .admin-stat-card,
+body.light-mode .admin-card {
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .card-header {
+    background-color: #f8f9fa;
+}

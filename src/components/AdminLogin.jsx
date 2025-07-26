@@ -1,52 +1,124 @@
-// src/components/AdminLogin.jsx
-import React, { useState } from 'react';
-import { account } from '../appwriteConfig'; // account servisni import qilish
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { account } from '../appwriteConfig';
+import { loginAndSync } from '../utils/userSync';
 import '../index.css';
+import '../styles/admin.css';
 
 function AdminLogin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
+    useEffect(() => {
+        // Check if user is already logged in
+        const checkUser = async () => {
+            try {
+                const currentUser = await account.get();
+                if (currentUser) {
+                    navigate('/admin-dashboard');
+                }
+            } catch (err) {
+                // User is not logged in, stay on login page
+                console.log("Foydalanuvchi tizimga kirmagan");
+            }
+        };
+        
+        checkUser();
+    }, [navigate]);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
+        setLoading(true);
+        setError(null);
+        
         try {
-            await account.createEmailPasswordSession(email, password);
-            console.log("Admin kirishi muvaffaqiyatli!");
-            navigate('/admin-dashboard'); // Muvaffaqiyatli kirishdan so'ng admin paneliga yo'naltirish
+            // Login va sync
+            const loginResult = await loginAndSync(email, password);
+            
+            // Admin role tekshirish
+            if (loginResult.dbUser.role === 'admin' || loginResult.dbUser.role === 'editor') {
+                console.log('Admin login muvaffaqiyatli:', loginResult.dbUser);
+                navigate('/admin-dashboard');
+            } else {
+                setError("Sizda admin huquqlari yo'q. Iltimos, administrator bilan bog'laning.");
+                // Logout qilish
+                await account.deleteSession('current');
+            }
+            
         } catch (err) {
-            console.error("Admin kirishda xato:", err);
-            setError("Login yoki parol noto'g'ri. Iltimos, qayta urinib ko'ring.");
+            console.error("Tizimga kirishda xato:", err);
+            setError("Email yoki parol noto'g'ri. Iltimos, qayta urinib ko'ring.");
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="container" style={{ padding: '50px 20px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 150px)' }}>
-            <div className="glassmorphism-card" style={{ padding: '30px', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
-                <h2 style={{ color: 'var(--text-color-light)', marginBottom: '25px', fontFamily: 'Montserrat' }}>Admin Kirish</h2>
-                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        className="glassmorphism-input"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
+        <div className="admin-login-container">
+            <div className="admin-login-card">
+                <div className="admin-login-header">
+                    <img 
+                        src="https://res.cloudinary.com/dcn4maral/image/upload/v1752356041/favicon_maovuy.svg" 
+                        alt="Zamon Books Logo" 
+                        className="admin-login-logo"
                     />
-                    <input
-                        type="password"
-                        placeholder="Parol"
-                        className="glassmorphism-input"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                    {error && <p style={{ color: '#dc3545', fontSize: '0.9em' }}>{error}</p>}
-                    <button type="submit" className="cta-button glassmorphism-button" style={{ marginTop: '15px' }}>Kirish</button>
+                    <h1>Zamon Books Admin</h1>
+                </div>
+                
+                {error && (
+                    <div className="admin-error">
+                        <i className="fas fa-exclamation-circle"></i> {error}
+                    </div>
+                )}
+                
+                <form onSubmit={handleSubmit} className="admin-login-form">
+                    <div className="form-group">
+                        <label htmlFor="email">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            placeholder="Email manzilingizni kiriting"
+                        />
+                    </div>
+                    
+                    <div className="form-group">
+                        <label htmlFor="password">Parol</label>
+                        <input
+                            type="password"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            placeholder="Parolingizni kiriting"
+                        />
+                    </div>
+                    
+                    <button 
+                        type="submit" 
+                        className="admin-login-btn"
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <>
+                                <i className="fas fa-spinner fa-spin"></i> Kirish...
+                            </>
+                        ) : (
+                            <>
+                                <i className="fas fa-sign-in-alt"></i> Tizimga kirish
+                            </>
+                        )}
+                    </button>
                 </form>
+                
+                <div className="admin-login-footer">
+                    <p>&copy; {new Date().getFullYear()} Zamon Books. Barcha huquqlar himoyalangan.</p>
+                </div>
             </div>
         </div>
     );

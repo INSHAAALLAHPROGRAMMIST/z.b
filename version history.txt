@@ -1,0 +1,63 @@
+Zamon Books - Kitob Do'koni Ilovasi
+Versiya 2.0.0
+
+Ilova tavsifi
+Zamon Books - zamonaviy kitob do'koni ilovasi bo'lib, foydalanuvchilarga kitoblarni ko'rish, qidirish va sotib olish imkoniyatini beradi. Ilova o'zbek tilidagi lotin va kiril alifbolarini qo'llab-quvvatlaydi va foydalanuvchi tajribasini yaxshilash uchun ko'plab qulayliklarni taqdim etadi.
+
+Asosiy funksiyalar
+📚 Kitoblar katalogi
+Eng so'nggi kitoblar ko'rsatilgan bosh sahifa
+Kitoblarni janrlar bo'yicha ko'rish imkoniyati
+Har bir kitob uchun batafsil ma'lumot sahifasi
+Kitob rasmi, nomi, muallifi, narxi va tavsifi ko'rsatilgan
+🔍 Kuchli qidiruv tizimi
+Kitob nomi, muallif, janr va tavsif bo'yicha qidirish
+Lotin va kiril alifbolarida qidirish (avtomatik transliteratsiya)
+Turli xil tutuq belgisi variantlari (', `, ') bilan qidirish
+"x" va "h" harflarini almashtirgan holda qidirish
+Tezkor va aniq natijalar
+🛒 Savat va xarid qilish
+Kitoblarni savatga qo'shish imkoniyati
+Savatdagi kitoblar sonini o'zgartirish
+Savatdan kitoblarni o'chirish
+Umumiy narxni ko'rish
+Xaridni yakunlash funksiyasi
+👤 Foydalanuvchi hisobi
+Ro'yxatdan o'tish va tizimga kirish
+Profil ma'lumotlarini ko'rish va tahrirlash
+Buyurtmalar tarixini ko'rish
+Elektron pochta orqali tasdiqlash
+🌙 Mavzu rejimi
+Tungi va kunduzgi mavzular o'rtasida almashtirish
+Ko'zni qiynamaydigan dizayn
+📱 Mobil moslashuvchanlik
+Barcha ekran o'lchamlari uchun moslashtirilgan dizayn
+Mobil qurilmalarda qulay foydalanish uchun optimallashtirilgan
+👨‍💼 Admin panel
+Kitoblarni boshqarish (qo'shish, tahrirlash, o'chirish)
+Mualliflarni boshqarish
+Janrlarni boshqarish
+Foydalanuvchilarni boshqarish
+Buyurtmalarni boshqarish
+Tizim sozlamalarini o'zgartirish
+Qidiruv va filtrlash imkoniyatlari
+Texnik xususiyatlar
+React.js asosida qurilgan zamonaviy frontend
+Appwrite backend xizmati bilan integratsiya
+Cloudinary xizmati orqali rasm yuklash va boshqarish
+Responsive dizayn barcha qurilmalar uchun
+Glassmorphism va Neo-Brutalism dizayn elementlari
+FontAwesome ikonkalari
+Lotin va kiril alifbolari o'rtasida transliteratsiya
+Tizim talablari
+Zamonaviy veb-brauzer (Chrome, Firefox, Safari, Edge)
+Internet aloqasi
+Xavfsizlik
+Foydalanuvchi ma'lumotlari shifrlangan
+Xavfsiz autentifikatsiya tizimi
+Ruxsatlar asosida boshqariladigan admin panel
+Qo'llab-quvvatlash
+Tez-tez yangilanishlar va yangi funksiyalar
+Foydalanuvchi qo'llanmasi
+Yordam va qo'llab-quvvatlash sahifasi
+Zamon Books - Bilimga intiluvchilar uchun zamonaviy kitob do'koni!

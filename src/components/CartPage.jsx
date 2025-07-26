@@ -9,6 +9,10 @@ const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
 const CART_ITEMS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_CART_ITEMS_ID;
 
+// --- Telegram Bot API konfiguratsiyasi ---
+const TELEGRAM_BOT_TOKEN = "8482187299:AAH8nHFJRnDuQU3J6SybNgbpsp0s4QJQ7WU"; // .env faylidan oling
+const TELEGRAM_CHAT_ID = 1563130566; // Xabar yuboriladigan chat ID
+
 function CartPage() {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -149,7 +153,7 @@ function CartPage() {
     const handleCheckout = async () => {
         try {
             const currentUser = await account.get().catch(() => null);
-
+            
             if (!currentUser) {
                 alert('Buyurtma berish uchun tizimga kirishingiz kerak!');
                 return;
@@ -164,40 +168,33 @@ function CartPage() {
 
             // Orders service'ni import qilish
             const { createOrdersFromCart } = await import('../utils/orderService');
-
+            
             // Cart itemlarni orderga aylantirish
             await createOrdersFromCart(cartItems);
 
             // Cart'ni tozalash
             setCartItems([]);
-
+            
             // Global cart count'ni yangilash
             window.dispatchEvent(new CustomEvent('cartUpdated'));
+            // Telegram bot orqali xabar yuborish
+            const message = "Salom! Yangi buyurtma qabul qilindi."; // Yuboriladigan xabar
+            const telegramApiUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
 
+            await fetch(telegramApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT_ID,
+                    text: message
+                })
+            });
             // Orders sahifasiga yo'naltirish
             navigate('/orders');
             // ==========================================================
-            const options = {
-                method: 'POST',
-                headers: {
-                    accept: 'application/json',
-                    'User-Agent': 'Telegram Bot SDK - (https://github.com/irazasyed/telegram-bot-sdk)',
-                    'content-type': 'application/json'
-                },
-                body: JSON.stringify({
-                    chat_id: '1563130566', // <--- Add this line
-                    text: 'Required',
-                    parse_mode: 'Optional',
-                    disable_web_page_preview: false,
-                    disable_notification: false,
-                    reply_to_message_id: null
-                })
-            };
             
-            fetch('https://api.telegram.org/8482187299:AAH8nHFJRnDuQU3J6SybNgbpsp0s4QJQ7WU/sendMessage', options)
-                .then(res => res.json())
-                .then(res => console.log(res))
-                .catch(err => console.error(err));
             // ==========================================================
             // Success message
             setTimeout(() => {
@@ -347,8 +344,8 @@ function CartPage() {
                                 <p style={{ fontSize: '1.1rem' }}>Umumiy narx:</p>
                                 <span style={{ fontSize: '1.3rem', fontWeight: 'bold', color: 'var(--accent-light)' }}>{calculateTotal().toLocaleString()} so'm</span>
                             </div>
-                            <button
-                                className="checkout-btn glassmorphism-button"
+                            <button 
+                                className="checkout-btn glassmorphism-button" 
                                 onClick={handleCheckout}
                                 disabled={loading}
                                 style={{

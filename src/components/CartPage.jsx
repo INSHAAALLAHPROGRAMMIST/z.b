@@ -10,8 +10,8 @@ const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
 const CART_ITEMS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_CART_ITEMS_ID;
 
 // --- Telegram Bot API konfiguratsiyasi ---
-const TELEGRAM_BOT_TOKEN = "8482187299:AAH8nHFJRnDuQU3J6SybNgbpsp0s4QJQ7WU"; // .env faylidan oling
-const TELEGRAM_CHAT_ID = 1563130566; // Xabar yuboriladigan chat ID
+const TELEGRAM_BOT_TOKEN = import.meta.env.TELEGRAM_BOT_TOKEN; // .env faylidan oling
+const TELEGRAM_CHAT_ID = import.meta.env.TELEGRAM_CHAT_ID; // Xabar yuboriladigan chat ID
 
 function CartPage() {
     const [cartItems, setCartItems] = useState([]);
@@ -177,8 +177,33 @@ function CartPage() {
             
             // Global cart count'ni yangilash
             window.dispatchEvent(new CustomEvent('cartUpdated'));
-            // Telegram bot orqali xabar yuborish
-            const message = "Salom! Yangi buyurtma qabul qilindi."; // Yuboriladigan xabar
+            
+            // --- Telegram bot orqali xabar yuborish (HTML formatda) ---
+            const totalAmount = calculateTotal().toLocaleString();
+
+            const orderDetails = cartItems.map((item, index) => {
+                const itemTotal = (parseFloat(item.book.price || 0) * item.quantity).toLocaleString();
+                return `<b>${index + 1}. ${item.book.title}</b>\n` +
+                       `  Muallif: ${item.book.author?.name || 'Noma\'lum'}\n` +
+                       `  Narxi: ${parseFloat(item.book.price || 0).toLocaleString()} so'm\n` +
+                       `  Miqdori: ${item.quantity} dona\n` +
+                       `  Jami: ${itemTotal} so'm`;
+            }).join('\n\n'); // Har bir kitob orasida bo'sh qator
+
+            const message = `
+<b>Yangi Buyurtma!</b> 🛒
+-----------------------------------
+<b>Xaridor ma'lumotlari:</b>
+Ism: <b>${currentUser.name || 'Noma\'lum'}</b>
+Email: <code>${currentUser.email}</code>
+ID: <code>${currentUser.$id}</code>
+-----------------------------------
+<b>Buyurtma Tafsilotlari:</b>
+${orderDetails}
+-----------------------------------
+<b>Umumiy Summa:</b> <b style="color: #28a745;">${totalAmount} so'm</b>
+            `;
+
             const telegramApiUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
 
             await fetch(telegramApiUrl, {
@@ -188,9 +213,11 @@ function CartPage() {
                 },
                 body: JSON.stringify({
                     chat_id: TELEGRAM_CHAT_ID,
-                    text: message
+                    text: message,
+                    parse_mode: 'HTML' // Xabarni HTML formatida yuborish
                 })
             });
+            // -
             // Orders sahifasiga yo'naltirish
             navigate('/orders');
             // ==========================================================

@@ -1,0 +1,239 @@
+/* Admin Panel Styles - Modular Import System */
+
+/* Import base styles (always loaded) */
+@import './admin/base.css';
+
+/* Import component-specific styles (loaded on demand) */
+/* These will be imported by specific components */
+
+/* 
+Usage in components:
+- AdminBookManagement.jsx: import '../styles/admin/books.css'
+- AdminPagination.jsx: import '../styles/admin/pagination.css'
+- AdminModal.jsx: import '../styles/admin/modal.css'
+- AdminForm.jsx: import '../styles/admin/forms.css'
+- AdminDashboard.jsx: import '../styles/admin/dashboard.css'
+*/
+
+/* Critical admin styles that are always needed */
+.admin-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Utility classes */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.mb-0 {
+    margin-bottom: 0;
+}
+
+.mb-1 {
+    margin-bottom: 0.25rem;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.mb-5 {
+    margin-bottom: 3rem;
+}
+
+.mt-0 {
+    margin-top: 0;
+}
+
+.mt-1 {
+    margin-top: 0.25rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.mt-4 {
+    margin-top: 1.5rem;
+}
+
+.mt-5 {
+    margin-top: 3rem;
+}
+
+.p-0 {
+    padding: 0;
+}
+
+.p-1 {
+    padding: 0.25rem;
+}
+
+.p-2 {
+    padding: 0.5rem;
+}
+
+.p-3 {
+    padding: 1rem;
+}
+
+.p-4 {
+    padding: 1.5rem;
+}
+
+.p-5 {
+    padding: 3rem;
+}
+
+.d-none {
+    display: none;
+}
+
+.d-block {
+    display: block;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.d-grid {
+    display: grid;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.flex-row {
+    flex-direction: row;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.h-full {
+    height: 100%;
+}
+
+.rounded {
+    border-radius: 0.25rem;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
+}
+
+.rounded-xl {
+    border-radius: 0.75rem;
+}
+
+.shadow {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.transition {
+    transition: all 0.2s ease;
+}
+
+.transition-fast {
+    transition: all 0.15s ease;
+}
+
+.transition-slow {
+    transition: all 0.3s ease;
+}
+
+/* Responsive utilities */
+@media (max-width: 640px) {
+    .sm\:hidden {
+        display: none;
+    }
+
+    .sm\:block {
+        display: block;
+    }
+
+    .sm\:flex {
+        display: flex;
+    }
+}
+
+@media (max-width: 768px) {
+    .md\:hidden {
+        display: none;
+    }
+
+    .md\:block {
+        display: block;
+    }
+
+    .md\:flex {
+        display: flex;
+    }
+}
+
+@media (max-width: 1024px) {
+    .lg\:hidden {
+        display: none;
+    }
+
+    .lg\:block {
+        display: block;
+    }
+
+    .lg\:flex {
+        display: flex;
+    }
+}

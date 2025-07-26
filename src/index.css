@@ -1,224 +1,223 @@
-*,*::after,*::before{
+/* FontAwesome Icons */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+/* Global Reset */
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-/* Custom CSS Variables - DEFAULT: Dark Mode */
+
+/* CSS Variables - Dark Mode (Default) */
 :root {
-    /* Primary Color: Used for main interactive elements like links and active states. */
-    --primary-color: #6a8aff; /* Yorqinroq ko'k (Brighter blue) */
-    /* Secondary Color: Often for less prominent text or borders. */
-    --secondary-color: #a3a3a3; /* Och kulrang (Light gray) */
-    /* Accent Color: For highlights, call-to-action elements, or important information. */
-    --accent-color: #8bff6a; /* Yorqin yashil (Bright green) */
-    /* Text Colors: Define general text and lighter variations for subtle content. */
-    --text-color: #e0e0e0; /* Oqish matn (Whitish text) */
-    --light-text-color: #a0a0a0; /* Och kulrang matn (Light gray text) */
-    /* Basic Colors: Pure white and black. */
-    --white-color: #fff; /* Oq (White) */
-    --black-color: #000; /* Qora (Black) */
+    /* Colors */
+    --primary-color: #6a8aff;
+    --secondary-color: #a3a3a3;
+    --accent-color: #8bff6a;
+    --text-color: #e0e0e0;
+    --light-text-color: #a0a0a0;
+    --white-color: #fff;
+    --black-color: #000;
 
-    /* Dark Glassmorphism Properties: Define styles for frosted glass effect in dark mode. */
-    --glass-bg-light: rgba(255, 255, 255, 0.08); /* juda och fon (very light background) */
-    --glass-bg-dark: rgba(0, 0, 0, 0.4); /* to'q fon (dark background) */
-    --glass-border: rgba(255, 255, 255, 0.1); /* Chegara (Border) */
-    --glass-shadow: rgba(0, 0, 0, 0.3); /* Soya (Shadow) */
-    --hover-effect: rgba(255, 255, 255, 0.15); /* Hover effekti (Hover effect) */
+    /* Glassmorphism - Yangi stil */
+    --glass-bg-color: rgba(255, 255, 255, 0.08);
+    --glass-border-color: rgba(255, 255, 255, 0.15);
+    --glass-shadow-color: rgba(0, 0, 0, 0.25);
+    --glass-bg-light: rgba(255, 255, 255, 0.08);
+    --glass-bg-dark: rgba(0, 0, 0, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --glass-shadow: rgba(0, 0, 0, 0.25);
+    --hover-effect: rgba(255, 255, 255, 0.2);
 
-    /* Neo-Brutalism for Dark Mode: Defines styles for a raw, high-contrast, modern aesthetic. */
-    --neo-background: #1a1a2e; /* To'q ko'k fon (Dark blue background) */
-    --neo-background-rgb: 26, 26, 46; /* YANGI: RGB qiymatlari (NEW: RGB values) - useful for rgba constructions */
-    --neo-shadow-light: #2c2c4d; /* Yorqinroq soya (Lighter shadow) */
-    --neo-shadow-dark: #0f0f1d; /* To'qroq soya (Darker shadow) */
-    --neo-element-bg: #22223b; /* Elementlar foni (Elements background) */
-    --neo-text: #e0e0e0; /* Oqish matn (Whitish text) - Repeats text-color, consider if differentiation is needed. */
-    --neo-accent: #e94560; /* Qizil aksent (Red accent) */
-    --neo-button-bg: linear-gradient(145deg, #2c2c4d, #1a1a2e); /* Gradient for buttons */
-    --neo-button-shadow: 4px 4px 8px var(--neo-shadow-dark), -4px -4px 8px var(--neo-shadow-light); /* Complex shadow for depth */
-    --neo-inner-shadow: inset 2px 2px 5px var(--neo-shadow-dark), inset -3px -3px 7px var(--neo-shadow-light); /* Inner shadow for embossed effect */
+    /* Neo-Brutalism */
+    --neo-background: #1a1a2e;
+    --neo-background-rgb: 26, 26, 46;
+    --neo-shadow-light: #2c2c4d;
+    --neo-shadow-dark: #0f0f1d;
+    --neo-element-bg: #22223b;
+    --neo-text: #e0e0e0;
+    --neo-accent: #e94560;
+    --neo-button-bg: linear-gradient(145deg, #2c2c4d, #1a1a2e);
+    --neo-button-shadow: 4px 4px 8px var(--neo-shadow-dark), -4px -4px 8px var(--neo-shadow-light);
+    --neo-inner-shadow: inset 2px 2px 5px var(--neo-shadow-dark), inset -3px -3px 7px var(--neo-shadow-light);
+
+    /* Common Transitions */
+    --transition-fast: 0.3s ease;
+    --transition-medium: 0.5s ease;
 }
-#root{
-    overflow:hidden ;
+
+#root {
+    overflow: hidden;
 }
-#genre-dropdown{
-    background: rgba(26,26,46,0.7);
-    
+
+#genre-dropdown {
+    background: rgba(26, 26, 46, 0.7);
 }
-/* Light Mode Variables: Overrides for light theme, typically activated by a 'light-mode' class on the body. */
+
+/* Light Mode Variables */
 body.light-mode {
-    /* Primary Color: Often a standard blue for links/actions. */
-    --primary-color: #007bff; /* Moviy (Blue) */
-    /* Secondary Color: Neutral gray. */
-    --secondary-color: #6c757d; /* Kulrang (Gray) */
-    /* Accent Color: Standard green for success/highlight. */
-    --accent-color: #28a745; /* Yashil (Green) */
-    /* Text Colors: Darker for contrast on light backgrounds. */
-    --text-color: #333; /* To'q kulrang (Dark gray) */
-    --light-text-color: #666; /* Och kulrang (Light gray) */
-    /* Basic Colors: Remains constant. */
-    --white-color: #fff; /* Oq (White) */
-    --black-color: #000; /* Qora (Black) */
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --accent-color: #28a745;
+    --text-color: #333;
+    --light-text-color: #666;
 
-    /* Light Glassmorphism: Lighter transparency and border for glass effect. */
-    --glass-bg-light: rgba(255, 255, 255, 0.6); /* Ochiq glassmorphism fon (Light glassmorphism background) */
-    --glass-bg-dark: rgba(255, 255, 255, 0.3); /* To'qroq glassmorphism fon (Darker glassmorphism background) */
-    --glass-border: rgba(200, 200, 200, 0.5); /* Glassmorphism chegara (Glassmorphism border) */
-    --glass-shadow: rgba(0, 0, 0, 0.15); /* Glassmorphism soya (Glassmorphism shadow) */
-    --hover-effect: rgba(220, 220, 220, 0.8); /* Hover effekti (Hover effect) */
+    --glass-bg-light: rgba(255, 255, 255, 0.4);
+    --glass-bg-dark: rgba(255, 255, 255, 0.3);
+    --glass-border: rgba(200, 200, 200, 0.5);
+    --glass-shadow: rgba(0, 0, 0, 0.15);
+    --hover-effect: rgba(220, 220, 220, 0.8);
 
-    /* Neo-Brutalism for Light Mode: Lighter background and shadow effects. */
-    --neo-background: linear-gradient(145deg, #e0e5ec, #ffffff); /* Light gradient background */
-    --neo-background-rgb: 224, 229, 236; /* YANGI: RGB qiymatlari (NEW: RGB values) */
+    --neo-background: linear-gradient(145deg, #e0e5ec, #ffffff);
+    --neo-background-rgb: 224, 229, 236;
     --neo-shadow-light: #a3b1c6;
     --neo-shadow-dark: #ffffff;
     --neo-element-bg: #e0e5ec;
-    --neo-text: #3f51b5; /* To'qroq ko'k (Darker blue) - Specific text color for light mode neo-brutalism. */
-    --neo-accent: #ff4081; /* Qizil rang (Red color) */
+    --neo-text: #3f51b5;
+    --neo-accent: #ff4081;
     --neo-button-bg: linear-gradient(145deg, #d4dae0, #e9f0f6);
     --neo-button-shadow: 4px 4px 8px var(--neo-shadow-light), -4px -4px 8px var(--neo-shadow-dark);
     --neo-inner-shadow: inset 2px 2px 5px var(--neo-shadow-light), inset -3px -3px 7px var(--neo-shadow-dark);
 }
 
-/* Global Reset and Box-sizing: Standard reset for consistent rendering across browsers. */
-*, *::before, *::after {
-    box-sizing: border-box; /* Ensures padding and border are included in element's total width/height. */
-    margin: 0;
-    padding: 0;
-}
-
-/* Base Body Styles: Sets up font, line height, text color, and background. */
+/* Base Styles */
 body {
-    font-family: 'Poppins', sans-serif; /* Modern and readable font. */
-    line-height: 1.6; /* Good readability for paragraphs. */
-    color: var(--text-color); /* Uses CSS variable for text color, enabling theme switching. */
-    background: var(--neo-background); /* Uses CSS variable for background, enabling theme switching. */
-    min-height: 100vh; /* Ensures body takes at least full viewport height. */
-    display: flex; /* Enables flexbox for easy layout (e.g., sticky footer). */
-    flex-direction: column; /* Stacks children vertically. */
-    transition: background 0.5s ease, color 0.5s ease; /* Smooth transition for theme changes. */
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background: var(--neo-background);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background var(--transition-medium), color var(--transition-medium);
 }
 
-/* Link Styles: Basic styling for hyperlinks. */
 a {
-    color: var(--primary-color); /* Uses primary color for links. */
-    text-decoration: none; /* Removes underline. */
-    transition: color 0.3s ease; /* Smooth color change on hover. */
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color var(--transition-fast);
 }
 
 a:hover {
-    color: var(--accent-color); /* Changes to accent color on hover. */
+    color: var(--accent-color);
 }
 
-/* Container for Centering Content: Standard class to constrain and center content. */
 .container {
-    max-width: 1200px; /* Limits content width for readability. */
-    margin: 0 auto; /* Centers the container horizontally. */
-    padding: 0 20px; /* Adds horizontal padding to prevent content from touching screen edges. */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+    /* 20px dan 30px ga oshirildi */
 }
 
-/* ===============================================
-    Glassmorphism Styles: Core styles for elements with a frosted glass effect.
-    =============================================== */
+/* Glassmorphism Components */
 .glassmorphism-card {
-    background: var(--glass-bg-light); /* Translucent background. */
-    border-radius: 16px; /* Rounded corners. */
-    box-shadow: 0 4px 30px var(--glass-shadow); /* Soft shadow for depth. */
-    backdrop-filter: blur(10px); /* Key property for frosted glass effect. */
-    -webkit-backdrop-filter: blur(10px); /* Webkit prefix for compatibility. */
-    border: 1px solid var(--glass-border); /* Subtle border. */
-    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.5s ease, border-color 0.5s ease; /* Smooth transitions for interactions and theme changes. */
+    background: var(--glass-bg-light);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px var(--glass-shadow);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast),
+        background var(--transition-medium), border-color var(--transition-medium);
 }
 
 .glassmorphism-card:hover {
-    transform: translateY(-5px); /* Lifts the card slightly on hover. */
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15); /* More pronounced shadow on hover. */
+    transform: translateY(-5px);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
 }
 
 .glassmorphism-button {
-    background: var(--glass-bg-light);
-    border: 1px solid var(--glass-border);
-    border-radius: 10px;
-    padding: 10px 15px;
-    font-weight: 500;
-    color: var(--neo-text); /* Uses neo-text for button text color. */
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text-color);
+    font-weight: 600;
+    text-decoration: none;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: inline-flex; /* Allows icon and text alignment. */
-    align-items: center; /* Vertically centers content. */
-    gap: 8px; /* Ikonka va matn orasidagi bo'shliq (Gap between icon and text) */
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95em;
 }
 
 .glassmorphism-button:hover {
-    background: var(--hover-effect);
-    color: var(--primary-color);
-    box-shadow: 0 2px 10px var(--glass-shadow);
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
 }
 
 .glassmorphism-input {
-    background: var(--glass-bg-dark); /* Darker glass background for input fields. */
-    border: 1px solid var(--glass-border);
-    border-radius: 10px;
-    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 8px 12px;
     color: var(--text-color);
-    box-shadow: var(--neo-inner-shadow); /* Applies neo-brutalism inner shadow for embossed look. */
-    transition: all 0.3s ease, background 0.5s ease, border-color 0.5s ease;
-    display: flex; /* For aligning icon/text within input. */
+    transition: all 0.3s ease;
+    font-size: 0.95em;
+    display: flex;
     align-items: center;
 }
 
 .glassmorphism-input input {
-    background: transparent; /* Makes the actual input field transparent. */
+    background: transparent;
     border: none;
     outline: none;
-    color: var(--text-color); /* Matn rangini o'zgaruvchidan olish (Get text color from variable) */
+    color: var(--text-color);
     width: 100%;
     padding: 0;
     font-size: 1rem;
 }
 
 .glassmorphism-input input::placeholder {
-    color: var(--light-text-color); /* Placeholder text color. */
+    color: rgba(255, 255, 255, 0.6);
 }
 
+header.glassmorphism-header,
 .glassmorphism-header {
-    background: var(--glass-bg-light);
-    border-bottom: 1px solid var(--glass-border);
-    box-shadow: 0 2px 15px var(--glass-shadow);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 15px 0;
-    position: sticky; /* Keeps header visible on scroll. */
-    top: 0;
-    z-index: 1000; /* Ensures header is above other content. */
-    transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
-    position: fixed;
-    width: 100%;
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(15px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(15px) saturate(180%) !important;
+    padding: 12px 0 !important;
+    position: fixed !important;
+    top: 0 !important;
+    width: 100% !important;
+    z-index: 1000 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease !important;
 }
 
 .glassmorphism-header .container {
     display: flex;
-    justify-content: space-between; /* Distributes items with space between them. */
+    justify-content: space-between;
     align-items: center;
-    gap: 20px; /* Elementlar orasidagi bo'shliq (Gap between elements) */
+    gap: 20px;
 }
 
 .glassmorphism-header .logo {
     display: flex;
     align-items: center;
-    flex-shrink: 0; /* Kichraymasligi uchun (To prevent shrinking) */
+    flex-shrink: 0;
 }
 
 .glassmorphism-header .logo .header-logo {
-    height: 40px; /* Logotip balandligi (Logo height) */
+    height: 40px;
     width: auto;
 }
 
 .glassmorphism-header .logo span {
     font-size: 1.2rem;
     font-weight: bold;
-    color: var(--neo-text); /* Logotip matn rangi (Logo text color) */
-    white-space: nowrap; /* Matnni bir qatorda saqlash (Keep text on one line) */
-    transition: color 0.5s ease;
+    color: var(--neo-text);
+    white-space: nowrap;
+    transition: color var(--transition-medium);
 }
 
 .glassmorphism-footer {
@@ -228,28 +227,29 @@ a:hover {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     padding: 40px 0 20px;
-    margin-top: auto; /* Footer sahifa oxiriga yopishadi (Footer sticks to the bottom of the page) */
+    margin-top: auto;
     color: var(--text-color);
-    transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease, color 0.5s ease;
+    transition: background var(--transition-medium), border-color var(--transition-medium),
+        box-shadow var(--transition-medium), color var(--transition-medium);
 }
 
 .glassmorphism-footer .container {
     display: flex;
-    flex-wrap: wrap; /* Allows columns to wrap on smaller screens. */
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: 30px;
 }
 
 .glassmorphism-footer .footer-col {
-    flex: 1; /* Allows columns to grow and shrink. */
-    min-width: 200px; /* Minimum width before wrapping. */
+    flex: 1;
+    min-width: 200px;
 }
 
 .glassmorphism-footer .footer-col h3 {
     margin-bottom: 15px;
-    color: var(--neo-text); /* Sarlavha rangi (Heading color) */
+    color: var(--neo-text);
     font-size: 1.2rem;
-    transition: color 0.5s ease;
+    transition: color var(--transition-medium);
 }
 
 .glassmorphism-footer .footer-col p {
@@ -259,7 +259,7 @@ a:hover {
 }
 
 .glassmorphism-footer .footer-col ul {
-    list-style: none; /* Removes bullet points from lists. */
+    list-style: none;
 }
 
 .glassmorphism-footer .footer-col ul li {
@@ -268,7 +268,7 @@ a:hover {
 
 .glassmorphism-footer .footer-col ul li a {
     color: var(--light-text-color);
-    transition: color 0.3s ease;
+    transition: color var(--transition-fast);
     font-size: 0.9rem;
 }
 
@@ -285,10 +285,11 @@ a:hover {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    color: var(--neo-text); /* Ikonka rangi (Icon color) */
+    color: var(--neo-text);
     background: var(--glass-bg-light);
     border: 1px solid var(--glass-border);
-    transition: all 0.3s ease, background 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+    transition: all var(--transition-fast), background var(--transition-medium),
+        border-color var(--transition-medium), color var(--transition-medium);
 }
 
 .glassmorphism-footer .social-icons a:hover {
@@ -306,29 +307,29 @@ a:hover {
     color: var(--light-text-color);
 }
 
-/* Dropdown Menu Styles */
+/* Dropdown Styles */
 .glassmorphism-dropdown {
-    display: none; /* Hidden by default. */
-    position: absolute; /* Positions relative to parent. */
+    display: none;
+    position: absolute;
     background: var(--glass-bg-light);
     min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1; /* Ensures dropdown is above other content. */
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
     border-radius: 10px;
-    backdrop-filter: blur(15px); /* Stronger blur for dropdown. */
+    backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border: 1px solid var(--glass-border);
     padding: 10px 0;
-    transition: background 0.5s ease, border-color 0.5s ease;
+    transition: background var(--transition-medium), border-color var(--transition-medium);
 }
 
 .glassmorphism-dropdown a {
-    color: var(--text-color); /* Matn rangi (Text color) */
+    color: var(--text-color);
     padding: 12px 16px;
     text-decoration: none;
-    display: block; /* Makes the whole area clickable. */
+    display: block;
     text-align: left;
-    transition: background-color 0.3s ease, color 0.5s ease;
+    transition: background-color var(--transition-fast), color var(--transition-medium);
 }
 
 .glassmorphism-dropdown a:hover {
@@ -337,71 +338,65 @@ a:hover {
 }
 
 .dropdown:hover .dropdown-content,
-.dropdown .dropdown-content.show { /* '.show' class for JavaScript control. */
+.dropdown .dropdown-content.show {
     display: block;
 }
 
 .dropdown {
-    position: relative; /* Essential for positioning the absolute dropdown. */
+    position: relative;
     display: inline-block;
 }
 
-/* ===============================================
-    Header specific styles: Detailed layout and styling for the header.
-    =============================================== */
+/* Header Components */
 .glassmorphism-header .search-bar {
-    flex-grow: 1; /* Allows search bar to take available space. */
-    max-width: 500px; /* YANGI: Maksimal kenglikni oshiramiz (NEW: Increased max width) */
+    flex-grow: 1;
+    max-width: 500px;
     margin: 0 20px;
 }
+
 .glassmorphism-header .search-bar input {
     padding-left: 10px;
 }
-.glassmorphism-header .search-bar .fas { /* Styling for Font Awesome icons within search. */
+
+.glassmorphism-header .search-bar .fas {
     color: var(--light-text-color);
 }
 
 .glassmorphism-header .main-nav ul {
     list-style: none;
     display: flex;
-    gap: 15px; /* Nav linklari orasidagi bo'shliq (Gap between nav links) */
-    align-items: center; /* Barcha navigatsiya elementlarini vertikal markazga tekislash (Align all nav elements vertically center) */
+    gap: 15px;
+    align-items: center;
 }
 
 .glassmorphism-header .main-nav ul li .glassmorphism-button {
     padding: 8px 12px;
     font-size: 0.95rem;
-    white-space: nowrap; /* Prevents text from wrapping. */
+    white-space: nowrap;
     display: flex;
-    align-items: center; /* Tugma ichidagi kontentni vertikal markazga (Vertically center content inside button) */
-    justify-content: center; /* Tugma ichidagi kontentni gorizontal markazga (Horizontally center content inside button) */
+    align-items: center;
+    justify-content: center;
 }
 
-/* Faqat bosh sahifa tugmasi (uycha belgisini) kattalashtirish (Enlarging only the home button icon) */
 .glassmorphism-header .main-nav ul li .glassmorphism-button .fas.fa-home {
     font-size: 1.3rem;
 }
 
-/* Umumiy .fas ikonkalar uchun, agar yuqoridagi yetarli bo'lmasa (For general .fas icons, if the above is not enough) */
-.glassmorphism-header .main-nav ul li .glassmorphism-button .fas {
-    /* Bu yerga umumiy icon style yozilishi mumkin, lekin fa-home ga alohida prioritet beramiz */
-}
-
 .glassmorphism-header .user-actions {
-    display: flex; /* Faqat desktopda ko'rsatamiz (Show only on desktop) */
+    display: flex;
     gap: 10px;
     flex-shrink: 0;
 }
 
 .glassmorphism-header .user-actions .glassmorphism-button {
-    width: 40px; /* Ikonkalar uchun dumaloq tugmalar (Round buttons for icons) */
+    width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     padding: 0;
-    position: relative; /* For positioning cart count. */
+    position: relative;
 }
 
 .glassmorphism-header .user-actions .glassmorphism-button .cart-count {
@@ -414,36 +409,35 @@ a:hover {
     padding: 2px 6px;
     font-size: 0.7rem;
     font-weight: bold;
-    min-width: 20px; /* Raqamni sig'dirish uchun min-width (Min-width to accommodate number) */
+    min-width: 20px;
     text-align: center;
 }
 
-/* Hamburger menu for mobile */
+/* Mobile & Theme Controls */
 .hamburger-menu {
-    display: none; /* Desktopda yashiramiz (Hidden on desktop) */
+    display: none;
     font-size: 1.8rem;
     cursor: pointer;
     color: var(--neo-text);
-    z-index: 1001; /* Menyuning tepasida turishi uchun (To be on top of the menu) */
-    transition: color 0.5s ease;
+    z-index: 1005;
+    transition: color var(--transition-medium);
 }
 
-/* Mobile search icon */
 .mobile-search-icon {
-    display: none; /* Desktopda yashiramiz (Hidden on desktop) */
+    display: none;
     font-size: 1.4rem;
     cursor: pointer;
     color: var(--neo-text);
-    margin-left: auto; /* O'ng tomonga surish (Push to the right) */
+    margin-left: auto;
     margin-right: 15px;
-    transition: color 0.5s ease;
+    transition: color var(--transition-medium);
+    z-index: 1005;
 }
 
-/* Theme toggle button */
 .theme-toggle-button {
-    width: 40px; /* Qat'iy kenglik (Fixed width) */
-    height: 40px; /* Qat'iy balandlik (Fixed height) */
-    border-radius: 50%; /* Doira shaklini ta'minlash (Ensures circular shape) */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     background: var(--glass-bg-light);
     border: 1px solid var(--glass-border);
     display: flex;
@@ -452,8 +446,10 @@ a:hover {
     cursor: pointer;
     font-size: 1.2rem;
     color: var(--neo-text);
-    transition: all 0.3s ease, background 0.5s ease, border-color 0.5s ease, color 0.5s ease;
-    flex-shrink: 0; /* Kichraymasligi uchun (To prevent shrinking) */
+    transition: all var(--transition-fast), background var(--transition-medium),
+        border-color var(--transition-medium), color var(--transition-medium);
+    flex-shrink: 0;
+    z-index: 1005;
 }
 
 .theme-toggle-button:hover {
@@ -461,88 +457,23 @@ a:hover {
     box-shadow: 0 2px 10px var(--glass-shadow);
 }
 
-/* ===============================================
-    Hero Banner Styles: Large introductory section.
-    =============================================== */
-.hero-banner {
-    width: 100%;
-    height: 400px; /* Kichikroq balandlik (Smaller height) */
-    background: url('https://source.unsplash.com/random/1600x400/?books,library,reading') no-repeat center center/cover; /* Dynamic background image. */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: var(--white-color); /* Dark mode uchun oq (White for dark mode) */
-    position: relative;
-    overflow: hidden;
-}
-
-.hero-banner::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4); /* To'qroq overlay (Darker overlay) */
-    z-index: 1;
-}
-
-.hero-content {
-    position: relative;
-    z-index: 2;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.2); /* Yengilroq orqa fon (Lighter background) */
-    backdrop-filter: blur(5px);
-    border-radius: 15px;
-    padding: 30px;
-    max-width: 600px; /* Maksimal kenglikni kamaytirdik (Reduced max width) */
-    text-align: center;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-.hero-title-small {
-    font-size: 2.5rem; /* Kichikroq sarlavha (Smaller heading) */
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    line-height: 1.2;
-}
-
-.hero-subtitle-small {
-    font-size: 1.1rem; /* Kichikroq subtitle (Smaller subtitle) */
-    margin-bottom: 20px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-}
-
-/* YANGI: Light Mode uchun Hero banner matn rangi (NEW: Hero banner text color for Light Mode) */
-body.light-mode .hero-banner .hero-content .hero-title-small,
-body.light-mode .hero-banner .hero-content .hero-subtitle-small {
-    color: var(--neo-text); /* Light mode uchun neo-text rangidan foydalanamiz (Using neo-text color for light mode) */
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2); /* Yengilroq soya (Lighter shadow) */
-}
-
-.hero-button {
-    display: none; /* "Kitoblarni Ko'rish" tugmasi butunlay olib tashlandi (The "View Books" button has been completely removed) */
-}
-
-/* ===============================================
-    Sections (General): Common styles for content sections.
-    =============================================== */
+/* Sections */
 section {
-    padding: 60px 0;
-    /* margin-bottom: 40px; // Umumiy section uchun ishlatilmasa olib tashlang (Remove if not used for general section) */
+    padding: 60px 20px;
 }
 
 .section-title {
     text-align: center;
     font-size: 2.2rem;
-    margin-bottom: 40px;
+    margin-bottom: 50px;
+    /* 40px dan 50px ga oshirildi */
     color: var(--neo-text);
     position: relative;
     padding: 10px;
     padding-top: 2rem;
-    transition: color 0.5s ease;
+    padding-bottom: 1rem;
+    /* Pastdan qo'shimcha padding */
+    transition: color var(--transition-medium);
 }
 
 .section-title::after {
@@ -555,45 +486,42 @@ section {
     height: 3px;
     background-color: var(--primary-color);
     border-radius: 2px;
-    transition: background-color 0.5s ease;
+    transition: background-color var(--transition-medium);
 }
 
-/* YANGI: Janrlar sectioni uchun alohida margin-bottom (NEW: Separate margin-bottom for genre section) */
 .genre-section {
-    margin-bottom: 80px; /* Footer bilan bo'shliq (Space with footer) */
+    margin-bottom: 80px;
 }
 
-/* ===============================================
-    Book Grid Styles: Layout for displaying books.
-    =============================================== */
+/* Book Grid */
 .book-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Responsive grid columns. */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 30px;
     justify-content: center;
-    align-items: stretch; /* Eng muhimi! Kartalar balandligini bir xil qiladi (Most important! Makes card heights equal) */
+    align-items: stretch;
 }
 
 .book-card {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Kitob rasmi va boshqa elementlar markazda turishi uchun (For book image and other elements to be centered) */
+    align-items: center;
     padding: 20px;
     text-align: center;
     color: var(--text-color);
-    min-height: 420px; /* YANGI: minimal balandlikni kamaytiramiz (NEW: Reduced minimum height) */
-    justify-content: space-between; /* Kontentni yuqoridan pastgacha teng taqsimlash (Distribute content evenly from top to bottom) */
+    min-height: 420px;
+    justify-content: space-between;
 }
 
 .book-card img {
-    width: 100%; /* Rasmni kartaning to'liq eniga moslash (Fit image to full card width) */
-    height: 250px; /* Qat'iy balandlik berish (Give a fixed height) */
-    object-fit: cover; /* Rasmni to'g'ri joylashtirish, qirqilgan bo'lsa ham (Properly position image, even if cropped) */
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
     border-radius: 10px;
     margin-bottom: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    transition: transform 0.3s ease;
-    flex-shrink: 0; /* Rasm kichraymasligi uchun (To prevent image from shrinking) */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: transform var(--transition-fast);
+    flex-shrink: 0;
 }
 
 .book-card:hover img {
@@ -603,22 +531,22 @@ section {
 .book-card .book-info {
     display: flex;
     flex-direction: column;
-    flex-grow: 1; /* Matn qismi qolgan bo'sh joyni egallasin (Text section takes remaining space) */
+    flex-grow: 1;
     width: 100%;
-    margin-bottom: 15px; /* Narx va tugmadan oldin bo'shliq (Space before price and button) */
+    margin-bottom: 15px;
 }
 
 .book-card .book-info h3 {
     font-size: 1.2rem;
     margin-bottom: 8px;
     color: var(--neo-text);
-    min-height: 2.4em; /* Ikki qatorli sarlavha uchun (For two-line heading) */
-    max-height: 2.4em; /* Qat'iy ikki qator (Strictly two lines) */
+    min-height: 2.4em;
+    max-height: 2.4em;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: color 0.5s ease;
-    line-height: 1.2; /* Qator balandligi (Line height) */
-    flex-shrink: 0; /* Sarlavha kichraymasligi uchun (To prevent heading from shrinking) */
+    transition: color var(--transition-medium);
+    line-height: 1.2;
+    flex-shrink: 0;
 }
 
 .book-card .book-info .author,
@@ -626,21 +554,21 @@ section {
     font-size: 0.9rem;
     color: var(--light-text-color);
     margin-bottom: 5px;
-    transition: color 0.5s ease;
-    white-space: nowrap; /* Matn bir qatorda qolsin (Keep text on one line) */
-    overflow: hidden; /* Chegaradan chiqsa yashiramiz (Hide if overflows) */
-    text-overflow: ellipsis; /* ... ko'rsatish (Show ...) */
-    flex-shrink: 0; /* Kichraymasligi uchun (To prevent shrinking) */
+    transition: color var(--transition-medium);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
 }
 
 .book-card .book-info .price {
     font-size: 1.1rem;
     font-weight: bold;
     color: var(--primary-color);
-    margin-top: auto; /* Narxni pastga yopishadi, tugmadan oldin (Price sticks to bottom, before button) */
-    margin-bottom: 15px; /* Narx va tugma orasidagi bo'shliq (Space between price and button) */
-    transition: color 0.5s ease;
-    flex-shrink: 0; /* Kichraymasligi uchun (To prevent shrinking) */
+    margin-top: auto;
+    margin-bottom: 15px;
+    transition: color var(--transition-medium);
+    flex-shrink: 0;
 }
 
 .book-card .add-to-cart {
@@ -649,16 +577,13 @@ section {
     font-size: 1rem;
     border-radius: 8px;
     flex-shrink: 0;
-    /* YANGI: Tugma ichidagi kontentni markazga tekislash (NEW: Center content inside button) */
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 8px; /* Belig va yozuv orasidagi bo'shliq (Space between icon and text) */
+    gap: 8px;
 }
 
-/* ===============================================
-    Genre Grid Styles: Layout for displaying genres.
-    =============================================== */
+/* Genre Grid */
 .genre-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -669,12 +594,12 @@ section {
 .genre-card {
     position: relative;
     overflow: hidden;
-    height: 200px; /* Balandlikni belgilash (Set height) */
+    height: 200px;
     display: flex;
-    align-items: flex-end; /* Matnni pastga joylashtirish (Position text at the bottom) */
+    align-items: flex-end;
     padding: 20px;
-    color: var(--white-color); /* Default (Dark Mode) uchun oq (White for Default (Dark Mode)) */
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+    color: var(--white-color);
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .genre-card .genre-bg {
@@ -685,13 +610,13 @@ section {
     height: 100%;
     background-size: cover;
     background-position: center;
-    filter: brightness(0.7); /* Rasmni to'qroq qilish (Darken the image) */
+    filter: brightness(0.7);
     transition: transform 0.4s ease;
     z-index: 0;
 }
 
 .genre-card:hover .genre-bg {
-    transform: scale(1.05); /* Slight zoom effect on hover. */
+    transform: scale(1.05);
 }
 
 .genre-card .genre-name {
@@ -699,144 +624,104 @@ section {
     z-index: 1;
     font-size: 1.5rem;
     font-weight: bold;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
-/* YANGI: Light Mode uchun Janr nomlarining rangi (NEW: Genre names color for Light Mode) */
 body.light-mode .genre-card .genre-name {
-    color: var(--neo-text); /* Light mode'da matn rangini o'zgartirish (Change text color in light mode) */
-    text-shadow: 1px 1px 2px rgba(255,255,255,0.7); /* Yengilroq oq soya, agar kerak bo'lsa (Lighter white shadow, if needed) */
+    color: var(--neo-text);
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
 }
 
 body.light-mode .genre-card .genre-bg {
-    filter: brightness(0.9); /* Rasmni biroz yorqinroq qilish (Make the image a bit brighter) */
+    filter: brightness(0.9);
 }
 
 body.light-mode .genre-card.glassmorphism-card {
-    background: var(--glass-bg-light); /* Light mode uchun karta fonini aniqroq belgilash (Explicitly set card background for light mode) */
-    border: 1px solid var(--glass-border); /* Light mode uchun chegara (Border for light mode) */
+    background: var(--glass-bg-light);
+    border: 1px solid var(--glass-border);
 }
 
-/* ===============================================
-    Responsive Adjustments (Media Queries): Adapting layout for different screen sizes.
-    =============================================== */
-
-/* Overlay for mobile menu/search input */
+/* Mobile Overlay */
 .mobile-menu-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Shaffoflikni oshirdik, endi 0.7 (Increased transparency, now 0.7) */
-    backdrop-filter: blur(5px); /* YANGI: Orqa fondagi kontentga blur berish (NEW: Apply blur to background content) */
-    -webkit-backdrop-filter: blur(5px); /* Webkit brauzerlar uchun (For Webkit browsers) */
-    z-index: 999; /* Header ostida, lekin boshqa kontent ustida (Below header, but above other content) */
-    display: none; /* Default holatda yashiramiz, JS bilan ko'rsatamiz (Hidden by default, shown with JS) */
-    transition: opacity 0.3s ease;
-    opacity: 0; /* Boshida shaffof bo'lsin (Transparent initially) */
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 999;
+    display: none;
+    transition: opacity var(--transition-fast);
+    opacity: 0;
 }
 
 .mobile-menu-overlay.active {
-    display: block; /* Active bo'lganda ko'rsatamiz (Show when active) */
+    display: block;
     opacity: 1;
 }
 
-/* Desktop-only: 768px dan yuqori ekran kengliklarida ishlaydi (Works on screen widths above 768px) */
-@media (min-width: 769px) {
-    .glassmorphism-header .user-actions.mobile-only, /* Mobil menyudagi foydalanuvchi tugmalarini yashirish (Hide user buttons in mobile menu) */
-    .glassmorphism-header .main-nav .mobile-user-actions, /* Mobil menyu ichidagi umumiy mobil foydalanuvchi actions (General mobile user actions inside mobile menu) */
-    .glassmorphism-header .main-nav .admin-mobile-link, /* Mobil menyu ichidagi admin linki (Admin link inside mobile menu) */
-    .close-menu-button { /* Mobil menyuni yopish tugmasi (Close mobile menu button) */
-        display: none !important; /* Muhim: bu elementlarni to'liq yashirish (Important: fully hide these elements) */
-    }
-}
+/* Responsive Design */
 
-@media (max-width: 992px) {
-    .glassmorphism-header .logo span {
-        font-size: 1.1rem;
-    }
-    .glassmorphism-header .search-bar {
-        max-width: 400px;
-    }
-    .glassmorphism-header .main-nav ul {
-        gap: 10px;
-    }
-    .glassmorphism-header .main-nav ul li .glassmorphism-button {
-        padding: 6px 10px;
-        font-size: 0.9rem;
-    }
-    .book-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    }
-    .hero-title-small {
-        font-size: 2.2rem;
-    }
-    .hero-subtitle-small {
-        font-size: 1rem;
-    }
-}
 
-@media (max-width: 957px) {
-    .glassmorphism-header .container {
-        flex-wrap: wrap; /* Allows items to wrap to the next line. */
-        justify-content: space-between;
-        padding: 0 15px;
-    }
+
+
+@media (max-width: 1191px) {
+
 
     .glassmorphism-header .logo {
-        order: 1; /* Sets order for mobile layout. */
+        order: 1;
+        flex-shrink: 1;
+        min-width: 0;
+        max-width: 60%;
+    }
+
+    .glassmorphism-header .logo span {
+        font-size: 1rem !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .hamburger-menu {
-        display: block; /* Shows hamburger menu on mobile. */
+        display: block;
         order: 3;
-        margin-left: 15px;
-        /* MUHIM O'ZGARTIRISH: hamburger-menu z-indexini oshirish (IMPORTANT CHANGE: increase hamburger-menu z-index) */
-        z-index: 1005; /* Menyudan yuqoriroq bo'lishi kerak (Should be above the menu) */
+        z-index: 1005;
     }
 
-    .mobile-search-icon {
-        display: block; /* Shows mobile search icon. */
-        order: 2;
-        margin-left: auto; /* O'ng tomonga surish (Push to the right) */
-        margin-right: 15px;
-        /* MUHIM O'ZGARTIRISH: mobile-search-icon z-indexini oshirish (IMPORTANT CHANGE: increase mobile-search-icon z-index) */
-        z-index: 1005; /* Menyudan yuqoriroq bo'lishi kerak (Should be above the menu) */
-    }
 
     .theme-toggle-button {
-        order: 4;
-        margin-left: 10px;
-         /* MUHIM O'ZGARTIRISH: theme-toggle-button z-indexini oshirish (IMPORTANT CHANGE: increase theme-toggle-button z-index) */
-        z-index: 1005; /* Menyudan yuqoriroq bo'lishi kerak (Should be above the menu) */
+        order: 3;
+        margin-left: 3px;
+        z-index: 1005;
+        flex-shrink: 0;
+        width: 35px !important;
+        height: 35px !important;
     }
 
-    .glassmorphism-header .search-bar {
-        order: 4;
-        width: 100%;
-        margin: 15px 0 0 0;
-        display: none; /* Faqat .active-mobile bo'lganda ko'rsatiladi (Shown only when .active-mobile) */
-    }
-
-    .glassmorphism-header .search-bar.active-mobile {
+    .hamburger-menu {
+        display: block;
+        order: 2;
+        z-index: 1005;
+        flex-shrink: 0;
+        width: 35px;
+        height: 35px;
         display: flex;
-        position: absolute;
-        top: 65px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: calc(100% - 30px); /* O'zgarishsiz qoldiramiz, chunki bu header ichidagi qidiruv paneli uchun (Leave unchanged, as this is for the search bar inside the header) */
-        max-width: unset; /* Bu qidiruv paneliga tegishli (Belongs to this search bar) */
-        box-sizing: border-box;
-        z-index: 1000;
-        animation: slideDownFadeIn 0.3s forwards; /* Animation for search bar. */
+        align-items: center;
+        justify-content: center;
+        margin-left: auto;
+        margin-right: 3px;
     }
+
+
 
     @keyframes slideDownFadeIn {
         from {
             opacity: 0;
             transform: translate(-50%, -20px);
         }
+
         to {
             opacity: 1;
             transform: translate(-50%, 0);
@@ -846,38 +731,36 @@ body.light-mode .genre-card.glassmorphism-card {
     .glassmorphism-header .main-nav {
         position: fixed;
         top: 0;
-        right: -100%; /* Initially off-screen. */
+        right: -100%;
         width: 100%;
         max-width: 400px;
         height: 100vh;
-        /* QIYMATLAR O'ZGARTIRILDI (VALUES CHANGED) */
-        background: rgba(0, 0, 0, 0.95); /* Oldingidan ham to'qroq, deyarli qora (Even darker than before, almost black) */
-        backdrop-filter: blur(40px); /* BIJIR-BIJIR effektini yanada kuchaytirdim (Increased blur effect even more) */
-        -webkit-backdrop-filter: blur(40px); /* BIJIR-BIJIR effektini yanada kuchaytirdim (Increased blur effect even more) */
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(40px);
+        -webkit-backdrop-filter: blur(40px);
         border-left: 1px solid var(--glass-border);
-        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.7); /* Soya ham yanada to'qroq (Shadow is also darker) */
-        transition: right 0.4s ease-in-out, background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
-        z-index: 1002; /* Hamburger ikonkasi (1001) ustida turishi kerak. (Should be above hamburger icon (1001).) */
-        padding-top: 80px; /* Yopish tugmasi uchun joy (Space for close button) */
+        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.7);
+        transition: right 0.4s ease-in-out, background var(--transition-medium),
+            border-color var(--transition-medium), box-shadow var(--transition-medium);
+        z-index: 1002;
+        padding-top: 80px;
         display: flex;
         flex-direction: column;
-        overflow-y: auto; /* Allows scrolling if menu content is too long. */
+        overflow-y: auto;
         overflow-x: hidden;
         box-sizing: border-box;
-        justify-content: space-between; /* Elementlarni yuqori va pastki qismlarga taqsimlash (Distribute elements to top and bottom) */
+        justify-content: space-between;
     }
 
-    /* Light Mode'da mobil menyu foni uchun alohida sozlama (Separate setting for mobile menu background in Light Mode) */
     body.light-mode .glassmorphism-header .main-nav {
-        /* QIYMATLAR O'ZGARTIRILDI (VALUES CHANGED) */
-        background: rgba(255, 255, 255, 0.99); /* Light mode'da deyarli to'liq oq (Almost completely white in light mode) */
-        backdrop-filter: blur(40px); /* BIJIR-BIJIR effektini yanada kuchaytirdim (Increased blur effect even more) */
-        -webkit-backdrop-filter: blur(40px); /* BIJIR-BIJIR effektini yanada kuchaytirdim (Increased blur effect even more) */
-        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3); /* Light mode soyasi ham o'zgardi (Light mode shadow also changed) */
+        background: rgba(255, 255, 255, 0.99);
+        backdrop-filter: blur(40px);
+        -webkit-backdrop-filter: blur(40px);
+        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3);
     }
 
     .glassmorphism-header .main-nav.active {
-        right: 0; /* Slides menu into view. */
+        right: 0;
     }
 
     .glassmorphism-header .main-nav ul {
@@ -886,7 +769,8 @@ body.light-mode .genre-card.glassmorphism-card {
         padding: 20px;
         gap: 15px;
         box-sizing: border-box;
-        align-items: center; /* Menyuning asosiy elementlarini markazga joylash (Center main menu items) */
+        align-items: center;
+        /* Menyuning asosiy elementlarini markazga joylash (Center main menu items) */
     }
 
     .glassmorphism-header .main-nav ul li {
@@ -904,18 +788,16 @@ body.light-mode .genre-card.glassmorphism-card {
         box-sizing: border-box;
     }
 
-    /* Desktopdagi user-actionsni yashiramiz, endi ular menyu ichida bo'ladi (Hide desktop user-actions, now they are inside the menu) */
-    .glassmorphism-header .user-actions.desktop-only { /* Faqat desktop versiyasini yashirish (Hide only desktop version) */
-        display: none;
-    }
 
     /* Mobil menyu ichida yangi user-actions container (New user-actions container inside mobile menu) */
     .glassmorphism-header .main-nav .mobile-user-actions {
-        display: flex; /* Faqat mobil menyu ichida ko'rsatamiz (Show only inside mobile menu) */
+        display: flex;
+        /* Faqat mobil menyu ichida ko'rsatamiz (Show only inside mobile menu) */
         flex-direction: column;
         width: 100%;
         padding: 10px 20px;
-        margin-top: auto; /* Admin linkidan biroz yuqorida bo'lishi uchun (To be slightly above admin link) */
+        margin-top: auto;
+        /* Admin linkidan biroz yuqorida bo'lishi uchun (To be slightly above admin link) */
         gap: 15px;
         border-top: 1px solid var(--glass-border);
         padding-top: 20px;
@@ -937,7 +819,8 @@ body.light-mode .genre-card.glassmorphism-card {
     }
 
     .glassmorphism-header .main-nav .mobile-user-actions .glassmorphism-button .cart-count {
-        position: static; /* Resets positioning for mobile menu. */
+        position: static;
+        /* Resets positioning for mobile menu. */
         margin-left: 8px;
         background-color: var(--neo-accent);
         color: var(--white-color);
@@ -949,12 +832,16 @@ body.light-mode .genre-card.glassmorphism-card {
     /* Admin linkini menyu pastiga "mixlash" (Pinning the admin link to the bottom of the menu) */
     .glassmorphism-header .main-nav .admin-mobile-link {
         width: 100%;
-        padding: 10px 20px 20px; /* Pastdan biroz bo'sh joy qoldirish (Leave some space from the bottom) */
-        margin-top: 15px; /* mobile-user-actions dan ajratish (Separate from mobile-user-actions) */
+        padding: 10px 20px 20px;
+        /* Pastdan biroz bo'sh joy qoldirish (Leave some space from the bottom) */
+        margin-top: 15px;
+        /* mobile-user-actions dan ajratish (Separate from mobile-user-actions) */
         box-sizing: border-box;
         text-align: center;
-        /* Optional: border-top: 1px solid var(--glass-border); */ /* Agar kerak bo'lsa, separator (If needed, separator) */
+        /* Optional: border-top: 1px solid var(--glass-border); */
+        /* Agar kerak bo'lsa, separator (If needed, separator) */
     }
+
     .glassmorphism-header .main-nav .admin-mobile-link .glassmorphism-button {
         width: 100%;
         font-size: 1.1rem;
@@ -965,17 +852,20 @@ body.light-mode .genre-card.glassmorphism-card {
 
     /* Dropdown mobil menyu ichida (Dropdown inside mobile menu) */
     .glassmorphism-dropdown {
-        position: static; /* Changes to static for flow within mobile menu. */
+        position: static;
+        /* Changes to static for flow within mobile menu. */
         width: 100%;
         box-shadow: none;
         border: none;
-        background: rgba(255, 255, 255, 0.1); /* Lighter background for nested dropdown. */
+        background: rgba(255, 255, 255, 0.1);
+        /* Lighter background for nested dropdown. */
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border-radius: 0;
         padding: 0;
         margin-top: 10px;
-        max-height: 0; /* Used for collapsible effect. */
+        max-height: 0;
+        /* Used for collapsible effect. */
         overflow: hidden;
         transition: max-height 0.3s ease-in-out, background 0.5s ease;
         box-sizing: border-box;
@@ -983,7 +873,8 @@ body.light-mode .genre-card.glassmorphism-card {
 
     .dropdown:hover .dropdown-content,
     .dropdown .dropdown-content.show {
-        max-height: 300px; /* Expands to show content. */
+        max-height: 300px;
+        /* Expands to show content. */
         padding: 10px 0;
     }
 
@@ -995,52 +886,118 @@ body.light-mode .genre-card.glassmorphism-card {
     .hero-banner {
         height: 300px;
     }
+
     .hero-title-small {
         font-size: 2rem;
     }
+
     .hero-subtitle-small {
         font-size: 0.9rem;
     }
+
     .section-title {
         font-size: 1.8rem;
     }
+
     .book-grid {
         grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
         gap: 20px;
     }
+
     .book-card img {
         height: 200px;
     }
+
     .book-card .book-info h3 {
         font-size: 1rem;
-        min-height: auto; /* Allows height to adjust if only one line. */
+        min-height: auto;
+        /* Allows height to adjust if only one line. */
     }
+
     .book-card .add-to-cart {
         padding: 10px 0;
         font-size: 0.9rem;
     }
+
     .genre-grid {
-        grid-template-columns: 1fr; /* Single column for genres on small screens. */
+        grid-template-columns: 1fr;
+        /* Single column for genres on small screens. */
     }
+
     .genre-card {
         height: 180px;
     }
+
     .genre-card .genre-name {
         font-size: 1.3rem;
     }
 
     .glassmorphism-footer .container {
-        flex-direction: column; /* Stacks footer columns vertically. */
+        flex-direction: column;
+        /* Stacks footer columns vertically. */
         align-items: center;
         text-align: center;
     }
+
     .glassmorphism-footer .footer-col {
-        min-width: unset; /* Removes min-width restriction. */
+        min-width: unset;
+        /* Removes min-width restriction. */
         width: 100%;
         margin-bottom: 20px;
     }
+
     .glassmorphism-footer .social-icons {
         margin-top: 10px;
+    }
+}
+
+@media (max-width: 992px) {
+    .glassmorphism-header .logo span {
+        font-size: 1.1rem;
+    }
+
+    .glassmorphism-header .search-bar {
+        max-width: 400px;
+    }
+
+    .glassmorphism-header .main-nav ul {
+        gap: 10px;
+    }
+
+    .glassmorphism-header .main-nav ul li .glassmorphism-button {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+
+    .hero-banner {
+        height: 350px;
+    }
+
+    .hero-content {
+        padding: 30px;
+        max-width: 500px;
+    }
+
+    .hero-title-small {
+        font-size: 2.2rem;
+    }
+
+    .hero-subtitle-small {
+        font-size: 1.1rem;
+    }
+
+    .book-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+@media (min-width: 769px) {
+
+    .glassmorphism-header .user-actions.mobile-only,
+    .glassmorphism-header .main-nav .mobile-user-actions,
+    .glassmorphism-header .main-nav .admin-mobile-link,
+    .close-menu-button {
+        display: none !important;
     }
 }
 
@@ -1048,86 +1005,153 @@ body.light-mode .genre-card.glassmorphism-card {
     .glassmorphism-header .logo span {
         font-size: 1rem;
     }
+
     .glassmorphism-header .logo .header-logo {
         height: 35px;
     }
-    .hamburger-menu {
-        font-size: 1.5rem;
-    }
+
     .mobile-search-icon {
         font-size: 1.2rem;
-    }
-    .glassmorphism-header .search-bar.active-mobile {
-        top: 55px;
-        width: calc(100% - 30px); /* Kichik ekranlar uchun (For smaller screens) */
+        width: 30px;
+        height: 30px;
+        margin-left: auto !important;
+        /* O'ng tomonga surish */
+        margin-right: 3px !important;
+        /* Yangi masofa: 10px ning 70% i = 7px */
     }
 
-    .glassmorphism-header .main-nav {
-        width: 100%; /* Eng kichik ekranlarda ham to'liq kenglik (Full width even on smallest screens) */
-        max-width: unset; /* Har qanday max-width cheklovini olib tashlaymiz (Remove any max-width restrictions) */
+    .hamburger-menu {
+        font-size: 1.5rem;
+        width: 30px;
+        height: 30px;
+        /* margin-left: 5px; - Olib tashlandi */
     }
+
+    .theme-toggle-button {
+        font-size: 1.2rem;
+        width: 30px;
+        height: 30px;
+        margin-left: 3px !important;
+    }
+
     .hero-banner {
-        height: 250px;
+        height: 280px;
     }
+
+    .hero-content {
+        padding: 25px;
+        max-width: 350px;
+    }
+
     .hero-title-small {
         font-size: 1.8rem;
     }
+
+    .hero-subtitle-small {
+        font-size: 1rem;
+    }
+
+    .hero-banner {
+        height: 250px;
+    }
+
+    .hero-title-small {
+        font-size: 1.8rem;
+    }
+
     .hero-subtitle-small {
         font-size: 0.8rem;
     }
+
     .section-title {
         font-size: 1.6rem;
     }
-    .book-grid {
-        grid-template-columns: 1fr; /* Single column for books on very small screens. */
-        gap: 15px;
+
+    .glassmorphism-footer {
+        padding: 30px 0 15px;
     }
-    .book-card {
-        min-height: 380px;
+
+    .glassmorphism-header .container {
+        padding: 0 8px;
+        gap: 3px;
     }
-    .book-card img {
-        height: 220px;
+
+    .glassmorphism-header .logo {
+        max-width: 55%;
     }
-    .book-card .book-info h3 {
+
+    .glassmorphism-header .logo span {
+        font-size: 0.9rem !important;
+    }
+
+    .glassmorphism-header .logo .header-logo {
+        height: 30px;
+    }
+
+    .mobile-search-icon {
+        display: none !important;
+    }
+
+    .hamburger-menu {
+        font-size: 1.3rem;
+        width: 30px !important;
+        height: 30px !important;
+        margin-left: 2px;
+    }
+
+    .theme-toggle-button {
         font-size: 1.1rem;
+        width: 30px !important;
+        height: 30px !important;
+        margin-left: 2px;
     }
-    .book-card .add-to-cart {
-        font-size: 0.85rem;
+
+    .glassmorphism-header .main-nav {
+        width: 200px;
     }
-    .genre-card {
-        height: 160px;
-    }
-    .genre-card .genre-name {
-        font-size: 1.2rem;
+
+    .glassmorphism-header .main-nav ul {
+        padding: 0 10px;
     }
 }
 
-html, body {
-    overflow-x: hidden; /* Gorizontal skrollni yashirish (Hide horizontal scroll) */
-    width: 100%; /* Sahifa kengligini 100% qilib belgilash (Set page width to 100%) */
+html,
+body {
+    overflow-x: hidden;
+    /* Gorizontal skrollni yashirish (Hide horizontal scroll) */
+    width: 100%;
+    /* Sahifa kengligini 100% qilib belgilash (Set page width to 100%) */
 }
 
 /* ===============================================
     YANGI: Hamburger menyuni yopish tugmasi (mobil menyu ichida) (NEW: Close hamburger menu button (inside mobile menu))
     =============================================== */
 .close-menu-button {
-    display: none; /* Desktopda yashiramiz (Hidden on desktop) */
-    position: absolute; /* Menyuga nisbatan pozitsiyalash (Position relative to menu) */
+    display: none;
+    /* Desktopda yashiramiz (Hidden on desktop) */
+    position: absolute;
+    /* Menyuga nisbatan pozitsiyalash (Position relative to menu) */
     top: 20px;
     right: 20px;
-    font-size: 2rem; /* Katta va ko'zga tashlanadigan (Large and noticeable) */
-    color: var(--neo-text); /* Rangini neo-textdan olamiz (Get color from neo-text) */
+    font-size: 2rem;
+    /* Katta va ko'zga tashlanadigan (Large and noticeable) */
+    color: var(--neo-text);
+    /* Rangini neo-textdan olamiz (Get color from neo-text) */
     cursor: pointer;
-    z-index: 1004; /* Menyuning o'zidan ham yuqoriroq! (main-nav z-index: 1002, hamburger 1005) (Higher than the menu itself! (main-nav z-index: 1002, hamburger 1005)) */
+    z-index: 1004;
+    /* Menyuning o'zidan ham yuqoriroq! (main-nav z-index: 1002, hamburger 1005) (Higher than the menu itself! (main-nav z-index: 1002, hamburger 1005)) */
     transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .close-menu-button:hover {
-    color: var(--neo-accent); /* Hoverda aksent rangiga o'zgaradi (Changes to accent color on hover) */
-    transform: rotate(90deg); /* Kichik animatsiya (Small animation) */
+    color: var(--neo-accent);
+    /* Hoverda aksent rangiga o'zgaradi (Changes to accent color on hover) */
+    transform: rotate(90deg);
+    /* Kichik animatsiya (Small animation) */
 }
 
 @media (max-width: 957px) {
+
     /* Agar close-menu-button menyuning ichida bo'lsa va menyu active bo'lsa ko'rsatish (Show close-menu-button if it's inside the menu and the menu is active) */
     .glassmorphism-header .main-nav.active .close-menu-button {
         display: block;
@@ -1141,10 +1165,13 @@ html, body {
     /* Faqat mobil menyuda ko'rinadigan elementlar (Elements visible only in mobile menu) */
     .glassmorphism-header .main-nav .mobile-user-actions,
     .glassmorphism-header .main-nav .admin-mobile-link {
-        display: flex; /* Mobil menyu ochilganda ko'rsatish (Show when mobile menu is open) */
-        flex-direction: column; /* Vertikal joylashish (Vertical arrangement) */
+        display: flex;
+        /* Mobil menyu ochilganda ko'rsatish (Show when mobile menu is open) */
+        flex-direction: column;
+        /* Vertikal joylashish (Vertical arrangement) */
     }
 }
+
 /* ===============================================
     AuthForm Styles (from AuthForm.css)
     =============================================== */
@@ -1153,13 +1180,15 @@ html, body {
     margin: 50px auto;
     padding: 30px;
     text-align: center;
-    border-radius: 16px; /* glassmorphism-card dan oladi, lekin bu yerda aniqlash mumkin */
+    border-radius: 16px;
+    /* glassmorphism-card dan oladi, lekin bu yerda aniqlash mumkin */
 }
 
 .auth-container h2 {
     margin-bottom: 30px;
     font-size: 2rem;
-    color: var(--neo-text); /* Matn rangini CSS o'zgaruvchisidan olish */
+    color: var(--neo-text);
+    /* Matn rangini CSS o'zgaruvchisidan olish */
     transition: color 0.5s ease;
 }
 
@@ -1184,14 +1213,17 @@ html, body {
 
 .form-group input {
     flex-grow: 1;
-    padding: 12px 15px; /* glassmorphism-input dan oladi, lekin bu yerda aniqlash mumkin */
+    padding: 12px 15px;
+    /* glassmorphism-input dan oladi, lekin bu yerda aniqlash mumkin */
     font-size: 1rem;
-    border-radius: 10px; /* glassmorphism-input dan oladi */
+    border-radius: 10px;
+    /* glassmorphism-input dan oladi */
     /* glassmorphism-input klassining stiliga tayanadi */
 }
 
 .error-message {
-    color: var(--neo-accent); /* Xato xabari rangi (qizil) */
+    color: var(--neo-accent);
+    /* Xato xabari rangi (qizil) */
     margin-top: -10px;
     margin-bottom: 10px;
     font-size: 0.9rem;
@@ -1203,7 +1235,8 @@ html, body {
     font-size: 1.1rem;
     border-radius: 10px;
     transition: all 0.3s ease;
-    display: flex; /* Yuklanish ikonkasini markazga joylash uchun */
+    display: flex;
+    /* Yuklanish ikonkasini markazga joylash uchun */
     justify-content: center;
     align-items: center;
     gap: 8px;
@@ -1248,6 +1281,1277 @@ body.light-mode .error-message {
 body.light-mode .toggle-auth {
     color: var(--text-color);
 }
+
 body.light-mode .toggle-auth span {
     color: var(--primary-color);
+}
+
+/* 
+Mobile search styles */
+@media (max-width: 768px) {
+    .search-bar {
+        display: none !important;
+    }
+
+    .search-bar.active-mobile {
+        display: flex !important;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        padding: 10px;
+        background-color: var(--neo-element-bg);
+        box-shadow: var(--neo-button-shadow);
+    }
+
+    .mobile-search-icon {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--glass-bg-light);
+        cursor: pointer;
+        margin-right: 10px;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-search-icon {
+        display: none !important;
+    }
+
+    .search-bar {
+        display: flex !important;
+    }
+}
+
+/* Search bar styles */
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: var(--glass-bg-light);
+    border-radius: 20px;
+    padding: 5px 15px;
+    margin: 0 15px;
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-bar input {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    padding: 8px;
+    width: 100%;
+    outline: none;
+}
+
+.search-bar i {
+    color: var(--light-text-color);
+    margin-right: 5px;
+}
+
+/* Mobile search styles */
+@media (max-width: 768px) {
+    .search-bar {
+        display: none !important;
+    }
+
+    .search-bar.active-mobile {
+        display: flex !important;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        padding: 10px 15px;
+        margin: 0;
+        max-width: none;
+        border-radius: 0;
+        background-color: var(--neo-element-bg);
+        box-shadow: var(--neo-button-shadow);
+    }
+
+    .mobile-search-icon {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--glass-bg-light);
+        cursor: pointer;
+        margin-right: 10px;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-search-icon {
+        display: none !important;
+    }
+
+    .search-bar {
+        display: flex !important;
+    }
+}
+
+/* 
+Mobil moslashuvchanlik uchun qo'shimcha stillar */
+
+/* Savatga qo'shish tugmasi uchun */
+@media (max-width: 480px) {
+    .cart-button-text {
+        display: none;
+    }
+
+    .add-to-cart .fas {
+        margin-right: 0;
+    }
+
+    .book-card .add-to-cart {
+        padding: 10px 0;
+        justify-content: center;
+    }
+
+    .book-card .book-info h3 {
+        font-size: 0.9rem;
+        min-height: auto;
+        max-height: 2.6em;
+        overflow: hidden;
+        display: -webkit-box;
+        /*-webkit-line-clamp: 2;*/
+        -webkit-box-orient: vertical;
+    }
+
+    .book-card .book-info .author,
+    .book-card .book-info .genre {
+        font-size: 0.8rem;
+    }
+
+    .book-card .book-info .price {
+        font-size: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.6rem;
+        margin-bottom: 30px;
+        padding-top: 1.5rem;
+    }
+
+    .hero-content {
+        padding: 20px;
+        width: 95%;
+    }
+
+    .hero-title-small {
+        font-size: 1.6rem;
+    }
+
+    .hero-subtitle-small {
+        font-size: 0.9rem;
+    }
+
+    /* Kitob tafsilotlari sahifasi */
+    .book-detail-card {
+        padding: 15px !important;
+    }
+
+    /* Savat sahifasi */
+    .cart-item {
+        padding: 10px !important;
+    }
+
+    .cart-item-details h3 {
+        font-size: 1rem !important;
+    }
+
+    .quantity-controls {
+        gap: 5px !important;
+    }
+
+    .quantity-controls button {
+        width: 30px !important;
+        height: 30px !important;
+    }
+
+    /* Profil sahifasi */
+    .profile-field {
+        padding: 12px !important;
+    }
+
+    /* Auth sahifasi */
+    .auth-container {
+        padding: 20px 15px !important;
+    }
+
+    .form-group {
+        padding: 10px 12px !important;
+    }
+}
+
+/* Kichik ekranlar uchun */
+@media (max-width: 350px) {
+    .container {
+        padding: 0 10px;
+    }
+
+    .book-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+        gap: 15px !important;
+    }
+
+    .book-card {
+        padding: 10px !important;
+    }
+
+    .book-card img {
+        height: 180px !important;
+    }
+
+    .hero-title-small {
+        font-size: 1.4rem !important;
+    }
+
+    .hero-subtitle-small {
+        font-size: 0.8rem !important;
+    }
+
+    .glassmorphism-header .logo .header-logo {
+        height: 25px !important;
+    }
+
+    .glassmorphism-header .logo span {
+        font-size: 0.8rem !important;
+    }
+}
+
+/* Tablet ekranlar uchun */
+@media (min-width: 481px) and (max-width: 768px) {
+    .book-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .book-card img {
+        height: 220px;
+    }
+
+    .hero-title-small {
+        font-size: 2rem;
+    }
+
+    .hero-subtitle-small {
+        font-size: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+}
+
+/* Kitob tafsilotlari sahifasi uchun */
+.book-detail-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: transform var(--transition-fast);
+}
+
+/* Savat sahifasi uchun */
+.cart-page {
+    padding: 40px 20px;
+    min-height: calc(100vh - 200px);
+}
+
+.cart-page h1 {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.cart-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+@media (min-width: 769px) {
+    .cart-content {
+        flex-direction: row;
+    }
+
+    .cart-items {
+        flex: 2;
+    }
+
+    .cart-summary {
+        flex: 1;
+        align-self: flex-start;
+        position: sticky;
+        top: 100px;
+    }
+}
+
+/* Auth sahifasi uchun */
+.auth-form {
+    width: 100%;
+}
+
+.toggle-auth span {
+    cursor: pointer;
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.error-message {
+    color: #ff5252;
+    margin: 10px 0;
+}
+
+/* Sear
+ch bar position fix */
+.glassmorphism-header .search-bar {
+    display: flex !important;
+    width: 250px;
+    margin-right: 20px;
+}
+
+@media (max-width: 957px) {
+    .glassmorphism-header .search-bar {
+        display: none !important;
+    }
+
+    .glassmorphism-header .search-bar.active-mobile {
+        display: flex !important;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        z-index: 1010;
+    }
+}
+
+/*
+ Header style fixes */
+.glassmorphism-header {
+    background-color: #2b2d42 !important;
+    height: 60px;
+    display: flex;
+    align-items: center;
+}
+
+
+
+.glassmorphism-header .logo img {
+    height: 40px;
+    width: auto;
+}
+
+.glassmorphism-header .logo span {
+    margin-left: 10px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #fff;
+}
+
+.glassmorphism-header .main-nav ul {
+    display: flex;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.glassmorphism-header .user-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.glassmorphism-button {
+    background-color: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.glassmorphism-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #e94560;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .hamburger-menu {
+        display: block !important;
+    }
+
+    .glassmorphism-header .main-nav {
+        display: none;
+    }
+
+    .glassmorphism-header .main-nav.active {
+        display: flex;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        background-color: #2b2d42;
+        flex-direction: column;
+        padding: 20px;
+        z-index: 1000;
+    }
+
+    .glassmorphism-header .main-nav.active ul {
+        flex-direction: column;
+    }
+
+    .glassmorphism-header .user-actions.desktop-only {
+        display: none !important;
+    }
+}
+
+/* Highlig
+ht qilingan matn uchun stillar */
+.highlight-text {
+    background-color: rgba(255, 230, 0, 0.4);
+    border-radius: 2px;
+    padding: 0 2px;
+    font-weight: 500;
+}
+
+/* Hea
+der Specific Styles - Prototipdan olingan */
+.glassmorphism-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.glassmorphism-header .logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.glassmorphism-header .logo .header-logo {
+    height: 40px;
+    width: auto;
+}
+
+.glassmorphism-header .logo span {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--neo-text);
+    white-space: nowrap;
+    transition: color 0.5s ease;
+}
+
+.glassmorphism-header .search-bar {
+    flex-grow: 1;
+    max-width: 500px;
+    margin: 0 20px;
+}
+
+.glassmorphism-header .search-bar input {
+    padding-left: 10px;
+}
+
+.glassmorphism-header .search-bar .fas {
+    color: var(--light-text-color);
+}
+
+.glassmorphism-header .main-nav ul {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.glassmorphism-header .main-nav ul li .glassmorphism-button {
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glassmorphism-header .main-nav ul li .glassmorphism-button .fas.fa-home {
+    font-size: 1.3rem;
+}
+
+.glassmorphism-header .user-actions {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.glassmorphism-header .user-actions .glassmorphism-button {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    padding: 0;
+    position: relative;
+}
+
+.glassmorphism-header .user-actions .glassmorphism-button .cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--neo-accent);
+    color: var(--white-color);
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Hamburger menu for mobile */
+.hamburger-menu {
+    display: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: var(--neo-text);
+    z-index: 1001;
+    transition: color 0.5s ease;
+}
+
+/* Mobile search icon */
+.mobile-search-icon {
+    display: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: var(--neo-text);
+    margin-left: auto;
+    margin-right: 15px;
+    transition: color 0.5s ease;
+}
+
+/* Theme toggle button */
+.theme-toggle-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--glass-bg-light);
+    border: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--neo-text);
+    transition: all 0.3s ease, background 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+    flex-shrink: 0;
+}
+
+.theme-toggle-button:hover {
+    background: var(--hover-effect);
+    box-shadow: 0 2px 10px var(--glass-shadow);
+}
+
+/* Dropdown Menu Styles */
+.glassmorphism-dropdown {
+    display: none;
+    position: absolute;
+    background: var(--glass-bg-light);
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 10px;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    padding: 10px 0;
+    transition: background 0.5s ease, border-color 0.5s ease;
+}
+
+.glassmorphism-dropdown a {
+    color: var(--text-color);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+    transition: background-color 0.3s ease, color 0.5s ease;
+}
+
+.glassmorphism-dropdown a:hover {
+    background-color: var(--hover-effect);
+    color: var(--primary-color);
+}
+
+.dropdown:hover .dropdown-content,
+.dropdown .dropdown-content.show {
+    display: block;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+/* Mobile responsive styles */
+/* @media (max-width: 768px) {
+    .glassmorphism-header .container {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .hamburger-menu,
+    .mobile-search-icon {
+        display: block;
+    }
+
+    .glassmorphism-header .search-bar {
+        display: none;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        margin: 0;
+        max-width: none;
+        z-index: 1000;
+        background: var(--glass-bg-light);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--glass-border);
+        padding: 15px 20px;
+    }
+
+    .glassmorphism-header .search-bar.active-mobile {
+        display: block;
+    }
+
+    .glassmorphism-header .main-nav {
+        display: none;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--glass-bg-light);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 1000;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    .glassmorphism-header .main-nav.active {
+        display: block;
+    }
+
+    .glassmorphism-header .main-nav ul {
+        flex-direction: column;
+        gap: 20px;
+        align-items: stretch;
+    }
+
+    .glassmorphism-header .main-nav ul li .glassmorphism-button {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 15px 20px;
+        font-size: 1.1rem;
+    }
+
+    .glassmorphism-header .user-actions.desktop-only {
+        display: none;
+    }
+
+    .mobile-user-actions {
+        border-top: 1px solid var(--glass-border);
+        padding-top: 20px;
+        margin-top: 20px;
+    }
+
+    .mobile-user-actions .glassmorphism-button {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 15px 20px;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    .admin-mobile-link {
+        border-top: 1px solid var(--glass-border);
+        padding-top: 20px;
+        margin-top: 20px;
+    }
+} */
+
+/* 
+Footer Styles - Prototipdan olingan */
+.glassmorphism-footer {
+    background: var(--glass-bg-light);
+    border-top: 1px solid var(--glass-border);
+    box-shadow: 0 -2px 15px var(--glass-shadow);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 40px 0 20px;
+    margin-top: auto;
+    color: var(--text-color);
+    transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease, color 0.5s ease;
+}
+
+.glassmorphism-footer .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.glassmorphism-footer .footer-col {
+    flex: 1;
+    min-width: 200px;
+}
+
+.glassmorphism-footer .footer-col h3 {
+    margin-bottom: 15px;
+    color: var(--neo-text);
+    font-size: 1.2rem;
+    transition: color 0.5s ease;
+}
+
+.glassmorphism-footer .footer-col p {
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--light-text-color);
+}
+
+.glassmorphism-footer .footer-col ul {
+    list-style: none;
+}
+
+.glassmorphism-footer .footer-col ul li {
+    margin-bottom: 8px;
+}
+
+.glassmorphism-footer .footer-col ul li a {
+    color: var(--light-text-color);
+    transition: color 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.glassmorphism-footer .footer-col ul li a:hover {
+    color: var(--primary-color);
+}
+
+.glassmorphism-footer .social-icons a {
+    margin-right: 10px;
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--neo-text);
+    background: var(--glass-bg-light);
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease, background 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+}
+
+.glassmorphism-footer .social-icons a:hover {
+    background: var(--primary-color);
+    color: var(--white-color);
+    box-shadow: 0 4px 10px var(--glass-shadow);
+}
+
+.glassmorphism-footer .copyright {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--glass-border);
+    font-size: 0.85rem;
+    color: var(--light-text-color);
+}
+
+/*
+ Header ID uchun maxsus stil - Cache bypass */
+#main-header {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(15px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(15px) saturate(180%) !important;
+    padding: 12px 0 !important;
+    position: fixed !important;
+    top: 0 !important;
+    width: 100% !important;
+    z-index: 1000 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Cache bypass uchun qo'shimcha */
+#main-header.glassmorphism-header {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(15px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(15px) saturate(180%) !important;
+}
+
+/* Main element uchun header'dan keyin joy qoldirish */
+main {
+    margin: 0;
+    padding: 0;
+    padding-top: 60px;
+    /* Header balandligi uchun bo'sh joy */
+}/* Mobi
+l uchun hero banner yaxshilanishlari */
+@media (max-width: 768px) {
+    .hero-banner {
+        height: 300px;
+        padding: 20px;
+    }
+    
+    .hero-content {
+        padding: 25px 20px;
+        max-width: 90%;
+    }
+    
+    .hero-title-small {
+        font-size: 1.8rem;
+        line-height: 1.3;
+        margin-bottom: 15px;
+    }
+    
+    .hero-subtitle-small {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-banner {
+        height: 250px;
+    }
+    
+    .hero-content {
+        padding: 20px 15px;
+    }
+    
+    .hero-title-small {
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+    }
+    
+    .hero-subtitle-small {
+        font-size: 0.9rem;
+    }
+}
+
+/* Book grid mobilda yaxshiroq */
+@media (max-width: 768px) {
+    .book-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 15px;
+        padding: 0 10px;
+    }
+    
+    .book-card {
+        padding: 12px;
+    }
+    
+    .book-card img {
+        height: 200px;
+    }
+    
+    .book-info h3 {
+        font-size: 1rem;
+        line-height: 1.3;
+    }
+    
+    .book-info .author,
+    .book-info .genre {
+        font-size: 0.8rem;
+    }
+    
+    .book-info .price {
+        font-size: 1rem;
+        font-weight: bold;
+    }
+    
+    .quantity-controls {
+        gap: 8px;
+    }
+    
+    .quantity-controls button {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+    }
+    
+    .quantity-controls span {
+        font-size: 1rem;
+        min-width: 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    .book-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+    }
+    
+    .book-card img {
+        height: 180px;
+    }
+}/* Foot
+er mobilda yaxshiroq */
+@media (max-width: 768px) {
+    .glassmorphism-footer {
+        padding: 30px 0 15px;
+    }
+    
+    .glassmorphism-footer .container {
+        flex-direction: column;
+        text-align: center;
+        gap: 25px;
+    }
+    
+    .footer-col {
+        min-width: unset;
+    }
+    
+    .footer-col h3 {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+    }
+    
+    .footer-col p,
+    .footer-col ul li a {
+        font-size: 0.9rem;
+    }
+    
+    .social-icons {
+        justify-content: center;
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .social-icons a {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+    }
+    
+    .copyright {
+        margin-top: 25px;
+        padding-top: 15px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Genre grid mobilda */
+@media (max-width: 768px) {
+    .genre-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .genre-card {
+        height: 150px;
+    }
+    
+    .genre-card .genre-name {
+        font-size: 1.3rem;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .genre-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .genre-card {
+        height: 120px;
+    }
+    
+    .genre-card .genre-name {
+        font-size: 1.1rem;
+        padding: 12px;
+    }
+}/*
+ Header mobilda yaxshilanishlar */
+@media (max-width: 768px) {
+    .glassmorphism-header {
+        padding: 10px 0;
+        height: auto;
+    }
+    
+    .glassmorphism-header .container {
+        padding: 0 15px;
+        gap: 15px;
+    }
+    
+    .glassmorphism-header .logo {
+        flex-shrink: 0;
+    }
+    
+    .glassmorphism-header .logo .header-logo {
+        height: 35px;
+    }
+    
+    .glassmorphism-header .logo span {
+        font-size: 1.1rem;
+        white-space: nowrap;
+    }
+    
+    .theme-toggle-button {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+    
+    .hamburger-menu {
+        font-size: 1.5rem;
+        color: var(--text-color);
+        padding: 5px;
+    }
+    
+    .mobile-search-icon {
+        font-size: 1.3rem;
+        color: var(--text-color);
+        padding: 5px;
+    }
+    
+    /* Mobile menu */
+    .glassmorphism-header .main-nav {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--glass-bg-light);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        z-index: 999;
+        padding: 20px;
+        overflow-y: auto;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .glassmorphism-header .main-nav.active {
+        transform: translateX(0);
+    }
+    
+    .glassmorphism-header .main-nav ul {
+        flex-direction: column;
+        gap: 0;
+        align-items: stretch;
+    }
+    
+    .glassmorphism-header .main-nav ul li {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .glassmorphism-header .main-nav ul li .glassmorphism-button {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 15px 20px;
+        font-size: 1.1rem;
+        border-radius: 8px;
+    }
+    
+    .mobile-user-actions {
+        border-top: 1px solid var(--glass-border);
+        padding-top: 20px;
+        margin-top: 20px;
+    }
+    
+    .mobile-user-actions .glassmorphism-button {
+        margin-bottom: 10px;
+    }
+    
+    .admin-mobile-link {
+        border-top: 1px solid var(--glass-border);
+        padding-top: 20px;
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .glassmorphism-header .container {
+        padding: 0 10px;
+        gap: 10px;
+    }
+    
+    .glassmorphism-header .logo .header-logo {
+        height: 30px;
+    }
+    
+    .glassmorphism-header .logo span {
+        font-size: 1rem;
+    }
+    
+    .theme-toggle-button {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+    
+    .hamburger-menu,
+    .mobile-search-icon {
+        font-size: 1.3rem;
+    }
+}/* Se
+arch sahifasi mobilda */
+@media (max-width: 768px) {
+    .search-results {
+        padding: 20px 10px;
+    }
+    
+    .search-results h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .search-filters {
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    
+    .search-filters select {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 8px;
+    }
+}
+
+/* Cart sahifasi mobilda */
+@media (max-width: 768px) {
+    .cart-container {
+        padding: 20px 10px;
+    }
+    
+    .cart-item {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+        gap: 15px;
+    }
+    
+    .cart-item img {
+        width: 80px;
+        height: 120px;
+        margin: 0 auto;
+    }
+    
+    .cart-item-info {
+        text-align: center;
+    }
+    
+    .cart-item-info h3 {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+    
+    .cart-item-controls {
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .cart-summary {
+        position: static;
+        width: 100%;
+        margin-top: 30px;
+        padding: 20px;
+    }
+    
+    .checkout-btn {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.1rem;
+    }
+}
+
+/* BookDetailPage mobilda */
+@media (max-width: 768px) {
+    .book-detail-container {
+        flex-direction: column;
+        padding: 20px 15px;
+        gap: 25px;
+    }
+    
+    .book-detail-image {
+        text-align: center;
+    }
+    
+    .book-detail-image img {
+        width: 200px;
+        height: 300px;
+        margin: 0 auto;
+    }
+    
+    .book-detail-info h1 {
+        font-size: 1.8rem;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    
+    .book-detail-meta {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .book-detail-price {
+        font-size: 1.5rem;
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .book-detail-actions {
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .book-detail-actions button {
+        min-width: 150px;
+        padding: 12px 20px;
+    }
 }

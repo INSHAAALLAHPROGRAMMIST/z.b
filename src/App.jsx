@@ -1,19 +1,29 @@
 // D:\\zamon-books-frontend\\src\\App.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { databases, ID, Query, account } from './appwriteConfig';
 import { Routes, Route, Link, useParams, useNavigate } from 'react-router-dom';
-import './index.css'; // Global CSS faylingiz
+import './styles/critical.css'; // Critical CSS
+// Non-critical CSS will be loaded asynchronously
 
 // Komponentlarni import qilish
 import CartPage from './components/CartPage';
 import BookDetailPage from './components/BookDetailPage';
+import UserOrdersPage from './components/UserOrdersPage';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
+import AdminBookManagement from './components/AdminBookManagement';
+import AdminAuthorManagement from './components/AdminAuthorManagement';
+import AdminGenreManagement from './components/AdminGenreManagement';
+import AdminOrderManagement from './components/AdminOrderManagement';
+import AdminUserManagement from './components/AdminUserManagement';
+import AdminSettings from './components/AdminSettings';
+import AdminLayout from './components/AdminLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthForm from './components/AuthForm';
 import ProfilePage from './components/ProfilePage';
 
 import HomePage from './pages/HomePage';
+import SearchPage from './components/SearchPage';
 
 // --- Appwrite konsolidan olingan ID'lar ---
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -64,9 +74,9 @@ function MainLayout({ children }) {
         }
     };
 
- 
 
-    const updateGlobalCartCount = async () => {
+
+    const updateGlobalCartCount = useCallback(async () => {
         try {
             const currentUser = await account.get().catch(() => null);
             let userIdToUse = currentUser ? currentUser.$id : localStorage.getItem('appwriteGuestId');
@@ -79,18 +89,30 @@ function MainLayout({ children }) {
             const response = await databases.listDocuments(
                 DATABASE_ID,
                 CART_ITEMS_COLLECTION_ID,
-                [
-                    Query.equal('users', userIdToUse)
-                ]
+                [Query.equal('userId', userIdToUse)]
             );
             const totalQuantity = response.documents.reduce((sum, item) => sum + item.quantity, 0);
             setCartCount(totalQuantity);
         } catch (err) {
-            console.error("Global savat sonini yuklashda xato:", err);
+            // Silently handle cart count errors for better UX
+            setCartCount(0);
         }
-    };
+    }, []);
 
     useEffect(() => {
+        // Load non-critical CSS asynchronously
+        const loadNonCriticalCSS = () => {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = '/src/index.css';
+            link.media = 'print';
+            link.onload = () => { link.media = 'all'; };
+            document.head.appendChild(link);
+        };
+
+        // Load after a short delay to prioritize critical rendering
+        setTimeout(loadNonCriticalCSS, 100);
+
         document.body.className = theme === 'light' ? 'light-mode' : '';
 
         const checkLoginStatusAndFetchGenres = async () => {
@@ -103,6 +125,7 @@ function MainLayout({ children }) {
                     setIsAdmin(false);
                 }
             } catch (error) {
+                // User not logged in - this is normal, don't log error
                 setIsLoggedIn(false);
                 setIsAdmin(false);
             }
@@ -128,7 +151,13 @@ function MainLayout({ children }) {
         checkLoginStatusAndFetchGenres();
         updateGlobalCartCount();
 
-        // window.addEventListener('cartUpdated', updateGlobalCartCount);
+        window.addEventListener('cartUpdated', updateGlobalCartCount);
+
+        // Login holatini yangilash uchun event listener qo'shish
+        const handleLoginStatusChange = () => {
+            checkLoginStatusAndFetchGenres();
+        };
+        window.addEventListener('loginStatusChanged', handleLoginStatusChange);
 
         if (isMobileMenuOpen || showSearchInput) {
             document.body.style.overflow = 'hidden';
@@ -147,6 +176,7 @@ function MainLayout({ children }) {
 
         return () => {
             window.removeEventListener('cartUpdated', updateGlobalCartCount);
+            window.removeEventListener('loginStatusChanged', handleLoginStatusChange);
             document.body.style.overflow = 'unset';
             window.removeEventListener('keydown', handleEscape);
         };
@@ -187,11 +217,11 @@ function MainLayout({ children }) {
 
     return (
         <>
-            <header id='bluruchun' className={`glassmorphism-header ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>
+            <header id='main-header' className={`glassmorphism-header ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>
                 <div className="container">
                     <Link to="/" className="logo">
                         <img src={headerLogoUrl} alt="Zamon Books Logo" className="header-logo" />
-                        <span style={{ marginLeft: '10px', fontSize: '1.5em', fontWeight: 'bold' }}>Zamon Books</span>
+                        <span style={{ marginLeft: '10px', fontSize: '1.5em', fontWeight: 'bold' }} title='Bosh sahifa'>Zamon Books</span>
                     </Link>
 
                     {/* Hamburger ikonkasi va "X" tugmasi */}
@@ -209,17 +239,10 @@ function MainLayout({ children }) {
                         <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
                     </div>
 
-
-                    {/* Qidiruv paneli - faqat desktopda ko'rinadi, mobilda dinamik */}
-                    <div className={`search-bar glassmorphism-input ${showSearchInput ? 'active-mobile' : ''}`}>
-                        <i className="fas fa-search"></i>
-                        <input type="text" id="search-input" name="search" placeholder="Kitob qidirish..." />
-                    </div>
-
                     {/* Navigatsiya elementi */}
                     <nav className={`main-nav ${isMobileMenuOpen ? 'active' : ''}`}>
                         <ul className="glassmorphism-nav-list">
-                            <li><Link to="/" className="glassmorphism-button" aria-label="Bosh sahifa" onClick={() => setIsMobileMenuOpen(false)}><i className="fas fa-home"></i></Link></li>
+                            {/*<li><Link to="/" className="glassmorphism-button" aria-label="Bosh sahifa" onClick={() => setIsMobileMenuOpen(false)}><i className="fas fa-home"></i></Link></li>*/}
                             <li className="dropdown">
                                 <a href="#" className="glassmorphism-button dropbtn" onClick={toggleDropdown}>Janrlar <i className="fas fa-caret-down"></i></a>
                                 <div className="dropdown-content glassmorphism-dropdown" id="genre-dropdown bluruchun">
@@ -234,8 +257,8 @@ function MainLayout({ children }) {
                                 </div>
                             </li>
                             <li><Link to="/authors" className="glassmorphism-button" onClick={() => setIsMobileMenuOpen(false)}>Mualliflar</Link></li>
-                            <li><Link to="/news" className="glassmorphism-button" onClick={() => setIsMobileMenuOpen(false)}>Yangiliklar</Link></li>
-                            <li><Link to="/contact" className="glassmorphism-button" onClick={() => setIsMobileMenuOpen(false)}>Aloqa</Link></li>
+                            {/*<li><Link to="/news" className="glassmorphism-button" onClick={() => setIsMobileMenuOpen(false)}>Yangiliklar</Link></li>*/}
+                            {/*<li><Link to="/contact" className="glassmorphism-button" onClick={() => setIsMobileMenuOpen(false)}>Aloqa</Link></li>*/}
 
                             {/* Foydalanuvchi amallari - Mobil menyu ichida */}
                             <li className="mobile-user-actions">
@@ -244,9 +267,14 @@ function MainLayout({ children }) {
                                     <span className="cart-count">{cartCount}</span>
                                 </Link>
                                 {isLoggedIn ? (
-                                    <Link to="/profile" className="glassmorphism-button" aria-label="Profil" onClick={() => setIsMobileMenuOpen(false)}>
-                                        <i className="fas fa-user"></i> Profil
-                                    </Link>
+                                    <>
+                                        <Link to="/orders" className="glassmorphism-button" aria-label="Buyurtmalar" onClick={() => setIsMobileMenuOpen(false)}>
+                                            <i className="fas fa-shopping-bag"></i> Buyurtmalar
+                                        </Link>
+                                        <Link to="/profile" className="glassmorphism-button" aria-label="Profil" onClick={() => setIsMobileMenuOpen(false)}>
+                                            <i className="fas fa-user"></i> Profil
+                                        </Link>
+                                    </>
                                 ) : (
                                     <Link to="/auth" className="glassmorphism-button" aria-label="Kirish/Ro'yxatdan o'tish" onClick={() => setIsMobileMenuOpen(false)}>
                                         <i className="fas fa-sign-in-alt"></i> Kirish / Ro'yxatdan O'tish
@@ -254,17 +282,36 @@ function MainLayout({ children }) {
                                 )}
                             </li>
                             {/* Admin kirish/panel tugmasi - ALOHIDA QISM */}
-                            <li className="admin-mobile-link">
-                                {isAdmin ? (
+                            {/*<li className="admin-mobile-link">
+                                {!isAdmin ? (
                                     <Link to="/admin-dashboard" className="glassmorphism-button" aria-label="Admin Paneli" onClick={() => setIsMobileMenuOpen(false)}>
                                         <i className="fas fa-user-shield"></i> Admin Paneli
                                     </Link>
                                 ) : (
                                     null
                                 )}
-                            </li>
+                            </li>*/}
                         </ul>
                     </nav>
+
+                    {/* Qidiruv paneli - faqat desktopda ko'rinadi, mobilda dinamik */}
+                    <div className={`search-bar glassmorphism-input ${showSearchInput ? 'active-mobile' : ''}`}>
+                        <i className="fas fa-search"></i>
+                        <input
+                            type="text"
+                            id="search-input"
+                            name="search"
+                            placeholder="Kitob qidirish..."
+                            onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                    const searchTerm = e.target.value.trim();
+                                    if (searchTerm) {
+                                        navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+                                    }
+                                }
+                            }}
+                        />
+                    </div>
 
                     {/* Foydalanuvchi amallari - DESKTOP UCHUN */}
                     <div className="user-actions desktop-only">
@@ -274,9 +321,14 @@ function MainLayout({ children }) {
                         </Link>
 
                         {isLoggedIn ? (
-                            <Link to="/profile" className="glassmorphism-button" aria-label="Profil" onClick={() => setIsMobileMenuOpen(false)}>
-                                <i className="fas fa-user"></i>
-                            </Link>
+                            <>
+                                <Link to="/orders" className="glassmorphism-button" aria-label="Buyurtmalar" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <i className="fas fa-shopping-bag"></i>
+                                </Link>
+                                <Link to="/profile" className="glassmorphism-button" aria-label="Profil" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <i className="fas fa-user"></i>
+                                </Link>
+                            </>
                         ) : (
                             <Link to="/auth" className="glassmorphism-button" aria-label="Kirish/Ro'yxatdan o'tish" onClick={() => setIsMobileMenuOpen(false)}>
                                 <i className="fas fa-sign-in-alt"></i>
@@ -284,13 +336,13 @@ function MainLayout({ children }) {
                         )}
 
                         {/* Admin Kirish/Panel tugmasi - desktopda alohida */}
-                        {isAdmin ? (
+                        {/*{isAdmin ? (
                             <Link to="/admin-dashboard" className="glassmorphism-button" aria-label="Admin Paneli" onClick={() => setIsMobileMenuOpen(false)}>
                                 <i className="fas fa-user-shield"></i>
                             </Link>
                         ) : (
                             null
-                        )}
+                        )}*/}
                     </div>
 
                 </div>
@@ -311,9 +363,9 @@ function MainLayout({ children }) {
                         <h3>Zamon Books</h3>
                         <p>Zamon Books – Bilimga intiluvchilar uchun.</p>
                         <div className="social-icons">
-                            <a href="#" className="glassmorphism-button"><i className="fab fa-telegram-plane"></i></a>
-                            <a href="#" className="glassmorphism-button"><i className="fab fa-instagram"></i></a>
-                            <a href="#" className="glassmorphism-button"><i className="fab fa-facebook-f"></i></a>
+                            <a href="https://t.me/ZAMON_BOOKS" title='Telegram-kanal' className="glassmorphism-button" target='_blank'><i className="fab fa-telegram-plane"></i></a>
+                            <a href="https://www.instagram.com/zamon_books/" title='Instagram-sahifa' className="glassmorphism-button" target='_blank'><i className="fab fa-instagram"></i></a>
+                            {/*<a href="#" className="glassmorphism-button"><i className="fab fa-facebook-f"></i></a>*/}
                         </div>
                     </div>
                     <div className="footer-col">
@@ -350,11 +402,17 @@ function App() {
             <Route path="/" element={<MainLayout><HomePage databases={databases} DATABASE_ID={DATABASE_ID} /></MainLayout>} />
             <Route path="/book/:bookId" element={<MainLayout><BookDetailPage /></MainLayout>} />
             <Route path="/cart" element={<MainLayout><CartPage /></MainLayout>} />
+            <Route path="/orders" element={
+                <ProtectedRoute>
+                    <MainLayout><UserOrdersPage /></MainLayout>
+                </ProtectedRoute>
+            } />
             <Route path="/auth" element={<MainLayout><AuthForm /></MainLayout>} />
             <Route path="/profile" element={<MainLayout><ProfilePage /></MainLayout>} />
             {/* YANGI: Tasdiqlashdan keyin yo'naltiriladigan sahifalar */}
             <Route path="/verification-success" element={<MainLayout><VerificationStatusPage status="success" /></MainLayout>} />
             <Route path="/verification-failure" element={<MainLayout><VerificationStatusPage status="failure" /></MainLayout>} />
+            <Route path="/search" element={<MainLayout><SearchPage /></MainLayout>} />
             {/* YANGI: Tasdiqlashdan keyin yo'naltiriladigan sahifalar */}
             <Route path="/authors" element={<MainLayout><div className="container" style={{ padding: '50px', textAlign: 'center', minHeight: 'calc(100vh - 200px)' }}>Mualliflar sahifasi (tez orada)</div></MainLayout>} />
             <Route path="/genres/:genreId" element={<MainLayout><div className="container" style={{ padding: '50px', textAlign: 'center', minHeight: 'calc(100vh - 200px)' }}>Janr sahifasi (tez orada)</div></MainLayout>} />
@@ -363,20 +421,45 @@ function App() {
             <Route path="/faq" element={<MainLayout><div className="container" style={{ padding: '50px', textAlign: 'center', minHeight: 'calc(100vh - 200px)' }}> Ko'p Beriladigan Savollar sahifasi (tez orada)</div></MainLayout>} />
 
             <Route path="/admin-login" element={<MainLayout><AdminLogin /></MainLayout>} />
+
+            {/* Admin Panel Routes */}
             <Route
                 path="/admin-dashboard"
                 element={
                     <ProtectedRoute>
-                        <MainLayout><AdminDashboard /></MainLayout>
+                        <AdminLayout>
+                            <AdminDashboard />
+                        </AdminLayout>
                     </ProtectedRoute>
                 }
             />
-
             <Route
                 path="/admin/books"
                 element={
                     <ProtectedRoute>
-                        <MainLayout><div className="container" style={{ padding: '50px', textAlign: 'center', minHeight: 'calc(100vh - 200px)' }}>Kitoblarni boshqarish sahifasi (Admin)</div></MainLayout>
+                        <AdminLayout>
+                            <AdminBookManagement />
+                        </AdminLayout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/admin/authors"
+                element={
+                    <ProtectedRoute>
+                        <AdminLayout>
+                            <AdminAuthorManagement />
+                        </AdminLayout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/admin/genres"
+                element={
+                    <ProtectedRoute>
+                        <AdminLayout>
+                            <AdminGenreManagement />
+                        </AdminLayout>
                     </ProtectedRoute>
                 }
             />
@@ -384,7 +467,9 @@ function App() {
                 path="/admin/orders"
                 element={
                     <ProtectedRoute>
-                        <MainLayout><div className="container" style={{ padding: '50px', textAlign: 'center', minHeight: 'calc(100vh - 200px)' }}>Buyurtmalarni boshqarish sahifasi (Admin)</div></MainLayout>
+                        <AdminLayout>
+                            <AdminOrderManagement />
+                        </AdminLayout>
                     </ProtectedRoute>
                 }
             />
@@ -392,7 +477,19 @@ function App() {
                 path="/admin/users"
                 element={
                     <ProtectedRoute>
-                        <MainLayout><div className="container" style={{ padding: '50px', textAlign: 'center', minHeight: 'calc(100vh - 200px)' }}>Foydalanuvchilarni boshqarish sahifasi (Admin)</div></MainLayout>
+                        <AdminLayout>
+                            <AdminUserManagement />
+                        </AdminLayout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/admin/settings"
+                element={
+                    <ProtectedRoute>
+                        <AdminLayout>
+                            <AdminSettings />
+                        </AdminLayout>
                     </ProtectedRoute>
                 }
             />

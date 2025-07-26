@@ -1,30 +1,35 @@
-// D:\zamon-books-frontend\src\components\AdminLayout.jsx
 import React, { useState, useEffect } from 'react';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
-import { account } from '../appwriteConfig'; // Appwrite Account servisni import qilish
-import '../index.css'; // Global stillarni import qilish
+import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { account, databases, Query } from '../appwriteConfig';
+import { prepareSearchText } from '../utils/transliteration';
+import { highlightText } from '../utils/highlightText.jsx';
+import '../index.css';
+import '../styles/admin.css';
+import '../styles/header-fix.css';
 
-function AdminLayout() {
+function AdminLayout({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [showSearchResults, setShowSearchResults] = useState(false);
+    const [searchLoading, setSearchLoading] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         const checkUser = async () => {
             try {
                 const currentUser = await account.get();
                 setUser(currentUser);
-                // Admin rolini tekshirish (Appwrite DBda yoki Teamsda)
-                // Bu yerda foydalanuvchining 'role' atributi borligini faraz qilamiz
-                // Agar sizda Appwrite Teams bo'lsa, bu yerda foydalanuvchining Admin Team a'zosi ekanligini tekshirishingiz kerak.
-                // Misol: if (!currentUser.roles.includes('admin')) { navigate('/admin/login'); }
-                // Hozircha soddalashtirilgan.
-                if (!currentUser) { // Agar foydalanuvchi kirmagan bo'lsa
-                    navigate('/admin/login');
+                // Admin rolini tekshirish
+                if (!currentUser) {
+                    navigate('/admin-login');
                 }
             } catch (err) {
                 console.error("Foydalanuvchi sessiyasini tekshirishda xato:", err);
-                navigate('/admin/login'); // Foydalanuvchi kirmagan bo'lsa, kirish sahifasiga yo'naltirish
+                navigate('/admin-login');
             } finally {
                 setLoading(false);
             }
@@ -34,77 +39,337 @@ function AdminLayout() {
 
     const handleLogout = async () => {
         try {
-            await account.deleteSession('current'); // Joriy sessiyani tugatish
+            await account.deleteSession('current');
             setUser(null);
-            navigate('/admin/login'); // Kirish sahifasiga qaytish
+            navigate('/admin-login');
         } catch (err) {
             console.error("Chiqishda xato:", err);
             alert("Chiqishda xato yuz berdi. Iltimos, keyinroq urinib ko'ring.");
         }
     };
 
+    const toggleSidebar = () => {
+        // Sidebar'ni ochish/yopish
+        const newCollapsedState = !sidebarCollapsed;
+        setSidebarCollapsed(newCollapsedState);
+        
+        // Mobil rejimda overlay qo'shish/olib tashlash
+        if (window.innerWidth <= 768) {
+            if (newCollapsedState) {
+                // Sidebar ochilganda overlay qo'shish
+                const overlay = document.createElement('div');
+                overlay.className = 'admin-sidebar-overlay active';
+                overlay.id = 'admin-sidebar-overlay';
+                overlay.onclick = () => {
+                    setSidebarCollapsed(false);
+                    document.body.removeChild(overlay);
+                };
+                document.body.appendChild(overlay);
+                
+                // Scroll'ni bloklash
+                document.body.style.overflow = 'hidden';
+            } else {
+                // Sidebar yopilganda overlay'ni olib tashlash
+                const overlay = document.getElementById('admin-sidebar-overlay');
+                if (overlay) {
+                    document.body.removeChild(overlay);
+                }
+                
+                // Scroll'ni qayta yoqish
+                document.body.style.overflow = 'auto';
+            }
+        }
+    };
+
+    // Global qidiruv funksiyasi
+    const handleGlobalSearch = async () => {
+        if (!searchQuery.trim()) return;
+        
+        setSearchLoading(true);
+        setShowSearchResults(true);
+        
+        try {
+            // Qidiruv so'rovini lotin va kiril alifbolarida tayyorlash
+            const [searchTermLower, searchTermAlternate, searchTermXToH, searchTermHToX] = prepareSearchText(searchQuery);
+            
+            // Barcha kolleksiyalardan qidirish
+            const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
+            const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
+            const AUTHORS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_AUTHORS_ID;
+            const GENRES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_GENRES_ID;
+            const USERS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_USERS_ID;
+            
+            // Parallel qidiruvlar
+            const [booksResponse, authorsResponse, genresResponse, usersResponse] = await Promise.all([
+                // Kitoblar qidirish
+                databases.listDocuments(DATABASE_ID, BOOKS_COLLECTION_ID, [Query.limit(5)]),
+                // Mualliflar qidirish
+                databases.listDocuments(DATABASE_ID, AUTHORS_COLLECTION_ID, [Query.limit(5)]),
+                // Janrlar qidirish
+                databases.listDocuments(DATABASE_ID, GENRES_COLLECTION_ID, [Query.limit(5)]),
+                // Foydalanuvchilar qidirish
+                databases.listDocuments(DATABASE_ID, USERS_COLLECTION_ID, [Query.limit(5)])
+            ]);
+            
+            // Client-side filtering
+            const filteredBooks = booksResponse.documents.filter(book => 
+                (book.title && (
+                    book.title.toLowerCase().includes(searchTermLower) || 
+                    book.title.toLowerCase().includes(searchTermAlternate) ||
+                    book.title.toLowerCase().includes(searchTermXToH) ||
+                    book.title.toLowerCase().includes(searchTermHToX)
+                )) || 
+                (book.description && (
+                    book.description.toLowerCase().includes(searchTermLower) ||
+                    book.description.toLowerCase().includes(searchTermAlternate) ||
+                    book.description.toLowerCase().includes(searchTermXToH) ||
+                    book.description.toLowerCase().includes(searchTermHToX)
+                ))
+            ).map(book => ({
+                id: book.$id,
+                title: book.title,
+                type: 'Kitob',
+                icon: 'fa-book',
+                link: `/book/${book.$id}`
+            }));
+            
+            const filteredAuthors = authorsResponse.documents.filter(author => 
+                author.name && (
+                    author.name.toLowerCase().includes(searchTermLower) || 
+                    author.name.toLowerCase().includes(searchTermAlternate) ||
+                    author.name.toLowerCase().includes(searchTermXToH) ||
+                    author.name.toLowerCase().includes(searchTermHToX)
+                )
+            ).map(author => ({
+                id: author.$id,
+                title: author.name,
+                type: 'Muallif',
+                icon: 'fa-user-edit',
+                link: `/admin/authors?id=${author.$id}`
+            }));
+            
+            const filteredGenres = genresResponse.documents.filter(genre => 
+                genre.name && (
+                    genre.name.toLowerCase().includes(searchTermLower) || 
+                    genre.name.toLowerCase().includes(searchTermAlternate) ||
+                    genre.name.toLowerCase().includes(searchTermXToH) ||
+                    genre.name.toLowerCase().includes(searchTermHToX)
+                )
+            ).map(genre => ({
+                id: genre.$id,
+                title: genre.name,
+                type: 'Janr',
+                icon: 'fa-tags',
+                link: `/admin/genres?id=${genre.$id}`
+            }));
+            
+            const filteredUsers = usersResponse.documents.filter(user => 
+                (user.fullName && (
+                    user.fullName.toLowerCase().includes(searchTermLower) || 
+                    user.fullName.toLowerCase().includes(searchTermAlternate) ||
+                    user.fullName.toLowerCase().includes(searchTermXToH) ||
+                    user.fullName.toLowerCase().includes(searchTermHToX)
+                )) || 
+                (user.email && (
+                    user.email.toLowerCase().includes(searchTermLower) ||
+                    user.email.toLowerCase().includes(searchTermAlternate)
+                ))
+            ).map(user => ({
+                id: user.$id,
+                title: user.fullName || user.email,
+                type: 'Foydalanuvchi',
+                icon: 'fa-user',
+                link: `/admin/users?id=${user.$id}`
+            }));
+            
+            // Barcha natijalarni birlashtirish
+            const allResults = [...filteredBooks, ...filteredAuthors, ...filteredGenres, ...filteredUsers];
+            
+            setSearchResults(allResults);
+            setSearchLoading(false);
+            
+        } catch (error) {
+            console.error("Qidiruv xatosi:", error);
+            setSearchResults([]);
+            setSearchLoading(false);
+        }
+    };
+
+    // Active menu item ni aniqlash
+    const isActive = (path) => {
+        return location.pathname.startsWith(path);
+    };
+
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-                <svg className="animate-spin h-10 w-10 text-white" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span className="ml-3">Yuklanmoqda...</span>
+            <div className="admin-loading-screen">
+                <div className="admin-loading-spinner"></div>
+                <p>Yuklanmoqda...</p>
             </div>
         );
     }
 
-    // Agar foydalanuvchi mavjud bo'lmasa, uni AdminLogin ga yo'naltirganmiz, shuning uchun bu yerda user har doim mavjud bo'ladi
-    // yoki loading holati tugagan bo'ladi.
     return (
-        <div className="flex min-h-screen bg-gray-800 text-gray-100">
+        <div className="admin-layout">
             {/* Sidebar */}
-            <aside className="w-64 glassmorphism-card p-4 flex flex-col justify-between">
-                <div>
-                    <h2 className="text-2xl font-bold mb-6 text-white">Admin Panel</h2>
-                    <nav>
-                        <ul>
-                            <li className="mb-2">
-                                <Link to="/admin/dashboard" className="block p-2 rounded hover:bg-gray-700 transition-colors">Dashboard</Link>
-                            </li>
-                            <li className="mb-2">
-                                <Link to="/admin/books" className="block p-2 rounded hover:bg-gray-700 transition-colors">Kitoblar</Link>
-                            </li>
-                            <li className="mb-2">
-                                <Link to="/admin/authors" className="block p-2 rounded hover:bg-gray-700 transition-colors">Mualliflar</Link>
-                            </li>
-                            <li className="mb-2">
-                                <Link to="/admin/genres" className="block p-2 rounded hover:bg-gray-700 transition-colors">Janrlar</Link>
-                            </li>
-                            <li className="mb-2">
-                                <Link to="/admin/users" className="block p-2 rounded hover:bg-gray-700 transition-colors">Foydalanuvchilar</Link>
-                            </li>
-                            <li className="mb-2">
-                                <Link to="/admin/orders" className="block p-2 rounded hover:bg-gray-700 transition-colors">Buyurtmalar</Link>
-                            </li>
-                        </ul>
-                    </nav>
+            <aside className={`admin-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+                <div className="admin-sidebar-header">
+                    <div className="admin-logo">
+                        <img src="https://res.cloudinary.com/dcn4maral/image/upload/v1752356041/favicon_maovuy.svg" alt="Zamon Books Logo" />
+                        {!sidebarCollapsed && <span>Zamon Books</span>}
+                    </div>
+                    <button className="sidebar-toggle" onClick={toggleSidebar}>
+                        <i className={`fas ${sidebarCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'}`}></i>
+                    </button>
                 </div>
-                <div className="mt-auto">
-                    {user && (
-                        <div className="mb-4 p-2 bg-gray-700 rounded-md text-sm">
-                            <p>Kirgan: {user.email}</p>
+                
+                <nav className="admin-nav">
+                    <ul>
+                        <li className={isActive('/admin-dashboard') ? 'active' : ''}>
+                            <Link to="/admin-dashboard">
+                                <i className="fas fa-tachometer-alt"></i>
+                                {!sidebarCollapsed && <span>Dashboard</span>}
+                            </Link>
+                        </li>
+                        <li className={isActive('/admin/books') ? 'active' : ''}>
+                            <Link to="/admin/books">
+                                <i className="fas fa-book"></i>
+                                {!sidebarCollapsed && <span>Kitoblar</span>}
+                            </Link>
+                        </li>
+                        <li className={isActive('/admin/authors') ? 'active' : ''}>
+                            <Link to="/admin/authors">
+                                <i className="fas fa-user-edit"></i>
+                                {!sidebarCollapsed && <span>Mualliflar</span>}
+                            </Link>
+                        </li>
+                        <li className={isActive('/admin/genres') ? 'active' : ''}>
+                            <Link to="/admin/genres">
+                                <i className="fas fa-tags"></i>
+                                {!sidebarCollapsed && <span>Janrlar</span>}
+                            </Link>
+                        </li>
+                        <li className={isActive('/admin/orders') ? 'active' : ''}>
+                            <Link to="/admin/orders">
+                                <i className="fas fa-shopping-cart"></i>
+                                {!sidebarCollapsed && <span>Buyurtmalar</span>}
+                            </Link>
+                        </li>
+                        <li className={isActive('/admin/users') ? 'active' : ''}>
+                            <Link to="/admin/users">
+                                <i className="fas fa-users"></i>
+                                {!sidebarCollapsed && <span>Foydalanuvchilar</span>}
+                            </Link>
+                        </li>
+                        <li className={isActive('/admin/settings') ? 'active' : ''}>
+                            <Link to="/admin/settings">
+                                <i className="fas fa-cog"></i>
+                                {!sidebarCollapsed && <span>Sozlamalar</span>}
+                            </Link>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <div className="admin-sidebar-footer">
+                    {user && !sidebarCollapsed && (
+                        <div className="admin-user-info">
+                            <div className="admin-avatar">
+                                <i className="fas fa-user-circle"></i>
+                            </div>
+                            <div className="admin-user-details">
+                                <p className="admin-user-name">{user.name || 'Admin'}</p>
+                                <p className="admin-user-email">{user.email}</p>
+                            </div>
                         </div>
                     )}
-                    <button
-                        onClick={handleLogout}
-                        className="glassmorphism-button w-full py-2 px-4 rounded focus:outline-none focus:shadow-outline flex items-center justify-center"
-                    >
-                        Chiqish
+                    <button onClick={handleLogout} className="admin-logout-btn">
+                        <i className="fas fa-sign-out-alt"></i>
+                        {!sidebarCollapsed && <span>Chiqish</span>}
                     </button>
                 </div>
             </aside>
 
             {/* Main content */}
-            <main className="flex-1 p-8 overflow-y-auto">
-                <Outlet /> {/* Ichki admin sahifalari shu yerda ko'rsatiladi */}
-            </main>
+            <div className="admin-main">
+                <header className="admin-header">
+                    <div className="admin-header-left">
+                        <h1 className="admin-page-title">
+                            {location.pathname === '/admin-dashboard' && 'Dashboard'}
+                            {location.pathname === '/admin/books' && 'Kitoblar'}
+                            {location.pathname === '/admin/authors' && 'Mualliflar'}
+                            {location.pathname === '/admin/genres' && 'Janrlar'}
+                            {location.pathname === '/admin/orders' && 'Buyurtmalar'}
+                            {location.pathname === '/admin/users' && 'Foydalanuvchilar'}
+                            {location.pathname === '/admin/settings' && 'Sozlamalar'}
+                        </h1>
+                    </div>
+                    <div className="admin-header-right">
+                        <div className="admin-search">
+                            <i className="fas fa-search"></i>
+                            <input 
+                                type="text" 
+                                placeholder="Qidirish..." 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyPress={(e) => {
+                                    if (e.key === 'Enter' && searchQuery.trim()) {
+                                        handleGlobalSearch();
+                                    }
+                                }}
+                            />
+                            {showSearchResults && searchResults.length > 0 && (
+                                <div className="global-search-results">
+                                    <div className="search-results-header">
+                                        <h3>Qidiruv natijalari</h3>
+                                        <button onClick={() => setShowSearchResults(false)}>
+                                            <i className="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div className="search-results-content">
+                                        {searchResults.map((result) => (
+                                            <div key={result.id} className="search-result-item" onClick={() => {
+                                                // Kitoblar uchun yangi oynada ochish
+                                                if (result.type === 'Kitob') {
+                                                    window.open(result.link, '_blank');
+                                                } else {
+                                                    navigate(result.link);
+                                                }
+                                                setShowSearchResults(false);
+                                            }}>
+                                                <div className="search-result-icon">
+                                                    <i className={`fas ${result.icon}`}></i>
+                                                </div>
+                                                <div className="search-result-info">
+                                                    <h4>{highlightText(result.title, searchQuery)}</h4>
+                                                    <p>{result.type}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="admin-notifications">
+                            <i className="fas fa-bell"></i>
+                            <span className="notification-badge">3</span>
+                        </div>
+                        <div className="admin-mobile-menu">
+                            <button onClick={toggleSidebar}>
+                                <i className="fas fa-bars"></i>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+                
+                <main className="admin-content" style={{ paddingTop: '0' }}>
+                    {/* Children komponentlarni render qilish */}
+                    {children || <Outlet />}
+                </main>
+                
+                <footer className="admin-footer">
+                    <p>&copy; {new Date().getFullYear()} Zamon Books Admin. Barcha huquqlar himoyalangan.</p>
+                </footer>
+            </div>
         </div>
     );
 }

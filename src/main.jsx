@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
+import './styles/variables.css'; // CSS o'zgaruvchilar
 import './index.css'; // Global stillarimiz
 
 import { BrowserRouter } from 'react-router-dom';

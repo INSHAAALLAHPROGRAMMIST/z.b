@@ -1,0 +1,157 @@
+/* Admin Modal Styles */
+
+.admin-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    animation: modalBackdropFadeIn 0.3s ease;
+}
+
+@keyframes modalBackdropFadeIn {
+    from { opacity: 0; backdrop-filter: blur(0px); }
+    to { opacity: 1; backdrop-filter: blur(8px); }
+}
+
+.admin-modal-content {
+    background: linear-gradient(135deg, var(--neo-element-bg), rgba(var(--neo-background-rgb), 0.95));
+    border-radius: 20px;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.3),
+        0 8px 24px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(var(--glass-border-rgb, 255, 255, 255), 0.2);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.admin-modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    border-radius: 20px 20px 0 0;
+}
+
+@keyframes modalSlideIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(-30px) scale(0.95);
+        filter: blur(4px);
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1);
+        filter: blur(0px);
+    }
+}
+
+.admin-modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background-color: var(--neo-element-bg);
+    z-index: 1;
+}
+
+.admin-modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--neo-text);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--light-text-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 8px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.close-btn:hover { 
+    color: var(--neo-accent);
+    background: rgba(var(--neo-background-rgb), 0.2);
+    transform: rotate(90deg);
+}
+
+.admin-modal-body { padding: 20px; }
+
+/* === DELETE CONFIRM MODAL === */
+.admin-modal-content.delete-confirm {
+    max-width: 400px;
+}
+
+.delete-confirm-content {
+    text-align: center;
+    padding: 20px;
+}
+
+.delete-confirm-icon {
+    font-size: 3rem;
+    color: #dc3545;
+    margin-bottom: 15px;
+}
+
+.delete-confirm-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--neo-text);
+    margin-bottom: 10px;
+}
+
+.delete-confirm-message {
+    color: var(--light-text-color);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.delete-confirm-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* === MOBILE === */
+@media (max-width: 768px) {
+    .admin-modal-content {
+        width: 95%;
+        max-height: 85vh;
+        margin: 20px;
+    }
+
+    .admin-modal-header { padding: 15px; }
+    .admin-modal-body { padding: 15px; }
+}
+
+/* === LIGHT MODE === */
+body.light-mode .admin-modal-content {
+    background-color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,60 @@
+/* Header va kontentlar orasidagi masofani oshirish uchun qo'shimcha stillar */
+
+/* Header ostida joy qoldirish - minimal */
+.admin-header {
+    margin-bottom: 10px;
+}
+
+/* Header va birinchi kard orasidagi masofa - minimal */
+.admin-header-spacer {
+    height: 0 !important;
+    width: 100% !important;
+    display: none !important;
+    /* O'chirib tashlash */
+    clear: both !important;
+}
+
+/* Dashboard va boshqa komponentlar uchun yuqoridan margin - minimal */
+.admin-dashboard,
+.admin-book-management,
+.admin-author-management,
+.admin-genre-management,
+.admin-order-management,
+.admin-user-management,
+.admin-settings {
+    margin-top: 0 !important;
+}
+
+/* Statistika kartlari uchun yuqoridan margin - minimal */
+.admin-stats-grid {
+    margin-top: 5px !important;
+}
+
+/* Jadval va boshqa elementlar uchun yuqoridan margin - minimal */
+.admin-table-container,
+.admin-filters,
+.admin-pagination {
+    margin-top: 10px !important;
+}
+
+/* Sarlavhalar uchun pastdan margin - minimal */
+.admin-page-title {
+    margin-bottom: 10px !important;
+}
+
+/* Card header uchun pastdan margin - minimal */
+.card-header {
+    margin-bottom: 0 !important;
+}
+
+/* Jadval sarlavhalari uchun padding - minimal */
+.admin-table th {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+}
+
+/* Jadval qatorlari uchun padding - minimal */
+.admin-table td {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+}

@@ -8,6 +8,7 @@ import '../index.css'; // Umumiy stil faylini import qilish
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
 const CART_ITEMS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_CART_ITEMS_ID;
+const USERS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_USERS_ID;
 
 // --- Telegram Bot API konfiguratsiyasi ---
 const TELEGRAM_BOT_TOKEN = import.meta.env.TELEGRAM_BOT_TOKEN; // .env faylidan oling
@@ -37,6 +38,7 @@ function CartPage() {
             try {
                 // Foydalanuvchi ID'sini tekshirish: agar kirgan bo'lsa, uning ID'si, aks holda guest ID
                 const currentUser = await account.get().catch(() => null);
+
                 let currentUserId = currentUser ? currentUser.$id : localStorage.getItem('appwriteGuestId');
 
                 if (!currentUserId) {
@@ -189,7 +191,7 @@ function CartPage() {
                        `  Miqdori: ${item.quantity} dona\n` +
                        `  Jami: ${itemTotal} so'm`;
             }).join('\n\n'); // Har bir kitob orasida bo'sh qator
-
+            // console.log(currentUser);
             const message = `
 <b>Yangi Buyurtma!</b> 🛒
 -----------------------------------

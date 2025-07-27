@@ -1,4 +1,5 @@
 import React from 'react';
+import { toastMessages } from '../utils/toastUtils';
 import '../styles/admin.css';
 
 const ImageUpload = ({ 
@@ -16,14 +17,14 @@ const ImageUpload = ({
         if (file) {
             // Check file type
             if (!file.type.startsWith('image/')) {
-                alert('Faqat rasm fayllarini yuklash mumkin!');
+                toastMessages.fileTypeError();
                 return;
             }
             
             // Check file size
             if (file.size > maxSize) {
                 const maxSizeMB = Math.round(maxSize / (1024 * 1024));
-                alert(`Fayl hajmi ${maxSizeMB}MB dan oshmasligi kerak!`);
+                toastMessages.fileSizeError(maxSizeMB);
                 return;
             }
             

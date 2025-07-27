@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { databases, Query, ID } from '../appwriteConfig'; // appwriteConfig ni to'g'ri joydan import qilish
+import { toastMessages } from '../utils/toastUtils';
 import '../index.css'; // Global CSS faylingiz
 
 // --- Appwrite konsolidan olingan ID'lar ---
@@ -88,13 +89,13 @@ function BookDetailPage() {
                 console.log(`Kitob savatga qo'shildi: ${bookToAdd.title}`);
                 setCartCount(prevCount => prevCount + 1);
             }
-            alert(`${bookToAdd.title} savatga qo'shildi!`);
+            toastMessages.addedToCart(bookToAdd.title);
             
             // Global cart count'ni yangilash uchun event dispatch qilish
             window.dispatchEvent(new CustomEvent('cartUpdated'));
         } catch (err) {
             console.error("Savatga qo'shishda xato yuz berdi:", err);
-            alert("Kitobni savatga qo'shishda xato yuz berdi.");
+            toastMessages.cartError();
         }
     };
 

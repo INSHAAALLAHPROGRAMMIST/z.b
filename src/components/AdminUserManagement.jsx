@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { databases, Query, ID } from '../appwriteConfig';
 import { prepareSearchText } from '../utils/transliteration';
 import { highlightText } from '../utils/highlightText.jsx';
+import { toastMessages, toast } from '../utils/toastUtils';
 import siteConfig from '../config/siteConfig';
 import '../index.css';
 import '../styles/admin.css';
@@ -130,11 +131,11 @@ function AdminUserManagement() {
             const { createSampleUsers: createSampleUsersUtil } = await import('../utils/createSampleUsers');
             
             await createSampleUsersUtil();
-            alert('Test foydalanuvchilari muvaffaqiyatli yaratildi!\n\nLogin ma\'lumotlari:\n- user1@test.com / password123\n- user2@test.com / password123\n- admin@test.com / admin123');
+            toast.success('Test foydalanuvchilari muvaffaqiyatli yaratildi!\n\nLogin ma\'lumotlari:\n- user1@test.com / password123\n- user2@test.com / password123\n- admin@test.com / admin123', 6000);
             fetchUsers(); // Refresh the list
         } catch (err) {
             console.error('Test foydalanuvchilarini yaratishda xato:', err);
-            alert(`Xato: ${err.message}`);
+            toast.error(`Xato: ${err.message}`);
         } finally {
             setLoading(false);
         }
@@ -215,7 +216,7 @@ function AdminUserManagement() {
             
         } catch (err) {
             console.error("Foydalanuvchi rolini yangilashda xato:", err);
-            alert(`Foydalanuvchi rolini yangilashda xato: ${err.message}`);
+            toast.error(`Foydalanuvchi rolini yangilashda xato: ${err.message}`);
         }
     };
 

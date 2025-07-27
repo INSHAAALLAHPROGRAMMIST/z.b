@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { databases, Query, ID, account } from '../appwriteConfig';
 import { Link, useNavigate } from 'react-router-dom';
+import { createTelegramHTMLLink } from '../utils/telegramUtils';
+import { toastMessages } from '../utils/toastUtils';
 import '../index.css'; // Umumiy stil faylini import qilish
 
 // --- Appwrite konsolidan olingan ID'lar ---
@@ -10,8 +12,8 @@ const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
 const CART_ITEMS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_CART_ITEMS_ID;
 
 // --- Telegram Bot API konfiguratsiyasi ---
-const TELEGRAM_BOT_TOKEN = import.meta.env.TELEGRAM_BOT_TOKEN; // .env faylidan oling
-const TELEGRAM_CHAT_ID = import.meta.env.TELEGRAM_CHAT_ID; // Xabar yuboriladigan chat ID
+const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID;
 
 function CartPage() {
     const [cartItems, setCartItems] = useState([]);
@@ -111,10 +113,10 @@ function CartPage() {
             );
             setCartItems(prevItems => prevItems.filter(item => item.$id !== cartItemId));
             updateCartCount(); // Savat sonini yangilash
-            alert("Kitob savatdan o'chirildi!");
+            toastMessages.removedFromCart();
         } catch (err) {
             console.error("Kitobni savatdan o'chirishda xato yuz berdi:", err);
-            alert("Kitobni savatdan o'chirishda xato yuz berdi.");
+            toastMessages.cartError();
         }
     };
 
@@ -141,7 +143,7 @@ function CartPage() {
 
         } catch (err) {
             console.error("Miqdorni yangilashda xato yuz berdi:", err);
-            alert("Miqdorni yangilashda xato yuz berdi.");
+            toastMessages.cartError();
         }
     };
 
@@ -153,49 +155,63 @@ function CartPage() {
     const handleCheckout = async () => {
         try {
             const currentUser = await account.get().catch(() => null);
-            
+
             if (!currentUser) {
-                alert('Buyurtma berish uchun tizimga kirishingiz kerak!');
+                toastMessages.loginRequired();
                 return;
             }
 
             if (cartItems.length === 0) {
-                alert('Savatingiz bo\'sh!');
+                toastMessages.emptyCart();
                 return;
             }
 
             setLoading(true);
 
+            // User'ning database ma'lumotlarini olish
+            const { getUserByAuthId } = await import('../utils/userSync');
+            const dbUser = await getUserByAuthId(currentUser.$id);
+
             // Orders service'ni import qilish
             const { createOrdersFromCart } = await import('../utils/orderService');
-            
+
             // Cart itemlarni orderga aylantirish
             await createOrdersFromCart(cartItems);
 
             // Cart'ni tozalash
             setCartItems([]);
-            
+
             // Global cart count'ni yangilash
             window.dispatchEvent(new CustomEvent('cartUpdated'));
-            
+
             // --- Telegram bot orqali xabar yuborish (HTML formatda) ---
             const totalAmount = calculateTotal().toLocaleString();
 
             const orderDetails = cartItems.map((item, index) => {
                 const itemTotal = (parseFloat(item.book.price || 0) * item.quantity).toLocaleString();
                 return `<b>${index + 1}. ${item.book.title}</b>\n` +
-                       `  Muallif: ${item.book.author?.name || 'Noma\'lum'}\n` +
-                       `  Narxi: ${parseFloat(item.book.price || 0).toLocaleString()} so'm\n` +
-                       `  Miqdori: ${item.quantity} dona\n` +
-                       `  Jami: ${itemTotal} so'm`;
+                    `  Muallif: ${item.book.author?.name || 'Noma\'lum'}\n` +
+                    `  Narxi: ${parseFloat(item.book.price || 0).toLocaleString()} so'm\n` +
+                    `  Miqdori: ${item.quantity} dona\n` +
+                    `  Jami: ${itemTotal} so'm`;
             }).join('\n\n'); // Har bir kitob orasida bo'sh qator
-            
+
+            // Telegram username'ni auth preferences va database'dan olish
+            const telegramUsername = dbUser?.telegram_username || 
+                                   currentUser.prefs?.telegram_username || 
+                                   'Kiritilmagan';
+
+            // Telegram HTML link yaratish
+            const telegramLink = createTelegramHTMLLink(telegramUsername);
+
             const message = `
 <b>Yangi Buyurtma!</b> 🛒
 -----------------------------------
 <b>Xaridor ma'lumotlari:</b>
-Ism: <b>${currentUser.name || 'Noma\'lum'}</b>
+Ism: <b>${dbUser?.fullName || currentUser.name || 'Noma\'lum'}</b>
 Email: <code>${currentUser.email}</code>
+Telegram: ${telegramLink}
+Telefon: <code>${dbUser?.phone || 'Kiritilmagan'}</code>
 ID: <code>${currentUser.$id}</code>
 -----------------------------------
 <b>Buyurtma Tafsilotlari:</b>
@@ -221,16 +237,16 @@ ${orderDetails}
             // Orders sahifasiga yo'naltirish
             navigate('/orders');
             // ==========================================================
-            
+
             // ==========================================================
             // Success message
             setTimeout(() => {
-                alert('Buyurtmangiz muvaffaqiyatli qabul qilindi! Admin siz bilan bog\'lanadi.');
+                toastMessages.orderSuccess();
             }, 500);
 
         } catch (error) {
             console.error('Checkout xatosi:', error);
-            alert('Buyurtma berishda xato yuz berdi. Iltimos, qaytadan urinib ko\'ring.');
+            toastMessages.orderError();
         } finally {
             setLoading(false);
         }
@@ -371,8 +387,8 @@ ${orderDetails}
                                 <p style={{ fontSize: '1.1rem' }}>Umumiy narx:</p>
                                 <span style={{ fontSize: '1.3rem', fontWeight: 'bold', color: 'var(--accent-light)' }}>{calculateTotal().toLocaleString()} so'm</span>
                             </div>
-                            <button 
-                                className="checkout-btn glassmorphism-button" 
+                            <button
+                                className="checkout-btn glassmorphism-button"
                                 onClick={handleCheckout}
                                 disabled={loading}
                                 style={{

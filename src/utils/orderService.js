@@ -144,7 +144,7 @@ export const getAllOrders = async (options = {}) => {
         const ordersWithDetails = await Promise.all(
             ordersResponse.documents.map(async (order) => {
                 const [userResult, bookResult] = await Promise.all([
-                    // User ma'lumotlarini olish
+                    // User ma'lumotlarini database'dan olish
                     databases.listDocuments(
                         DATABASE_ID,
                         USERS_COLLECTION_ID,

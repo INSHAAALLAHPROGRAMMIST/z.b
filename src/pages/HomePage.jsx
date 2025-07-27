@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { databases, ID, Query, account } from '../appwriteConfig';
 import { Link } from 'react-router-dom';
+import { toastMessages } from '../utils/toastUtils';
 import '../index.css'; // Global CSS faylingiz
 // --- Appwrite konsolidan olingan ID'lar ---
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -63,7 +64,7 @@ const HomePage = () => {
                 );
 
             }
-            alert(`${bookToAdd.title} savatga qo'shildi!`);
+            toastMessages.addedToCart(bookToAdd.title);
             window.dispatchEvent(new CustomEvent('cartUpdated'));
             
             // Cart items'ni yangilash
@@ -72,7 +73,7 @@ const HomePage = () => {
         }
         catch (err) {
             console.error("Savatga qo'shishda xato yuz berdi:", err);
-            alert("Kitobni savatga qo'shishda xato yuz berdi.");
+            toastMessages.cartError();
         }
     };
 
@@ -214,7 +215,7 @@ const HomePage = () => {
             }, 100); // 100ms kechikish
         } catch (err) {
             console.error("Savat miqdorini yangilashda xato:", err);
-            alert("Miqdorni yangilashda xato yuz berdi.");
+            toastMessages.cartError();
         }
     };
 

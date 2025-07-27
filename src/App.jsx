@@ -19,8 +19,10 @@ import AdminUserManagement from './components/AdminUserManagement';
 import AdminSettings from './components/AdminSettings';
 import AdminLayout from './components/AdminLayout';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 import AuthForm from './components/AuthForm';
 import ProfilePage from './components/ProfilePage';
+import ToastContainer from './components/Toast';
 
 import HomePage from './pages/HomePage';
 import SearchPage from './components/SearchPage';
@@ -31,7 +33,7 @@ const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
 const AUTHORS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_AUTHORS_ID;
 const GENRES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_GENRES_ID;
 const CART_ITEMS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_CART_ITEMS_ID;
-const USERS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_USERS_ID;
+// USERS_COLLECTION_ID olib tashlandi - Auth ishlatamiz
 
 
 
@@ -119,11 +121,9 @@ function MainLayout({ children }) {
             try {
                 const user = await account.get();
                 setIsLoggedIn(true);
-                if (user && user.labels && user.labels.includes('admin')) {
-                    setIsAdmin(true);
-                } else {
-                    setIsAdmin(false);
-                }
+                
+                // Faqat Auth labels orqali admin tekshirish
+                setIsAdmin(user.labels?.includes('admin') || false);
             } catch (error) {
                 // User not logged in - this is normal, don't log error
                 setIsLoggedIn(false);
@@ -398,7 +398,9 @@ function MainLayout({ children }) {
 // ===============================================
 function App() {
     return (
-        <Routes>
+        <>
+            <ToastContainer />
+            <Routes>
             <Route path="/" element={<MainLayout><HomePage databases={databases} DATABASE_ID={DATABASE_ID} /></MainLayout>} />
             <Route path="/book/:bookId" element={<MainLayout><BookDetailPage /></MainLayout>} />
             <Route path="/cart" element={<MainLayout><CartPage /></MainLayout>} />
@@ -426,76 +428,77 @@ function App() {
             <Route
                 path="/admin-dashboard"
                 element={
-                    <ProtectedRoute>
+                    <AdminProtectedRoute>
                         <AdminLayout>
                             <AdminDashboard />
                         </AdminLayout>
-                    </ProtectedRoute>
+                    </AdminProtectedRoute>
                 }
             />
             <Route
                 path="/admin/books"
                 element={
-                    <ProtectedRoute>
+                    <AdminProtectedRoute>
                         <AdminLayout>
                             <AdminBookManagement />
                         </AdminLayout>
-                    </ProtectedRoute>
+                    </AdminProtectedRoute>
                 }
             />
             <Route
                 path="/admin/authors"
                 element={
-                    <ProtectedRoute>
+                    <AdminProtectedRoute>
                         <AdminLayout>
                             <AdminAuthorManagement />
                         </AdminLayout>
-                    </ProtectedRoute>
+                    </AdminProtectedRoute>
                 }
             />
             <Route
                 path="/admin/genres"
                 element={
-                    <ProtectedRoute>
+                    <AdminProtectedRoute>
                         <AdminLayout>
                             <AdminGenreManagement />
                         </AdminLayout>
-                    </ProtectedRoute>
+                    </AdminProtectedRoute>
                 }
             />
             <Route
                 path="/admin/orders"
                 element={
-                    <ProtectedRoute>
+                    <AdminProtectedRoute>
                         <AdminLayout>
                             <AdminOrderManagement />
                         </AdminLayout>
-                    </ProtectedRoute>
+                    </AdminProtectedRoute>
                 }
             />
             <Route
                 path="/admin/users"
                 element={
-                    <ProtectedRoute>
+                    <AdminProtectedRoute>
                         <AdminLayout>
                             <AdminUserManagement />
                         </AdminLayout>
-                    </ProtectedRoute>
+                    </AdminProtectedRoute>
                 }
             />
             <Route
                 path="/admin/settings"
                 element={
-                    <ProtectedRoute>
+                    <AdminProtectedRoute>
                         <AdminLayout>
                             <AdminSettings />
                         </AdminLayout>
-                    </ProtectedRoute>
+                    </AdminProtectedRoute>
                 }
             />
 
             <Route path="*" element={<MainLayout><div className="container" style={{ padding: '50px', textAlign: 'center', minHeight: 'calc(100vh - 200px)' }}>404 - Sahifa topilmadi</div></MainLayout>} />
         </Routes>
+        </>
     );
 }
 

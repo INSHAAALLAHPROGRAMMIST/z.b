@@ -3,6 +3,7 @@ import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { account, databases, Query } from '../appwriteConfig';
 import { prepareSearchText } from '../utils/transliteration';
 import { highlightText } from '../utils/highlightText.jsx';
+import { toastMessages } from '../utils/toastUtils';
 import '../index.css';
 import '../styles/admin.css';
 import '../styles/header-fix.css';
@@ -44,7 +45,7 @@ function AdminLayout({ children }) {
             navigate('/admin-login');
         } catch (err) {
             console.error("Chiqishda xato:", err);
-            alert("Chiqishda xato yuz berdi. Iltimos, keyinroq urinib ko'ring.");
+            toastMessages.logoutError();
         }
     };
 

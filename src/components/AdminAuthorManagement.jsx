@@ -3,6 +3,7 @@ import { databases, Query, ID } from '../appwriteConfig';
 import { uploadToCloudinary } from '../config/cloudinaryConfig';
 import { prepareSearchText } from '../utils/transliteration';
 import { highlightText } from '../utils/highlightText.jsx';
+import { toastMessages, toast } from '../utils/toastUtils';
 import ImageUpload from './ImageUpload';
 import siteConfig from '../config/siteConfig';
 import '../index.css';
@@ -154,7 +155,7 @@ function AdminAuthorManagement() {
                     imageUrl = uploadResult.url;
                 } catch (uploadError) {
                     console.error('Cloudinary yuklash xatosi:', uploadError);
-                    alert('Rasm yuklashda xato yuz berdi. Iltimos, qaytadan urinib ko\'ring yoki boshqa rasm tanlang.');
+                    toastMessages.uploadError();
                     return; // Form submit'ni to'xtatish
                 }
             }
@@ -189,7 +190,7 @@ function AdminAuthorManagement() {
             
         } catch (err) {
             console.error("Muallifni saqlashda xato:", err);
-            alert(`Muallifni saqlashda xato: ${err.message}`);
+            toast.error(`Muallifni saqlashda xato: ${err.message}`);
         }
     };
 
@@ -218,7 +219,7 @@ function AdminAuthorManagement() {
             
         } catch (err) {
             console.error("Muallifni o'chirishda xato:", err);
-            alert(`Muallifni o'chirishda xato: ${err.message}`);
+            toast.error(`Muallifni o'chirishda xato: ${err.message}`);
         }
     };
 

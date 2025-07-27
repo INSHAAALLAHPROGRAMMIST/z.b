@@ -4,6 +4,7 @@ import { databases, Query } from '../appwriteConfig';
 import LazyImage from './LazyImage';
 import { prepareSearchText } from '../utils/transliteration';
 import { highlightText } from '../utils/highlightText.jsx';
+import { toastMessages } from '../utils/toastUtils';
 import '../index.css';
 
 // --- Appwrite konsolidan olingan ID'lar ---
@@ -258,7 +259,7 @@ function SearchPage() {
                                         onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
-                                            alert(`${book.title} savatga qo'shildi!`);
+                                            toastMessages.addedToCart(book.title);
                                             window.dispatchEvent(new CustomEvent('cartUpdated'));
                                         }}
                                     >

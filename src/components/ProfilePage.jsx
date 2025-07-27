@@ -1,11 +1,10 @@
 // src/components/ProfilePage.jsx
 
 import React, { useState, useEffect } from 'react';
-import { account, databases, Query } from '../appwriteConfig';
+import { account } from '../appwriteConfig';
 import { useNavigate, Link } from 'react-router-dom';
-
-const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const USERS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_USERS_ID;
+import { createTelegramLinkProps, validateTelegramUsername } from '../utils/telegramUtils';
+import { toast, toastMessages } from '../utils/toastUtils';
 
 const ProfilePage = () => {
     const [authUser, setAuthUser] = useState(null);
@@ -34,37 +33,42 @@ const ProfilePage = () => {
                 const loggedInUser = await account.get();
                 setAuthUser(loggedInUser);
                 
-                // Database'dan user ma'lumotlarini olish
-                const userResponse = await databases.listDocuments(
-                    DATABASE_ID,
-                    USERS_COLLECTION_ID,
-                    [
-                        Query.equal('userId', loggedInUser.$id),
-                        Query.limit(1)
-                    ]
-                );
+                // Auth preferences'dan ma'lumotlarni olish
+                const prefs = loggedInUser.prefs || {};
                 
-                if (userResponse.documents.length > 0) {
-                    const userData = userResponse.documents[0];
-                    setDbUser(userData);
-                    
-                    // Form data'ni to'ldirish
-                    setFormData({
-                        fullName: userData.fullName || '',
-                        phone: userData.phone || '',
-                        address: userData.address || '',
-                        telegram_username: userData.telegram_username || ''
-                    });
-                    
-                    // Admin ekanligini tekshirish
-                    setIsAdmin(userData.role === 'admin' || userData.role === 'editor');
-                    
-                    // Telegram username yo'q bo'lsa, modal ko'rsatish
-                    if (!userData.telegram_username) {
-                        setShowTelegramModal(true);
-                    }
-                } else {
-                    setError("Foydalanuvchi ma'lumotlari topilmadi.");
+                // Fake dbUser object yaratamiz (eski kod bilan mos kelishi uchun)
+                const fakeDbUser = {
+                    fullName: loggedInUser.name || prefs.fullName || '',
+                    email: loggedInUser.email || '',
+                    phone: prefs.phone || '',
+                    address: prefs.address || '',
+                    telegram_username: prefs.telegram_username || '',
+                    isActive: prefs.isActive !== false,
+                    registeredAt: prefs.registeredAt || loggedInUser.$createdAt,
+                    lastLoginAt: prefs.lastLoginAt || new Date().toISOString()
+                };
+                
+                setDbUser(fakeDbUser);
+                
+                // Form data'ni to'ldirish
+                setFormData({
+                    fullName: fakeDbUser.fullName,
+                    phone: fakeDbUser.phone,
+                    address: fakeDbUser.address,
+                    telegram_username: fakeDbUser.telegram_username
+                });
+                
+                // Admin ekanligini tekshirish - faqat Auth labels
+                const adminStatus = loggedInUser.labels?.includes('admin') || false;
+                
+                console.log('Auth labels:', loggedInUser.labels);
+                console.log('Admin status:', adminStatus);
+                
+                setIsAdmin(adminStatus);
+                
+                // Telegram username yo'q bo'lsa, modal ko'rsatish
+                if (!fakeDbUser.telegram_username) {
+                    setShowTelegramModal(true);
                 }
             } catch (err) {
                 console.error("Foydalanuvchi ma'lumotlarini yuklashda xato:", err);
@@ -87,92 +91,118 @@ const ProfilePage = () => {
         }));
     };
 
-    // Profile update function
+    // Profile update function (Auth preferences orqali)
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
         
         // Validation
         if (!formData.fullName.trim()) {
-            alert('Ism kiritish majburiy!');
+            toastMessages.nameRequired();
             return;
         }
 
         if (formData.phone && !/^\+998[0-9]{9}$/.test(formData.phone)) {
-            alert('Telefon raqami noto\'g\'ri formatda! Masalan: +998901234567');
+            toastMessages.phoneInvalid();
             return;
         }
 
         if (formData.telegram_username) {
-            const telegramRegex = /^[a-zA-Z0-9_]{5,32}$/;
-            if (!telegramRegex.test(formData.telegram_username)) {
-                alert('Telegram username noto\'g\'ri formatda! Faqat harflar, raqamlar va _ ishlatish mumkin (5-32 ta belgi).');
+            const validation = validateTelegramUsername(formData.telegram_username);
+            if (!validation.valid) {
+                toast.error(validation.message);
                 return;
             }
         }
 
         setUpdating(true);
         try {
-            await databases.updateDocument(
-                DATABASE_ID,
-                USERS_COLLECTION_ID,
-                dbUser.$id,
-                formData
-            );
-
+            // Current preferences'ni olamiz
+            const currentPrefs = authUser.prefs || {};
+            
+            // Yangi preferences'ni yaratamiz
+            const updatedPrefs = {
+                ...currentPrefs,
+                fullName: formData.fullName,
+                phone: formData.phone,
+                address: formData.address,
+                telegram_username: formData.telegram_username,
+                updatedAt: new Date().toISOString()
+            };
+            
+            // Auth preferences'ni yangilaymiz
+            await account.updatePrefs(updatedPrefs);
+            
+            // User name'ni ham yangilaymiz (agar o'zgargan bo'lsa)
+            if (formData.fullName !== authUser.name) {
+                await account.updateName(formData.fullName);
+            }
+            
             // Local state'ni yangilash
-            setDbUser(prev => ({
-                ...prev,
+            const updatedDbUser = {
+                ...dbUser,
                 ...formData
-            }));
+            };
+            setDbUser(updatedDbUser);
+            
+            // Auth user'ni ham yangilaymiz
+            const updatedAuthUser = await account.get();
+            setAuthUser(updatedAuthUser);
 
             setEditMode(false);
-            alert('Ma\'lumotlar muvaffaqiyatli yangilandi!');
+            toastMessages.profileUpdated();
         } catch (err) {
             console.error('Ma\'lumotlarni yangilashda xato:', err);
-            alert('Xato yuz berdi. Iltimos, qaytadan urinib ko\'ring.');
+            toastMessages.updateError();
         } finally {
             setUpdating(false);
         }
     };
 
-    // Telegram username update function (modal uchun)
+    // Telegram username update function (modal uchun, Auth preferences orqali)
     const handleTelegramUpdate = async (e) => {
         e.preventDefault();
         
         if (!formData.telegram_username.trim()) {
-            alert('Telegram username kiriting!');
+            toastMessages.telegramRequired();
             return;
         }
 
         // Username validation
-        const telegramRegex = /^[a-zA-Z0-9_]{5,32}$/;
-        if (!telegramRegex.test(formData.telegram_username)) {
-            alert('Telegram username noto\'g\'ri formatda! Faqat harflar, raqamlar va _ ishlatish mumkin (5-32 ta belgi).');
+        const validation = validateTelegramUsername(formData.telegram_username);
+        if (!validation.valid) {
+            toast.error(validation.message);
             return;
         }
 
         setUpdating(true);
         try {
-            await databases.updateDocument(
-                DATABASE_ID,
-                USERS_COLLECTION_ID,
-                dbUser.$id,
-                {
-                    telegram_username: formData.telegram_username
-                }
-            );
+            // Current preferences'ni olamiz
+            const currentPrefs = authUser.prefs || {};
+            
+            // Telegram username'ni yangilaymiz
+            const updatedPrefs = {
+                ...currentPrefs,
+                telegram_username: formData.telegram_username,
+                updatedAt: new Date().toISOString()
+            };
+            
+            await account.updatePrefs(updatedPrefs);
 
             // Local state'ni yangilash
             setDbUser(prev => ({
                 ...prev,
                 telegram_username: formData.telegram_username
             }));
+            
+            // Auth user'ni ham yangilaymiz
+            const updatedAuthUser = await account.get();
+            setAuthUser(updatedAuthUser);
 
             setShowTelegramModal(false);
-            alert('Telegram username muvaffaqiyatli saqlandi!');
+            toastMessages.telegramSaved();
         } catch (err) {
             console.error('Telegram username saqlashda xato:', err);
-            alert('Xato yuz berdi. Iltimos, qaytadan urinib ko\'ring.');
+            toastMessages.updateError();
         } finally {
             setUpdating(false);
         }
@@ -491,6 +521,33 @@ const ProfilePage = () => {
                             }}>{authUser.$id}</p>
                         </div>
                         
+                        {/* Auth Labels ko'rsatish */}
+                        {authUser.labels && authUser.labels.length > 0 && (
+                            <div className="profile-field glassmorphism-card" style={{ 
+                                padding: '15px',
+                                borderRadius: '10px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '5px'
+                            }}>
+                                <label style={{ fontSize: '0.9rem', opacity: '0.7' }}>Auth Labels</label>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                                    {authUser.labels.map((label, index) => (
+                                        <span key={index} style={{
+                                            background: label.includes('admin') ? 'rgba(106, 138, 255, 0.2)' : 'rgba(168, 85, 247, 0.2)',
+                                            color: label.includes('admin') ? '#6A8AFF' : '#A855F7',
+                                            padding: '4px 8px',
+                                            borderRadius: '6px',
+                                            fontSize: '0.8rem',
+                                            fontWeight: 'bold'
+                                        }}>
+                                            {label}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        
                         <div className="profile-field glassmorphism-card" style={{ 
                             padding: '15px',
                             borderRadius: '10px',
@@ -525,7 +582,9 @@ const ProfilePage = () => {
                                 {dbUser.telegram_username ? (
                                     <>
                                         <i className="fab fa-telegram-plane" style={{ color: '#0088cc' }}></i>
-                                        @{dbUser.telegram_username}
+                                        <a {...createTelegramLinkProps(dbUser.telegram_username)}>
+                                            @{dbUser.telegram_username}
+                                        </a>
                                     </>
                                 ) : (
                                     <span style={{ color: 'var(--light-text-color)', fontStyle: 'italic' }}>
@@ -556,6 +615,8 @@ const ProfilePage = () => {
                             <label style={{ fontSize: '0.9rem', opacity: '0.7' }}>Manzil</label>
                             <p style={{ fontSize: '1rem' }}>{dbUser.address || 'Kiritilmagan'}</p>
                         </div>
+                        
+
                         
                         <div className="profile-field glassmorphism-card" style={{ 
                             padding: '15px',
@@ -608,6 +669,8 @@ const ProfilePage = () => {
                             <i className="fas fa-user-shield"></i> Admin Paneli
                         </Link>
                     )}
+
+
                     
                     <button onClick={handleLogout} className="glassmorphism-button" style={{ 
                         padding: '12px 20px',
@@ -671,7 +734,10 @@ const ProfilePage = () => {
                                     <div style={{ marginBottom: '12px' }}>
                                         <strong style={{ color: '#0088cc' }}>💬 Qo'llab-quvvatlash:</strong>
                                         <br />
-                                        Savollaringiz bo'lsa, admin bilan Telegram orqali tezda bog'lanishingiz mumkin.
+                                        Savollaringiz bo'lsa, admin bilan Telegram orqali tezda bog'lanishingiz mumkin: {' '}
+                                        <a {...createTelegramLinkProps(import.meta.env.VITE_ADMIN_TELEGRAM || '@admin')}>
+                                            {import.meta.env.VITE_ADMIN_TELEGRAM || '@admin'}
+                                        </a>
                                     </div>
                                     <div style={{ padding: '10px', backgroundColor: 'rgba(255, 193, 7, 0.1)', borderRadius: '6px', marginTop: '15px' }}>
                                         <strong style={{ color: '#b8860b' }}>

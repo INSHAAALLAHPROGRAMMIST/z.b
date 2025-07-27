@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { databases, Query, ID } from '../appwriteConfig';
 import { prepareSearchText } from '../utils/transliteration';
 import { highlightText } from '../utils/highlightText.jsx';
+import { toastMessages, toast } from '../utils/toastUtils';
 import ImageUpload from './ImageUpload';
 import AdminFilters from './admin/AdminFilters';
 import AdminTable from './admin/AdminTable';
@@ -117,13 +118,13 @@ function AdminGenreManagement() {
         if (file) {
             // Check file type
             if (!file.type.startsWith('image/')) {
-                alert('Faqat rasm fayllarini yuklash mumkin!');
+                toastMessages.fileTypeError();
                 return;
             }
             
             // Check file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
-                alert('Fayl hajmi 5MB dan oshmasligi kerak!');
+                toastMessages.fileSizeError(5);
                 return;
             }
             
@@ -219,7 +220,7 @@ function AdminGenreManagement() {
             
         } catch (err) {
             console.error("Janrni saqlashda xato:", err);
-            alert(`Janrni saqlashda xato: ${err.message}`);
+            toast.error(`Janrni saqlashda xato: ${err.message}`);
         }
     };
 
@@ -248,7 +249,7 @@ function AdminGenreManagement() {
             
         } catch (err) {
             console.error("Janrni o'chirishda xato:", err);
-            alert(`Janrni o'chirishda xato: ${err.message}`);
+            toast.error(`Janrni o'chirishda xato: ${err.message}`);
         }
     };
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { databases, Query } from '../appwriteConfig';
-
+import { toastMessages, toast } from '../utils/toastUtils';
 import { highlightText } from '../utils/highlightText.jsx';
 import siteConfig from '../config/siteConfig';
 import '../index.css';
@@ -151,7 +151,7 @@ function AdminOrderManagement() {
             
         } catch (err) {
             console.error("Buyurtma holatini yangilashda xato:", err);
-            alert(`Buyurtma holatini yangilashda xato: ${err.message}`);
+            toast.error(`Buyurtma holatini yangilashda xato: ${err.message}`);
         }
     };
 
@@ -165,11 +165,11 @@ function AdminOrderManagement() {
         try {
             const { createSampleOrders: createSampleOrdersUtil } = await import('../utils/orderService');
             await createSampleOrdersUtil();
-            alert('Test buyurtmalari muvaffaqiyatli yaratildi!');
+            toastMessages.testOrdersCreated();
             fetchOrders(); // Refresh the list
         } catch (err) {
             console.error('Test buyurtmalarini yaratishda xato:', err);
-            alert(`Xato: ${err.message}`);
+            toast.error(`Xato: ${err.message}`);
         } finally {
             setLoading(false);
         }

@@ -13,6 +13,7 @@
     "@cloudinary/react": "^1.14.3",
     "@cloudinary/url-gen": "^1.21.0",
     "appwrite": "^18.1.1",
+    "nvm": "^0.0.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.3"
@@ -28,6 +29,6 @@
     "globals": "^16.3.0",
     "postcss-custom-properties": "^14.0.6",
     "terser": "^5.43.1",
-    "vite": "^7.0.3"
+    "vite": "^7.0.6"
   }
 }

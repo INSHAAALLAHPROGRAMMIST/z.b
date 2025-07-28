@@ -5,6 +5,11 @@ import { account } from '../appwriteConfig';
 import { useNavigate, Link } from 'react-router-dom';
 import { createTelegramLinkProps, validateTelegramUsername } from '../utils/telegramUtils';
 import { toast, toastMessages } from '../utils/toastUtils';
+import { useLazyCSS } from '../hooks/useLazyCSS';
+
+// Lazy load profile components
+import ProfileHeader from './profile/ProfileHeader';
+import ProfileForm from './profile/ProfileForm';
 
 const ProfilePage = () => {
     const [authUser, setAuthUser] = useState(null);
@@ -25,6 +30,9 @@ const ProfilePage = () => {
     });
     
     const navigate = useNavigate();
+    
+    // Lazy load profile-specific CSS
+    useLazyCSS('/src/styles/components/profile.css', 'high');
 
     useEffect(() => {
         const fetchUser = async () => {

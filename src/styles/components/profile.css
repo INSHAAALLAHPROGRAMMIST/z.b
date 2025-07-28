@@ -1,0 +1,90 @@
+/* Profile Page Specific Styles */
+
+.profile-page {
+    padding: 20px;
+    margin-top: 80px;
+    min-height: calc(100vh - 200px);
+}
+
+.profile-header {
+    background: linear-gradient(135deg, rgba(106, 138, 255, 0.1), rgba(139, 255, 106, 0.1)) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.profile-avatar {
+    animation: profilePulse 3s ease-in-out infinite;
+    will-change: transform;
+    transform: translateZ(0); /* GPU acceleration */
+}
+
+@keyframes profilePulse {
+    0%, 100% { transform: scale(1) translateZ(0); }
+    50% { transform: scale(1.05) translateZ(0); }
+}
+
+.admin-badge {
+    animation: badgeGlow 2s ease-in-out infinite alternate;
+    will-change: box-shadow;
+    transform: translateZ(0); /* GPU acceleration */
+}
+
+@keyframes badgeGlow {
+    0% { box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+    100% { box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5); }
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.form-group .glassmorphism-input input,
+.form-group .glassmorphism-input textarea {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-color);
+    width: 100%;
+}
+
+.form-group .glassmorphism-input textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* Light mode adjustments */
+body.light-mode .profile-header {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(16, 185, 129, 0.1)) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .profile-page {
+        padding: 15px;
+        margin-top: 70px;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .profile-header {
+        padding: 20px !important;
+    }
+    
+    .profile-avatar {
+        width: 80px !important;
+        height: 80px !important;
+        font-size: 2rem !important;
+    }
+}

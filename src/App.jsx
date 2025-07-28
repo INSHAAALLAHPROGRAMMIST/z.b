@@ -1,22 +1,13 @@
 // D:\\zamon-books-frontend\\src\\App.jsx
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { databases, ID, Query, account } from './appwriteConfig';
-import { Routes, Route, Link, useParams, useNavigate } from 'react-router-dom';
-import './styles/critical.css'; // Critical CSS
-// Non-critical CSS will be loaded asynchronously
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 
 // Komponentlarni import qilish
 import CartPage from './components/CartPage';
 import BookDetailPage from './components/BookDetailPage';
 import UserOrdersPage from './components/UserOrdersPage';
 import AdminLogin from './components/AdminLogin';
-import AdminDashboard from './components/AdminDashboard';
-import AdminBookManagement from './components/AdminBookManagement';
-import AdminAuthorManagement from './components/AdminAuthorManagement';
-import AdminGenreManagement from './components/AdminGenreManagement';
-import AdminOrderManagement from './components/AdminOrderManagement';
-import AdminUserManagement from './components/AdminUserManagement';
-import AdminSettings from './components/AdminSettings';
 import AdminLayout from './components/AdminLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
@@ -24,8 +15,20 @@ import AuthForm from './components/AuthForm';
 import ProfilePage from './components/ProfilePage';
 import ToastContainer from './components/Toast';
 
+// Lazy load admin components for better performance
+import {
+    LazyAdminDashboard,
+    LazyAdminBookManagement,
+    LazyAdminAuthorManagement,
+    LazyAdminGenreManagement,
+    LazyAdminOrderManagement,
+    LazyAdminUserManagement,
+    LazyAdminSettings
+} from './components/admin/LazyAdminComponents';
+
 import HomePage from './pages/HomePage';
 import SearchPage from './components/SearchPage';
+import ComingSoon from './components/ComingSoon';
 
 // --- Appwrite konsolidan olingan ID'lar ---
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -51,6 +54,10 @@ function MainLayout({ children }) {
     const [showSearchInput, setShowSearchInput] = useState(false);
     const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
     const navigate = useNavigate();
+
+    // Simplified refs for performance
+    const aboveFoldRef = useRef(null);
+    const belowFoldRef = useRef(null);
 
     const headerLogoUrl = "https://res.cloudinary.com/dcn4maral/image/upload/c_scale,h_280,f_auto,q_auto/v1752356041/favicon_maovuy.svg";
 
@@ -91,43 +98,39 @@ function MainLayout({ children }) {
             const response = await databases.listDocuments(
                 DATABASE_ID,
                 CART_ITEMS_COLLECTION_ID,
-                [Query.equal('userId', userIdToUse)]
+                [
+                    Query.equal('userId', userIdToUse),
+                    Query.limit(100) // Limit for better performance
+                ]
             );
             const totalQuantity = response.documents.reduce((sum, item) => sum + item.quantity, 0);
             setCartCount(totalQuantity);
         } catch (err) {
-            // Silently handle cart count errors for better UX
             setCartCount(0);
         }
     }, []);
 
+    // Separate useEffect for theme
     useEffect(() => {
-        // Load non-critical CSS asynchronously
-        const loadNonCriticalCSS = () => {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = '/src/index.css';
-            link.media = 'print';
-            link.onload = () => { link.media = 'all'; };
-            document.head.appendChild(link);
-        };
-
-        // Load after a short delay to prioritize critical rendering
-        setTimeout(loadNonCriticalCSS, 100);
-
         document.body.className = theme === 'light' ? 'light-mode' : '';
+    }, [theme]);
+
+    // Separate useEffect for initial data loading
+    useEffect(() => {
+        let mounted = true;
 
         const checkLoginStatusAndFetchGenres = async () => {
             try {
                 const user = await account.get();
-                setIsLoggedIn(true);
-                
-                // Faqat Auth labels orqali admin tekshirish
-                setIsAdmin(user.labels?.includes('admin') || false);
+                if (mounted) {
+                    setIsLoggedIn(true);
+                    setIsAdmin(user.labels?.includes('admin') || false);
+                }
             } catch (error) {
-                // User not logged in - this is normal, don't log error
-                setIsLoggedIn(false);
-                setIsAdmin(false);
+                if (mounted) {
+                    setIsLoggedIn(false);
+                    setIsAdmin(false);
+                }
             }
 
             try {
@@ -135,30 +138,49 @@ function MainLayout({ children }) {
                     DATABASE_ID,
                     GENRES_COLLECTION_ID,
                     [
-                        Query.limit(20),
+                        Query.limit(10), // Reduced from 20 to 10
                         Query.orderAsc('name'),
                     ]
                 );
-                setGenres(genresResponse.documents);
-                setGenresLoading(false);
+                if (mounted) {
+                    setGenres(genresResponse.documents);
+                    setGenresLoading(false);
+                }
             } catch (err) {
-                console.error("Janrlarni yuklashda xato:", err);
-                setGenresError(err.message || "Janrlarni yuklashda noma'lum xato.");
-                setGenresLoading(false);
+                if (mounted) {
+                    setGenresError(err.message || "Janrlarni yuklashda noma'lum xato.");
+                    setGenresLoading(false);
+                }
             }
         };
 
         checkLoginStatusAndFetchGenres();
         updateGlobalCartCount();
 
-        window.addEventListener('cartUpdated', updateGlobalCartCount);
-
-        // Login holatini yangilash uchun event listener qo'shish
-        const handleLoginStatusChange = () => {
-            checkLoginStatusAndFetchGenres();
+        return () => {
+            mounted = false;
         };
+    }, [updateGlobalCartCount]);
+
+    // Separate useEffect for event listeners
+    useEffect(() => {
+        const handleCartUpdate = () => updateGlobalCartCount();
+        const handleLoginStatusChange = () => {
+            // Simplified login status change
+            updateGlobalCartCount();
+        };
+
+        window.addEventListener('cartUpdated', handleCartUpdate);
         window.addEventListener('loginStatusChanged', handleLoginStatusChange);
 
+        return () => {
+            window.removeEventListener('cartUpdated', handleCartUpdate);
+            window.removeEventListener('loginStatusChanged', handleLoginStatusChange);
+        };
+    }, [updateGlobalCartCount]);
+
+    // Separate useEffect for UI state
+    useEffect(() => {
         if (isMobileMenuOpen || showSearchInput) {
             document.body.style.overflow = 'hidden';
         } else {
@@ -171,16 +193,14 @@ function MainLayout({ children }) {
                 setShowSearchInput(false);
             }
         };
+
         window.addEventListener('keydown', handleEscape);
 
-
         return () => {
-            window.removeEventListener('cartUpdated', updateGlobalCartCount);
-            window.removeEventListener('loginStatusChanged', handleLoginStatusChange);
             document.body.style.overflow = 'unset';
             window.removeEventListener('keydown', handleEscape);
         };
-    }, [isMobileMenuOpen, showSearchInput, theme]);
+    }, [isMobileMenuOpen, showSearchInput]);
 
 
     const toggleDropdown = (e) => {
@@ -217,7 +237,11 @@ function MainLayout({ children }) {
 
     return (
         <>
-            <header id='main-header' className={`glassmorphism-header ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>
+            <header
+                ref={aboveFoldRef}
+                id='main-header'
+                className={`glassmorphism-header ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}
+            >
                 <div className="container">
                     <Link to="/" className="logo">
                         <img src={headerLogoUrl} alt="Zamon Books Logo" className="header-logo" />
@@ -302,7 +326,7 @@ function MainLayout({ children }) {
                             id="search-input"
                             name="search"
                             placeholder="Kitob qidirish..."
-                            onKeyPress={(e) => {
+                            onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     const searchTerm = e.target.value.trim();
                                     if (searchTerm) {
@@ -355,9 +379,11 @@ function MainLayout({ children }) {
             }}></div>}
 
 
-            {children}
+            <main>
+                {children}
+            </main>
 
-            <footer className="glassmorphism-footer">
+            <footer ref={belowFoldRef} className="glassmorphism-footer">
                 <div className="container">
                     <div className="footer-col">
                         <h3>Zamon Books</h3>
@@ -401,103 +427,105 @@ function App() {
         <>
             <ToastContainer />
             <Routes>
-            <Route path="/" element={<MainLayout><HomePage databases={databases} DATABASE_ID={DATABASE_ID} /></MainLayout>} />
-            <Route path="/book/:bookId" element={<MainLayout><BookDetailPage /></MainLayout>} />
-            <Route path="/cart" element={<MainLayout><CartPage /></MainLayout>} />
-            <Route path="/orders" element={
-                <ProtectedRoute>
-                    <MainLayout><UserOrdersPage /></MainLayout>
-                </ProtectedRoute>
-            } />
-            <Route path="/auth" element={<MainLayout><AuthForm /></MainLayout>} />
-            <Route path="/profile" element={<MainLayout><ProfilePage /></MainLayout>} />
-            {/* YANGI: Tasdiqlashdan keyin yo'naltiriladigan sahifalar */}
-            <Route path="/verification-success" element={<MainLayout><VerificationStatusPage status="success" /></MainLayout>} />
-            <Route path="/verification-failure" element={<MainLayout><VerificationStatusPage status="failure" /></MainLayout>} />
-            <Route path="/search" element={<MainLayout><SearchPage /></MainLayout>} />
-            {/* YANGI: Tasdiqlashdan keyin yo'naltiriladigan sahifalar */}
-            <Route path="/authors" element={<MainLayout><div className="container" style={{ padding: '50px', textAlign: 'center', minHeight: 'calc(100vh - 200px)' }}>Mualliflar sahifasi (tez orada)</div></MainLayout>} />
-            <Route path="/genres/:genreId" element={<MainLayout><div className="container" style={{ padding: '50px', textAlign: 'center', minHeight: 'calc(100vh - 200px)' }}>Janr sahifasi (tez orada)</div></MainLayout>} />
-            <Route path="/news" element={<MainLayout><div className="container" style={{ padding: '50px', textAlign: 'center', minHeight: 'calc(100vh - 200px)' }}>Yangiliklar sahifasi (tez orada)</div></MainLayout>} />
-            <Route path="/contact" element={<MainLayout><div className="container" style={{ padding: '50px', textAlign: 'center', minHeight: 'calc(100vh - 200px)' }}>Aloqa sahifasi (tez orada)</div></MainLayout>} />
-            <Route path="/faq" element={<MainLayout><div className="container" style={{ padding: '50px', textAlign: 'center', minHeight: 'calc(100vh - 200px)' }}> Ko'p Beriladigan Savollar sahifasi (tez orada)</div></MainLayout>} />
+                <Route path="/" element={<MainLayout><HomePage databases={databases} DATABASE_ID={DATABASE_ID} /></MainLayout>} />
+                <Route path="/book/:bookId" element={<MainLayout><BookDetailPage /></MainLayout>} />
+                <Route path="/cart" element={<MainLayout><CartPage /></MainLayout>} />
+                <Route path="/orders" element={
+                    <ProtectedRoute>
+                        <MainLayout><UserOrdersPage /></MainLayout>
+                    </ProtectedRoute>
+                } />
+                <Route path="/auth" element={<MainLayout><AuthForm /></MainLayout>} />
+                <Route path="/profile" element={<MainLayout><ProfilePage /></MainLayout>} />
+                {/* YANGI: Tasdiqlashdan keyin yo'naltiriladigan sahifalar */}
+                <Route path="/verification-success" element={<MainLayout><VerificationStatusPage status="success" /></MainLayout>} />
+                <Route path="/verification-failure" element={<MainLayout><VerificationStatusPage status="failure" /></MainLayout>} />
+                <Route path="/search" element={<MainLayout><SearchPage /></MainLayout>} />
+                {/* YANGI: Tasdiqlashdan keyin yo'naltiriladigan sahifalar */}
+                <Route path="/authors" element={<MainLayout><ComingSoon title="Mualliflar" subtitle="Mualliflar sahifasi ishlab chiqilmoqda" description="Sevimli mualliflaringiz haqida to'liq ma'lumot va ularning barcha asarlari bilan tanishish imkoniyati yaqin orada!" /></MainLayout>} />
+                <Route path="/genres/:genreId" element={<MainLayout><ComingSoon title="Janr Sahifasi" subtitle="Janr bo'yicha kitoblar sahifasi ishlab chiqilmoqda" description="Har bir janr bo'yicha eng yaxshi kitoblarni topish va filtrlash imkoniyati yaqin orada!" /></MainLayout>} />
+                <Route path="/news" element={<MainLayout><ComingSoon title="Yangiliklar" subtitle="Yangiliklar sahifasi ishlab chiqilmoqda" description="Kitob dunyosidagi eng so'nggi yangiliklar, tadbirlar va chegirmalar haqida ma'lumot yaqin orada!" /></MainLayout>} />
+                <Route path="/contact" element={<MainLayout><ComingSoon title="Aloqa" subtitle="Aloqa sahifasi ishlab chiqilmoqda" description="Biz bilan bog'lanish, savollar berish va takliflar yuborish imkoniyati yaqin orada!" /></MainLayout>} />
+                <Route path="/faq" element={<MainLayout><ComingSoon title="Ko'p Beriladigan Savollar" subtitle="FAQ sahifasi ishlab chiqilmoqda" description="Eng ko'p beriladigan savollar va ularning javoblari yaqin orada!" /></MainLayout>} />
+                <Route path="/privacy" element={<MainLayout><ComingSoon title="Maxfiylik Siyosati" subtitle="Maxfiylik siyosati sahifasi ishlab chiqilmoqda" description="Shaxsiy ma'lumotlaringizning himoyalanishi va ishlatilishi haqida to'liq ma'lumot yaqin orada!" /></MainLayout>} />
+                <Route path="/terms" element={<MainLayout><ComingSoon title="Foydalanish Shartlari" subtitle="Foydalanish shartlari sahifasi ishlab chiqilmoqda" description="Saytdan foydalanish qoidalari va shartlari haqida to'liq ma'lumot yaqin orada!" /></MainLayout>} />
 
-            <Route path="/admin-login" element={<MainLayout><AdminLogin /></MainLayout>} />
+                <Route path="/admin-login" element={<MainLayout><AdminLogin /></MainLayout>} />
 
-            {/* Admin Panel Routes */}
-            <Route
-                path="/admin-dashboard"
-                element={
-                    <AdminProtectedRoute>
-                        <AdminLayout>
-                            <AdminDashboard />
-                        </AdminLayout>
-                    </AdminProtectedRoute>
-                }
-            />
-            <Route
-                path="/admin/books"
-                element={
-                    <AdminProtectedRoute>
-                        <AdminLayout>
-                            <AdminBookManagement />
-                        </AdminLayout>
-                    </AdminProtectedRoute>
-                }
-            />
-            <Route
-                path="/admin/authors"
-                element={
-                    <AdminProtectedRoute>
-                        <AdminLayout>
-                            <AdminAuthorManagement />
-                        </AdminLayout>
-                    </AdminProtectedRoute>
-                }
-            />
-            <Route
-                path="/admin/genres"
-                element={
-                    <AdminProtectedRoute>
-                        <AdminLayout>
-                            <AdminGenreManagement />
-                        </AdminLayout>
-                    </AdminProtectedRoute>
-                }
-            />
-            <Route
-                path="/admin/orders"
-                element={
-                    <AdminProtectedRoute>
-                        <AdminLayout>
-                            <AdminOrderManagement />
-                        </AdminLayout>
-                    </AdminProtectedRoute>
-                }
-            />
-            <Route
-                path="/admin/users"
-                element={
-                    <AdminProtectedRoute>
-                        <AdminLayout>
-                            <AdminUserManagement />
-                        </AdminLayout>
-                    </AdminProtectedRoute>
-                }
-            />
-            <Route
-                path="/admin/settings"
-                element={
-                    <AdminProtectedRoute>
-                        <AdminLayout>
-                            <AdminSettings />
-                        </AdminLayout>
-                    </AdminProtectedRoute>
-                }
-            />
+                {/* Admin Panel Routes */}
+                <Route
+                    path="/admin-dashboard"
+                    element={
+                        <AdminProtectedRoute>
+                            <AdminLayout>
+                                <LazyAdminDashboard />
+                            </AdminLayout>
+                        </AdminProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/books"
+                    element={
+                        <AdminProtectedRoute>
+                            <AdminLayout>
+                                <LazyAdminBookManagement />
+                            </AdminLayout>
+                        </AdminProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/authors"
+                    element={
+                        <AdminProtectedRoute>
+                            <AdminLayout>
+                                <LazyAdminAuthorManagement />
+                            </AdminLayout>
+                        </AdminProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/genres"
+                    element={
+                        <AdminProtectedRoute>
+                            <AdminLayout>
+                                <LazyAdminGenreManagement />
+                            </AdminLayout>
+                        </AdminProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/orders"
+                    element={
+                        <AdminProtectedRoute>
+                            <AdminLayout>
+                                <LazyAdminOrderManagement />
+                            </AdminLayout>
+                        </AdminProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/users"
+                    element={
+                        <AdminProtectedRoute>
+                            <AdminLayout>
+                                <LazyAdminUserManagement />
+                            </AdminLayout>
+                        </AdminProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/settings"
+                    element={
+                        <AdminProtectedRoute>
+                            <AdminLayout>
+                                <LazyAdminSettings />
+                            </AdminLayout>
+                        </AdminProtectedRoute>
+                    }
+                />
 
-            <Route path="*" element={<MainLayout><div className="container" style={{ padding: '50px', textAlign: 'center', minHeight: 'calc(100vh - 200px)' }}>404 - Sahifa topilmadi</div></MainLayout>} />
-        </Routes>
+                <Route path="*" element={<MainLayout><ComingSoon title="404 - Sahifa Topilmadi" subtitle="Siz qidirayotgan sahifa mavjud emas" description="Kechirasiz, siz qidirayotgan sahifa topilmadi yoki o'chirilgan bo'lishi mumkin. Bosh sahifaga qaytib, boshqa sahifalarni ko'rib chiqing." /></MainLayout>} />
+            </Routes>
         </>
     );
 }

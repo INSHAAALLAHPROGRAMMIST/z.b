@@ -1,140 +1,213 @@
-/* Critical CSS - Above the fold content */
+/* Critical Above-the-fold CSS - Inline in HTML head */
+
+/* Essential variables for immediate rendering */
+:root {
+    --primary-color: #6366f1;
+    --text-color: #f3f4f6;
+    --glass-bg-light: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --transition-fast: 0.3s ease;
+}
+
+/* Light mode critical variables */
+body.light-mode {
+    --primary-color: #4f46e5;
+    --text-color: #1f2937;
+    --glass-bg-light: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(0, 0, 0, 0.1);
+}
+
+/* Critical reset for immediate layout */
 *, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-:root {
-    --primary-color: #6a8aff;
-    --secondary-color: #a3a3a3;
-    --accent-color: #8bff6a;
-    --text-color: #e0e0e0;
-    --light-text-color: #a0a0a0;
-    --white-color: #fff;
-    --black-color: #000;
-    --glass-bg-light: rgba(255, 255, 255, 0.08);
-    --glass-bg-dark: rgba(0, 0, 0, 0.4);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-shadow: rgba(0, 0, 0, 0.3);
-    --hover-effect: rgba(255, 255, 255, 0.15);
-    --neo-background: #1a1a2e;
-    --neo-text: #e0e0e0;
-    --transition-fast: 0.3s ease;
-    --transition-medium: 0.5s ease;
-}
-
-body.light-mode {
-    --primary-color: #007bff;
-    --secondary-color: #6c757d;
-    --accent-color: #28a745;
-    --text-color: #333;
-    --light-text-color: #666;
-    --glass-bg-light: rgba(255, 255, 255, 0.6);
-    --glass-bg-dark: rgba(255, 255, 255, 0.3);
-    --glass-border: rgba(200, 200, 200, 0.5);
-    --glass-shadow: rgba(0, 0, 0, 0.15);
-    --hover-effect: rgba(220, 220, 220, 0.8);
-    --neo-background: linear-gradient(145deg, #e0e5ec, #ffffff);
-    --neo-text: #3f51b5;
-}
-
+/* Body and layout essentials */
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     line-height: 1.6;
     color: var(--text-color);
-    background: var(--neo-background);
+    background: linear-gradient(145deg, #0f172a, #1e293b);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    transition: background var(--transition-medium), color var(--transition-medium);
+    transition: all var(--transition-fast);
 }
 
-#root {
-    overflow: hidden;
+body.light-mode {
+    background: linear-gradient(145deg, #f8fafc, #e2e8f0);
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-/* Header - Critical */
+/* Critical header styles for immediate visibility */
 .glassmorphism-header {
-    background: var(--glass-bg-light);
-
-    box-shadow: 0 2px 15px var(--glass-shadow);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 15px 0;
     position: fixed;
     top: 0;
-    width: 100%;
+    left: 0;
+    right: 0;
     z-index: 1000;
-    transition: background var(--transition-medium);
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all var(--transition-fast);
+    height: 70px;
 }
 
 .glassmorphism-header .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 20px;
+    justify-content: space-between;
+    height: 100%;
 }
 
-.glassmorphism-header .logo {
+/* Logo critical styles */
+.logo {
     display: flex;
     align-items: center;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    font-weight: bold;
     flex-shrink: 0;
 }
 
-.glassmorphism-header .logo .header-logo {
+.header-logo {
     height: 40px;
     width: auto;
+    margin-right: 10px;
 }
 
-.glassmorphism-header .logo span {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: var(--neo-text);
-    white-space: nowrap;
-    transition: color var(--transition-medium);
+/* Critical button styles */
+.glassmorphism-button {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text-color);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95em;
 }
 
-/* Hero Banner - Critical */
-.hero-banner {
-    width: 100%;
-    height: 350px;
-    background: linear-gradient(135deg, var(--neo-background), var(--primary-color));
-    color: var(--white-color);
+/* Critical navigation styles */
+.main-nav {
+    display: flex;
+    align-items: center;
+}
+
+.glassmorphism-nav-list {
+    display: flex;
+    list-style: none;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+}
+
+/* Critical mobile menu toggle */
+.hamburger-menu {
+    display: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: var(--text-color);
+    z-index: 1005;
+}
+
+.theme-toggle-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--glass-bg-light);
+    border: 1px solid var(--glass-border);
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-color);
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
 }
 
-
-
-.hero-content {
-    z-index: 2;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(5px);
-    border-radius: 15px;
-    padding: 20px 50px;
-    max-width: 600px;
-    text-align: center;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+/* Critical mobile styles */
+@media (max-width: 1191px) {
+    .hamburger-menu {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 35px;
+        height: 35px;
+        margin-left: auto;
+        margin-right: 3px;
+    }
+    
+    .theme-toggle-button {
+        width: 35px;
+        height: 35px;
+        margin-left: 3px;
+    }
+    
+    .main-nav {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 100%;
+        max-width: 400px;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(40px);
+        -webkit-backdrop-filter: blur(40px);
+        transition: right 0.4s ease-in-out;
+        z-index: 1002;
+        padding-top: 80px;
+    }
+    
+    .main-nav.active {
+        right: 0;
+    }
 }
 
-.hero-title-small {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    line-height: 1.2;
+/* Critical loading state */
+.loading-placeholder {
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        rgba(255, 255, 255, 0.1) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
 }
 
-.hero-subtitle-small {
-    font-size: 1.1rem;
-    margin-bottom: 20px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Critical content spacing */
+main {
+    margin-top: 70px;
+    flex: 1;
+}
+
+/* Hide non-critical elements initially */
+.below-fold {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.below-fold.loaded {
+    opacity: 1;
+    transform: translateY(0);
 }

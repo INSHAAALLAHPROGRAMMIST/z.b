@@ -1,0 +1,230 @@
+/* CSS Mixins and Reusable Styles */
+
+/* === GLASSMORPHISM COMPONENTS === */
+.glassmorphism-card {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    transition: all var(--transition-fast);
+    background: var(--glass-bg-light);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px var(--glass-shadow);
+}
+
+.glassmorphism-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+}
+
+.glassmorphism-button {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    transition: all var(--transition-fast);
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text-color);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95em;
+}
+
+.glassmorphism-button:hover {
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.glassmorphism-input {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    transition: all var(--transition-fast);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px 15px;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.glassmorphism-input:focus-within {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 0 2px rgba(106, 138, 255, 0.2);
+}
+
+/* === BUTTON MIXINS === */
+.btn-base {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--primary-color), #0056b3);
+    color: white;
+    box-shadow: 0 2px 8px rgba(106, 138, 255, 0.2);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3, #004085);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(106, 138, 255, 0.3);
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--glass-border);
+}
+
+.btn-secondary:hover {
+    background: rgba(var(--neo-background-rgb), 0.3);
+    transform: translateY(-1px);
+}
+
+/* === FORM MIXINS === */
+.form-input-base {
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(var(--neo-background-rgb), 0.1);
+    color: var(--text-color);
+    font-family: inherit;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.form-input-base:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(106, 138, 255, 0.2);
+}
+
+/* === LOADING MIXINS === */
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(var(--primary-color-rgb, 106, 138, 255), 0.2);
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* === CARD MIXINS === */
+.card-base {
+    background: var(--neo-element-bg);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(var(--glass-border-rgb, 255, 255, 255), 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card-base:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* === RESPONSIVE MIXINS === */
+.mobile-card {
+    @media (max-width: 768px) {
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+    }
+}
+
+.desktop-only {
+    @media (max-width: 768px) {
+        display: none;
+    }
+}
+
+.mobile-only {
+    display: none;
+    @media (max-width: 768px) {
+        display: block;
+    }
+}
+
+/* === ANIMATION MIXINS === */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* === HOVER EFFECTS === */
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.hover-glow {
+    transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+    box-shadow: 0 0 20px rgba(var(--primary-color-rgb, 106, 138, 255), 0.4);
+}

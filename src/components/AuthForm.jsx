@@ -54,9 +54,10 @@ const AuthForm = ({ onSuccess }) => {
             let userId;
 
             if (isLogin) {
+                let loginResult;
                 try {
                     // Tizimga kirish va sync
-                    const loginResult = await loginAndSync(email, password);
+                    loginResult = await loginAndSync(email, password);
                     userId = loginResult.authUser.$id;
 
                     console.log('Login muvaffaqiyatli:', loginResult.dbUser);
@@ -103,20 +104,20 @@ const AuthForm = ({ onSuccess }) => {
                 }
 
                 // Email unique tekshirish (Appwrite avtomatik tekshiradi, lekin aniq xabar uchun)
+                let registerResult;
                 try {
                     // Ro'yxatdan o'tish va sync
-                    const registerResult = await registerAndSync(email, password, name, {
+                    registerResult = await registerAndSync(email, password, name, {
                         phone: phone,
                         telegram_username: telegramUsername,
                         address: address
                     });
                     userId = registerResult.authUser.$id;
+                    console.log('Register muvaffaqiyatli:', registerResult.dbUser);
                 } catch (registerError) {
                     setError(parseRegisterError(registerError));
                     return;
                 }
-
-                console.log('Register muvaffaqiyatli:', registerResult.dbUser);
             }
 
             // Mehmon savatini foydalanuvchi savatiga ko'chirish

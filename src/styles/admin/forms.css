@@ -251,6 +251,11 @@ body.light-mode .form-group select,
 body.light-mode .form-group textarea {
     background-color: #f8f9fa;
     border-color: #dee2e6;
+    color: #1f2937;
+}
+
+body.light-mode .form-group label {
+    color: #374151;
 }
 
 body.light-mode .checkbox-group {
@@ -258,7 +263,25 @@ body.light-mode .checkbox-group {
     border-color: #dee2e6;
 }
 
+body.light-mode .checkbox-group label {
+    color: #374151;
+}
+
 body.light-mode .file-upload-btn {
     background-color: #f8f9fa;
     border-color: #dee2e6;
+    color: #374151;
+}
+
+body.light-mode .submit-btn {
+    background: linear-gradient(135deg, #4f46e5, #3730a3);
+}
+
+body.light-mode .cancel-btn {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+body.light-mode .cancel-btn:hover {
+    background-color: #e5e7eb;
 }

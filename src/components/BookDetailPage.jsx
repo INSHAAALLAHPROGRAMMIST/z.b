@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { databases, Query, ID } from '../appwriteConfig'; // appwriteConfig ni to'g'ri joydan import qilish
+import { databases, Query, ID, account } from '../appwriteConfig'; // appwriteConfig ni to'g'ri joydan import qilish
 import { toastMessages } from '../utils/toastUtils';
-import '../index.css'; // Global CSS faylingiz
+import { useLazyCSS } from '../hooks/useLazyCSS';
+// Lazy load CSS for better performance
 
 // --- Appwrite konsolidan olingan ID'lar ---
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -17,36 +18,61 @@ function BookDetailPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [cartCount, setCartCount] = useState(0); // Savatdagi elementlar soni
+    const [cartItems, setCartItems] = useState([]); // Savatdagi kitoblar
+    
+    // Lazy load component-specific CSS
+    useLazyCSS('/src/styles/components/book-detail.css');
 
-    // Savatdagi elementlar sonini yuklash
-    useEffect(() => {
-        const fetchCartCount = async () => {
-            try {
-                let currentUserId = localStorage.getItem('appwriteGuestId');
-                if (!currentUserId) {
-                    currentUserId = ID.unique();
-                    localStorage.setItem('appwriteGuestId', currentUserId);
-                }
+    // Savatdagi elementlarni yuklash
+    const fetchCartItems = async () => {
+        try {
+            // Foydalanuvchi ID'sini tekshirish: agar kirgan bo'lsa, uning ID'si, aks holda guest ID
+            const currentUser = await account.get().catch(() => null);
+            let currentUserId = currentUser ? currentUser.$id : localStorage.getItem('appwriteGuestId');
 
-                const response = await databases.listDocuments(
-                    DATABASE_ID,
-                    CART_ITEMS_COLLECTION_ID,
-                    [
-                        Query.equal('userId', currentUserId)
-                    ]
-                );
-                const totalQuantity = response.documents.reduce((sum, item) => sum + item.quantity, 0);
-                setCartCount(totalQuantity);
-            } catch (err) {
-                console.error("Savat sonini yuklashda xato:", err);
+            if (!currentUserId) {
+                currentUserId = ID.unique();
+                localStorage.setItem('appwriteGuestId', currentUserId);
             }
+
+            const response = await databases.listDocuments(
+                DATABASE_ID,
+                CART_ITEMS_COLLECTION_ID,
+                [
+                    Query.equal('userId', currentUserId)
+                ]
+            );
+            
+            setCartItems(response.documents);
+            const totalQuantity = response.documents.reduce((sum, item) => sum + item.quantity, 0);
+            setCartCount(totalQuantity);
+        } catch (err) {
+            console.error("Savat elementlarini yuklashda xato:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchCartItems();
+        
+        // Cart yangilanganda event listener qo'shish
+        const handleCartUpdate = () => {
+            fetchCartItems();
         };
-        fetchCartCount();
+        
+        window.addEventListener('cartUpdated', handleCartUpdate);
+        
+        // Cleanup
+        return () => {
+            window.removeEventListener('cartUpdated', handleCartUpdate);
+        };
     }, []);
 
     const addToCart = async (bookToAdd) => {
         try {
-            let currentUserId = localStorage.getItem('appwriteGuestId');
+            // Foydalanuvchi ID'sini tekshirish: agar kirgan bo'lsa, uning ID'si, aks holda guest ID
+            const currentUser = await account.get().catch(() => null);
+            let currentUserId = currentUser ? currentUser.$id : localStorage.getItem('appwriteGuestId');
+
             if (!currentUserId) {
                 currentUserId = ID.unique();
                 localStorage.setItem('appwriteGuestId', currentUserId);
@@ -92,9 +118,89 @@ function BookDetailPage() {
             toastMessages.addedToCart(bookToAdd.title);
             
             // Global cart count'ni yangilash uchun event dispatch qilish
+            fetchCartItems();
             window.dispatchEvent(new CustomEvent('cartUpdated'));
         } catch (err) {
             console.error("Savatga qo'shishda xato yuz berdi:", err);
+            toastMessages.cartError();
+        }
+    };
+
+    // Kitobning savatdagi miqdorini olish
+    const getBookQuantityInCart = (bookId) => {
+        const cartItem = cartItems.find(item => item.bookId === bookId);
+        return cartItem ? cartItem.quantity : 0;
+    };
+
+    // Savatdagi kitob miqdorini yangilash
+    const updateBookQuantityInCart = async (bookId, newQuantity) => {
+        try {
+            // Foydalanuvchi ID'sini tekshirish: agar kirgan bo'lsa, uning ID'si, aks holda guest ID
+            const currentUser = await account.get().catch(() => null);
+            let currentUserId = currentUser ? currentUser.$id : localStorage.getItem('appwriteGuestId');
+
+            if (!currentUserId) {
+                currentUserId = ID.unique();
+                localStorage.setItem('appwriteGuestId', currentUserId);
+            }
+
+            const cartItem = cartItems.find(item => item.bookId === bookId);
+
+            if (cartItem) {
+                if (newQuantity <= 0) {
+                    // Kitobni savatdan o'chirish
+                    await databases.deleteDocument(
+                        DATABASE_ID,
+                        CART_ITEMS_COLLECTION_ID,
+                        cartItem.$id
+                    );
+                } else {
+                    // Hujjatni o'chirib, yangisini yaratish (workaround)
+                    await databases.deleteDocument(
+                        DATABASE_ID,
+                        CART_ITEMS_COLLECTION_ID,
+                        cartItem.$id
+                    );
+                    
+                    // Yangi hujjat yaratish
+                    if (book) {
+                        await databases.createDocument(
+                            DATABASE_ID,
+                            CART_ITEMS_COLLECTION_ID,
+                            ID.unique(),
+                            {
+                                userId: currentUserId,
+                                bookId: bookId,
+                                quantity: newQuantity,
+                                priceAtTimeOfAdd: cartItem.priceAtTimeOfAdd || parseFloat(book.price)
+                            }
+                        );
+                    }
+                }
+            } else if (newQuantity > 0) {
+                // Yangi cart item yaratish (agar kitob savatda bo'lmasa va + bosilsa)
+                if (book) {
+                    await databases.createDocument(
+                        DATABASE_ID,
+                        CART_ITEMS_COLLECTION_ID,
+                        ID.unique(),
+                        {
+                            userId: currentUserId,
+                            bookId: bookId,
+                            quantity: newQuantity,
+                            priceAtTimeOfAdd: parseFloat(book.price)
+                        }
+                    );
+                }
+            }
+            
+            // Local state'ni yangilash
+            setTimeout(() => {
+                fetchCartItems();
+                window.dispatchEvent(new CustomEvent('cartUpdated'));
+            }, 100); // 100ms kechikish
+        } catch (err) {
+            console.error("Savat miqdorini yangilashda xato:", err);
             toastMessages.cartError();
         }
     };
@@ -265,22 +371,75 @@ function BookDetailPage() {
                     }}>
                         Narxi: {parseFloat(book.price).toFixed(2)} so'm
                     </p>
-                    <button
-                        className="cta-button glassmorphism-button"
-                        style={{ 
-                            padding: '12px 25px', 
-                            fontSize: 'clamp(0.9em, 3vw, 1.1em)',
-                            width: '100%',
-                            maxWidth: '300px',
+                    {getBookQuantityInCart(book.$id) === 0 ? (
+                        <button
+                            className="cta-button glassmorphism-button"
+                            style={{ 
+                                padding: '12px 25px', 
+                                fontSize: 'clamp(0.9em, 3vw, 1.1em)',
+                                width: '100%',
+                                maxWidth: '300px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '10px'
+                            }}
+                            onClick={() => addToCart(book)}
+                        >
+                            <i className="fas fa-shopping-cart"></i> Savatga qo'shish
+                        </button>
+                    ) : (
+                        <div className="quantity-controls" style={{
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '10px'
-                        }}
-                        onClick={() => addToCart(book)}
-                    >
-                        <i className="fas fa-shopping-cart"></i> Savatga qo'shish
-                    </button>
+                            gap: '15px',
+                            maxWidth: '300px',
+                            width: '100%'
+                        }}>
+                            <button
+                                className="glassmorphism-button"
+                                style={{ 
+                                    width: '50px', 
+                                    height: '50px', 
+                                    padding: '0',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '1.2rem',
+                                    fontWeight: 'bold'
+                                }}
+                                onClick={() => updateBookQuantityInCart(book.$id, getBookQuantityInCart(book.$id) - 1)}
+                            >
+                                -
+                            </button>
+                            <span style={{ 
+                                fontSize: '1.5rem', 
+                                fontWeight: 'bold', 
+                                minWidth: '50px', 
+                                textAlign: 'center',
+                                color: 'var(--accent-light)'
+                            }}>
+                                {getBookQuantityInCart(book.$id)}
+                            </span>
+                            <button
+                                className="glassmorphism-button"
+                                style={{ 
+                                    width: '50px', 
+                                    height: '50px', 
+                                    padding: '0',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '1.2rem',
+                                    fontWeight: 'bold'
+                                }}
+                                onClick={() => updateBookQuantityInCart(book.$id, getBookQuantityInCart(book.$id) + 1)}
+                            >
+                                +
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </main>

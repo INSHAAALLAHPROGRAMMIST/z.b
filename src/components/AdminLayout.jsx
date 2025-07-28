@@ -16,10 +16,22 @@ function AdminLayout({ children }) {
     const [searchResults, setSearchResults] = useState([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
+    const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
     const navigate = useNavigate();
     const location = useLocation();
 
+    const toggleTheme = () => {
+        setTheme(prevTheme => {
+            const newTheme = prevTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            return newTheme;
+        });
+    };
+
     useEffect(() => {
+        // Theme'ni body'ga qo'llash
+        document.body.className = theme === 'light' ? 'light-mode' : '';
+        
         const checkUser = async () => {
             try {
                 const currentUser = await account.get();
@@ -36,13 +48,18 @@ function AdminLayout({ children }) {
             }
         };
         checkUser();
-    }, [navigate]);
+    }, [navigate, theme]);
 
     const handleLogout = async () => {
         try {
             await account.deleteSession('current');
             setUser(null);
-            navigate('/admin-login');
+            // Admin chiqgandan keyin bosh sahifaga yo'naltirish
+            navigate('/');
+            // Sahifani yangilash (header state yangilanishi uchun)
+            setTimeout(() => {
+                window.location.reload();
+            }, 100);
         } catch (err) {
             console.error("Chiqishda xato:", err);
             toastMessages.logoutError();
@@ -272,18 +289,24 @@ function AdminLayout({ children }) {
                 </nav>
                 
                 <div className="admin-sidebar-footer">
-                    {user && !sidebarCollapsed && (
-                        <div className="admin-user-info">
-                            <div className="admin-avatar">
+                    {user && (
+                        <div className={`admin-user-info ${sidebarCollapsed ? 'collapsed' : ''}`}>
+                            <div className="admin-avatar" title={sidebarCollapsed ? user.name || 'Admin' : ''}>
                                 <i className="fas fa-user-circle"></i>
                             </div>
-                            <div className="admin-user-details">
-                                <p className="admin-user-name">{user.name || 'Admin'}</p>
-                                <p className="admin-user-email">{user.email}</p>
-                            </div>
+                            {!sidebarCollapsed && (
+                                <div className="admin-user-details">
+                                    <p className="admin-user-name">{user.name || 'Admin'}</p>
+                                    <p className="admin-user-email">{user.email}</p>
+                                </div>
+                            )}
                         </div>
                     )}
-                    <button onClick={handleLogout} className="admin-logout-btn">
+                    <button 
+                        onClick={handleLogout} 
+                        className={`admin-logout-btn ${sidebarCollapsed ? 'collapsed' : ''}`}
+                        title={sidebarCollapsed ? 'Chiqish' : ''}
+                    >
                         <i className="fas fa-sign-out-alt"></i>
                         {!sidebarCollapsed && <span>Chiqish</span>}
                     </button>
@@ -350,6 +373,9 @@ function AdminLayout({ children }) {
                                 </div>
                             )}
                         </div>
+                        <div className="admin-theme-toggle" onClick={toggleTheme} title="Temani almashtirish">
+                            <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
+                        </div>
                         <div className="admin-notifications">
                             <i className="fas fa-bell"></i>
                             <span className="notification-badge">3</span>
@@ -368,7 +394,18 @@ function AdminLayout({ children }) {
                 </main>
                 
                 <footer className="admin-footer">
-                    <p>&copy; {new Date().getFullYear()} Zamon Books Admin. Barcha huquqlar himoyalangan.</p>
+                    <div className="admin-footer-content">
+                        <div className="admin-footer-left">
+                            <p>&copy; {new Date().getFullYear()} Zamon Books Admin Panel</p>
+                            <span className="admin-footer-version">v2.0.1</span>
+                        </div>
+                        <div className="admin-footer-right">
+                            <span className="admin-footer-status">
+                                <i className="fas fa-circle" style={{ color: '#10b981', fontSize: '8px' }}></i>
+                                Tizim faol
+                            </span>
+                        </div>
+                    </div>
                 </footer>
             </div>
         </div>

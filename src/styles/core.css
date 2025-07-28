@@ -1,0 +1,156 @@
+/* Core Styles - Always needed */
+
+/* Global Reset */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* CSS Variables - Dark Mode (Default) */
+:root {
+    /* Colors */
+    --primary-color: #6366f1;
+    --secondary-color: #9ca3af;
+    --accent-color: #34d399;
+    --text-color: #f3f4f6;
+    --light-text-color: #9ca3af;
+    --white-color: #fff;
+    --black-color: #000;
+
+    /* Glassmorphism - Dark Mode */
+    --glass-bg-color: rgba(255, 255, 255, 0.1);
+    --glass-border-color: rgba(255, 255, 255, 0.2);
+    --glass-shadow-color: rgba(0, 0, 0, 0.3);
+    --glass-bg-light: rgba(255, 255, 255, 0.1);
+    --glass-bg-dark: rgba(0, 0, 0, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-shadow: rgba(0, 0, 0, 0.3);
+    --hover-effect: rgba(255, 255, 255, 0.15);
+
+    /* Neo-Brutalism - Dark Mode */
+    --neo-background: linear-gradient(145deg, #0f172a, #1e293b);
+    --neo-background-rgb: 15, 23, 42;
+    --neo-shadow-light: #334155;
+    --neo-shadow-dark: #020617;
+    --neo-element-bg: #1e293b;
+    --neo-text: #f1f5f9;
+    --neo-accent: #f87171;
+    --neo-button-bg: linear-gradient(145deg, #1e293b, #0f172a);
+    --neo-button-shadow: 4px 4px 8px var(--neo-shadow-dark), -4px -4px 8px var(--neo-shadow-light);
+    --neo-inner-shadow: inset 2px 2px 5px var(--neo-shadow-dark), inset -3px -3px 7px var(--neo-shadow-light);
+
+    /* Common Transitions */
+    --transition-fast: 0.3s ease;
+    --transition-medium: 0.5s ease;
+}
+
+/* Light Mode Variables */
+body.light-mode {
+    --primary-color: #4f46e5;
+    --secondary-color: #6b7280;
+    --accent-color: #10b981;
+    --text-color: #1f2937;
+    --light-text-color: #6b7280;
+
+    --glass-bg-light: rgba(255, 255, 255, 0.7);
+    --glass-bg-dark: rgba(255, 255, 255, 0.5);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --glass-shadow: rgba(0, 0, 0, 0.1);
+    --hover-effect: rgba(255, 255, 255, 0.9);
+
+    --neo-background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+    --neo-background-rgb: 248, 250, 252;
+    --neo-shadow-light: #ffffff;
+    --neo-shadow-dark: #cbd5e1;
+    --neo-element-bg: #f1f5f9;
+    --neo-text: #1e293b;
+    --neo-accent: #ef4444;
+    --neo-button-bg: linear-gradient(145deg, #f8fafc, #e2e8f0);
+    --neo-button-shadow: 4px 4px 8px var(--neo-shadow-dark), -4px -4px 8px var(--neo-shadow-light);
+    --neo-inner-shadow: inset 2px 2px 5px var(--neo-shadow-dark), inset -3px -3px 7px var(--neo-shadow-light);
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background: var(--neo-background);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: all var(--transition-medium);
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+}
+
+/* Basic Glassmorphism */
+.glassmorphism-card {
+    background: var(--glass-bg-light);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px var(--glass-shadow);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.glassmorphism-button {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text-color);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95em;
+}
+
+.glassmorphism-input {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 12px 15px;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Animations */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes floatingOrbs {
+    0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+    33% { transform: translateY(-20px) rotate(120deg); opacity: 0.9; }
+    66% { transform: translateY(10px) rotate(240deg); opacity: 0.5; }
+}/* Shimme
+r animation for lazy loading */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Spinner animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

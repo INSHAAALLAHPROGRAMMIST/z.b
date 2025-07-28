@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { databases, ID, Query, account } from '../appwriteConfig';
 import { Link } from 'react-router-dom';
 import { toastMessages } from '../utils/toastUtils';
-import '../index.css'; // Global CSS faylingiz
+import LazyImage from '../components/LazyImage';
+import '../index.css';
 // --- Appwrite konsolidan olingan ID'lar ---
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
@@ -11,8 +12,10 @@ const CART_ITEMS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_CART_I
 
 const HomePage = () => {
     const [books, setBooks] = useState([]);
+    const [allBooks, setAllBooks] = useState([]);
     const [genres, setGenres] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState(null);
     const [cartItems, setCartItems] = useState([]); // Savatdagi kitoblar
 
@@ -78,41 +81,99 @@ const HomePage = () => {
     };
 
     useEffect(() => {
-        const fetchBooksAndGenres = async () => {
+        let mounted = true;
+
+        const fetchInitialData = async () => {
             try {
-                const booksResponse = await databases.listDocuments(
-                    DATABASE_ID,
-                    BOOKS_COLLECTION_ID,
-                    [Query.limit(8), Query.select(['*', 'author', 'genres'])]
-                );
+                // First load: 8 books (4 ga karrali) + genres for fast display
+                const [initialBooksResponse, genresResponse] = await Promise.all([
+                    databases.listDocuments(
+                        DATABASE_ID,
+                        BOOKS_COLLECTION_ID,
+                        [Query.limit(8)] // 4 ga karrali - tez yuklash uchun
+                    ),
+                    databases.listDocuments(
+                        DATABASE_ID,
+                        GENRES_COLLECTION_ID,
+                        [Query.limit(6)]
+                    )
+                ]);
                 
-                // Debug: HomePage'da qanday ma'lumotlar kelayotganini ko'rish
-                if (booksResponse.documents.length > 0) {
-                    console.log('HomePage - Kitob ma\'lumotlari:', booksResponse.documents[0]);
-                    console.log('HomePage - Author:', booksResponse.documents[0].author);
-                    console.log('HomePage - Genres:', booksResponse.documents[0].genres);
+                if (mounted) {
+                    console.log('Initial books loaded:', initialBooksResponse.documents.length);
+                    console.log('Genres loaded:', genresResponse.documents.length);
+                    setBooks(initialBooksResponse.documents);
+                    setGenres(genresResponse.documents);
+                    setLoading(false);
+                    
+                    // Load remaining books after initial display
+                    setTimeout(() => loadMoreBooks(), 1000);
                 }
-                
-                setBooks(booksResponse.documents);
-
-                const genresResponse = await databases.listDocuments(
-                    DATABASE_ID,
-                    GENRES_COLLECTION_ID,
-                    [Query.limit(6)]
-                );
-                setGenres(genresResponse.documents);
-
-                setLoading(false);
             } catch (err) {
-                console.error("Ma'lumotlarni yuklashda xato:", err);
-                setError(err.message || "Ma'lumotlarni yuklashda noma'lum xato.");
-                setLoading(false);
+                if (mounted) {
+                    console.error("Ma'lumotlarni yuklashda xato:", err);
+                    setError(err.message || "Ma'lumotlarni yuklashda noma'lum xato.");
+                    setLoading(false);
+                }
             }
         };
 
-        fetchBooksAndGenres();
-        fetchCartItems();
+        const loadMoreBooks = async () => {
+            if (!mounted) return;
+            
+            try {
+                setLoadingMore(true);
+                // Load all books (up to 100)
+                const allBooksResponse = await databases.listDocuments(
+                    DATABASE_ID,
+                    BOOKS_COLLECTION_ID,
+                    [Query.limit(100)] // Barcha kitoblar
+                );
+                
+                if (mounted) {
+                    console.log('All books loaded:', allBooksResponse.documents.length);
+                    setAllBooks(allBooksResponse.documents);
+                    setBooks(allBooksResponse.documents);
+                    setLoadingMore(false);
+                }
+            } catch (err) {
+                if (mounted) {
+                    console.error("Qo'shimcha kitoblarni yuklashda xato:", err);
+                    setLoadingMore(false);
+                }
+            }
+        };
+
+        // Load cart items separately to not block main content
+        const loadCartItems = async () => {
+            try {
+                await fetchCartItems();
+            } catch (err) {
+                console.error("Cart items loading error:", err);
+            }
+        };
+
+        fetchInitialData();
+        setTimeout(loadCartItems, 100); // Delay cart loading
+
+        return () => {
+            mounted = false;
+        };
     }, []);
+
+    // Below-the-fold animation
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            const belowFoldElements = document.querySelectorAll('.below-fold');
+            belowFoldElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('loaded');
+                }, index * 200);
+            });
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [loading]);
 
     // Savatdagi kitoblarni yuklash
     const fetchCartItems = async () => {
@@ -220,15 +281,49 @@ const HomePage = () => {
     };
 
     if (loading) {
-        return <div className="container" style={{ textAlign: 'center', padding: '50px', minHeight: 'calc(100vh - 200px)' }}>Yuklanmoqda...</div>;
+        return (
+            <main>
+                <section className="hero-banner">
+                    <div className="hero-content">
+                        <h1 className="hero-title-small">Kelajak kitoblari Zamon Books'da</h1>
+                        <p className="hero-subtitle-small">Dunyo adabiyotining eng sara asarlari, innovatsion texnologiyalar bilan birga.</p>
+                    </div>
+                </section>
+                <div className="container" style={{ textAlign: 'center', padding: '50px' }}>
+                    <div className="loading-spinner" style={{
+                        width: '40px',
+                        height: '40px',
+                        border: '3px solid rgba(106, 138, 255, 0.2)',
+                        borderTop: '3px solid var(--primary-color)',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite',
+                        margin: '0 auto 20px'
+                    }}></div>
+                    Yuklanmoqda...
+                </div>
+            </main>
+        );
     }
 
     if (error) {
-        return <div className="container" style={{ textAlign: 'center', padding: '50px', color: 'red', minHeight: 'calc(100vh - 200px)' }}>Xato: {error}</div>;
+        return (
+            <main>
+                <section className="hero-banner">
+                    <div className="hero-content">
+                        <h1 className="hero-title-small">Kelajak kitoblari Zamon Books'da</h1>
+                        <p className="hero-subtitle-small">Dunyo adabiyotining eng sara asarlari, innovatsion texnologiyalar bilan birga.</p>
+                    </div>
+                </section>
+                <div className="container" style={{ textAlign: 'center', padding: '50px', color: 'red' }}>
+                    Xato: {error}
+                </div>
+            </main>
+        );
     }
 
     return (
         <main>
+            {/* Above-the-fold content - loads immediately */}
             <section className="hero-banner">
                 <div className="hero-content">
                     <h1 className="hero-title-small">Kelajak kitoblari Zamon Books'da</h1>
@@ -236,12 +331,17 @@ const HomePage = () => {
                 </div>
             </section>
 
-            <section className="container">
+            {/* Below-the-fold content - loads after initial render */}
+            <section className="container below-fold">
                 <h2 className="section-title">Eng So'nggi Kitoblar</h2>
                 <div className="book-grid">
                     {books.map(book => (
                         <Link to={`/book/${book.$id}`} key={book.$id} className="book-card glassmorphism-card">
-                            <img src={book.imageUrl} alt={book.title} />
+                            <LazyImage 
+                                src={book.imageUrl} 
+                                alt={book.title}
+                                style={{ height: '250px' }}
+                            />
                             <div className="book-info">
                                 <h3>{book.title}</h3>
                                 {book.author && book.author.name && <p className="author">{book.author.name}</p>}
@@ -317,9 +417,44 @@ const HomePage = () => {
                         </Link>
                     ))}
                 </div>
+
+                {/* Loading more indicator */}
+                {loadingMore && (
+                    <div style={{ textAlign: 'center', padding: '30px' }}>
+                        <div className="loading-spinner" style={{
+                            width: '30px',
+                            height: '30px',
+                            border: '2px solid rgba(106, 138, 255, 0.2)',
+                            borderTop: '2px solid var(--primary-color)',
+                            borderRadius: '50%',
+                            animation: 'spin 1s linear infinite',
+                            margin: '0 auto 15px'
+                        }}></div>
+                        <p style={{ color: 'var(--light-text-color)', fontSize: '0.9rem' }}>
+                            Ko'proq kitoblar yuklanmoqda...
+                        </p>
+                    </div>
+                )}
+
+                {/* Show total count */}
+                {!loadingMore && allBooks.length > 0 && (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                        <p style={{ 
+                            color: 'var(--light-text-color)', 
+                            fontSize: '0.9rem',
+                            background: 'rgba(106, 138, 255, 0.1)',
+                            padding: '10px 20px',
+                            borderRadius: '20px',
+                            display: 'inline-block'
+                        }}>
+                            <i className="fas fa-book" style={{ marginRight: '8px' }}></i>
+                            Jami {books.length} ta kitob ko'rsatildi
+                        </p>
+                    </div>
+                )}
             </section>
 
-            <section className="container genre-section">
+            <section className="container genre-section below-fold">
                 <h2 className="section-title">Janrlar Boʻyicha Keng Tanlov</h2>
                 <div className="genre-grid">
                     {genres.map(genre => (

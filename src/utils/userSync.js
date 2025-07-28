@@ -166,6 +166,19 @@ export const getCurrentUserAndSync = async () => {
  */
 export const loginAndSync = async (email, password) => {
     try {
+        // Avval mavjud session'ni tekshiramiz va o'chiramiz
+        try {
+            const currentUser = await account.get();
+            if (currentUser) {
+                // Agar session mavjud bo'lsa, uni o'chiramiz
+                await account.deleteSession('current');
+                console.log('Mavjud session o\'chirildi');
+            }
+        } catch (error) {
+            // Session yo'q bo'lsa, davom etamiz
+            console.log('Mavjud session topilmadi, davom etamiz');
+        }
+        
         // Login qilamiz
         const session = await account.createEmailPasswordSession(email, password);
         
@@ -206,6 +219,19 @@ export const loginAndSync = async (email, password) => {
  */
 export const registerAndSync = async (email, password, name, additionalData = {}) => {
     try {
+        // Avval mavjud session'ni tekshiramiz va o'chiramiz
+        try {
+            const currentUser = await account.get();
+            if (currentUser) {
+                // Agar session mavjud bo'lsa, uni o'chiramiz
+                await account.deleteSession('current');
+                console.log('Mavjud session o\'chirildi (register)');
+            }
+        } catch (error) {
+            // Session yo'q bo'lsa, davom etamiz
+            console.log('Mavjud session topilmadi (register), davom etamiz');
+        }
+        
         // Register qilamiz
         const authUser = await account.create(ID.unique(), email, password, name);
         
@@ -266,6 +292,20 @@ export const updateUserPreferences = async (newPrefs) => {
         return updatedUser;
     } catch (error) {
         console.error('User preferences yangilashda xato:', error);
+        throw error;
+    }
+};
+
+/**
+ * User'ni logout qilish
+ * @returns {void}
+ */
+export const logoutUser = async () => {
+    try {
+        await account.deleteSession('current');
+        console.log('User logout qilindi');
+    } catch (error) {
+        console.error('Logout xatosi:', error);
         throw error;
     }
 };

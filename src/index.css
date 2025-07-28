@@ -2819,7 +2819,7 @@ ast Notification Styles */
 .toast-container {
     position: fixed;
     top: 20px;
-    left: 20px;
+    right: 20px;
     z-index: 10000;
     pointer-events: none;
     max-width: 400px;
@@ -2833,7 +2833,7 @@ ast Notification Styles */
     margin-bottom: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    transform: translateX(-100%);
+    transform: translateX(100%);
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: auto;
@@ -2847,7 +2847,7 @@ ast Notification Styles */
 }
 
 .toast-removing {
-    transform: translateX(-100%);
+    transform: translateX(100%);
     opacity: 0;
 }
 

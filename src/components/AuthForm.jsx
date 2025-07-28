@@ -3,9 +3,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { migrateGuestCartToUser } from '../utils/cartMigration';
-import { loginAndSync, registerAndSync } from '../utils/userSync';
+import { loginAndSync, registerAndSync, logoutUser } from '../utils/userSync';
 import { isValidEmail, parseRegisterError, parseLoginError } from '../utils/emailValidation';
 import { validateTelegramUsername, createTelegramLinkProps } from '../utils/telegramUtils';
+import { account } from '../appwriteConfig';
 
 const AuthForm = ({ onSuccess }) => {
     const [isLogin, setIsLogin] = useState(true);
@@ -21,8 +22,22 @@ const AuthForm = ({ onSuccess }) => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [showForgotPassword, setShowForgotPassword] = useState(false); // Parol unutish
+    const [currentUser, setCurrentUser] = useState(null); // Joriy user
 
     const navigate = useNavigate(); // useNavigate hook'ini ishga tushirish
+
+    // Component yuklanganda joriy user'ni tekshirish
+    React.useEffect(() => {
+        const checkCurrentUser = async () => {
+            try {
+                const user = await account.get();
+                setCurrentUser(user);
+            } catch (error) {
+                setCurrentUser(null);
+            }
+        };
+        checkCurrentUser();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -35,15 +50,15 @@ const AuthForm = ({ onSuccess }) => {
                 setError('Email format noto\'g\'ri. To\'g\'ri format: example@domain.com');
                 return;
             }
-            
+
             let userId;
-            
+
             if (isLogin) {
                 try {
                     // Tizimga kirish va sync
                     const loginResult = await loginAndSync(email, password);
                     userId = loginResult.authUser.$id;
-                    
+
                     console.log('Login muvaffaqiyatli:', loginResult.dbUser);
                 } catch (loginError) {
                     setError(parseLoginError(loginError));
@@ -55,38 +70,38 @@ const AuthForm = ({ onSuccess }) => {
                     setError('Ism kiritish majburiy!');
                     return;
                 }
-                
+
                 if (password.length < 8) {
                     setError('Parol kamida 8 ta belgidan iborat bo\'lishi kerak!');
                     return;
                 }
-                
+
                 if (password !== confirmPassword) {
                     setError('Parollar mos kelmaydi!');
                     return;
                 }
-                
+
                 if (phone && !/^\+998[0-9]{9}$/.test(phone)) {
                     setError('Telefon raqami noto\'g\'ri formatda! Masalan: +998901234567');
                     return;
                 }
-                
+
                 if (!telegramUsername.trim()) {
                     setError('Telegram username kiritish majburiy!');
                     return;
                 }
-                
+
                 const validation = validateTelegramUsername(telegramUsername);
                 if (!validation.valid) {
                     setError(validation.message);
                     return;
                 }
-                
+
                 if (!address.trim()) {
                     setError('Manzil kiritish majburiy!');
                     return;
                 }
-                
+
                 // Email unique tekshirish (Appwrite avtomatik tekshiradi, lekin aniq xabar uchun)
                 try {
                     // Ro'yxatdan o'tish va sync
@@ -100,17 +115,17 @@ const AuthForm = ({ onSuccess }) => {
                     setError(parseRegisterError(registerError));
                     return;
                 }
-                
+
                 console.log('Register muvaffaqiyatli:', registerResult.dbUser);
             }
-            
+
             // Mehmon savatini foydalanuvchi savatiga ko'chirish
             await migrateGuestCartToUser(userId);
             // Agar muvaffaqiyatli bo'lsa, onSuccess callbackini chaqiramiz
             if (onSuccess) {
                 onSuccess();
             }
-            
+
             // Bosh sahifaga yo'naltirish
             setTimeout(() => {
                 navigate('/');
@@ -129,24 +144,103 @@ const AuthForm = ({ onSuccess }) => {
         }
     };
 
+    const handleLogout = async () => {
+        try {
+            await logoutUser();
+            setCurrentUser(null);
+            window.location.reload(); // Sahifani yangilash
+        } catch (error) {
+            console.error('Logout xatosi:', error);
+        }
+    };
+
+    // Agar user allaqachon login qilingan bo'lsa
+    if (currentUser) {
+        return (
+            <div className="container" style={{
+                padding: '20px',
+                marginTop: '80px',
+                marginBottom: '50px',
+                maxWidth: '500px'
+            }}>
+                <div className="auth-container glassmorphism-card" style={{
+                    padding: '30px 20px',
+                    borderRadius: '15px',
+                    textAlign: 'center'
+                }}>
+                    <h2 style={{
+                        fontSize: 'clamp(1.5rem, 5vw, 2rem)',
+                        marginBottom: '20px'
+                    }}>Siz allaqachon tizimga kirgansiz</h2>
+
+                    <div style={{
+                        background: 'rgba(34, 197, 94, 0.1)',
+                        padding: '20px',
+                        borderRadius: '10px',
+                        marginBottom: '20px',
+                        border: '1px solid rgba(34, 197, 94, 0.2)'
+                    }}>
+                        <i className="fas fa-user-circle" style={{
+                            fontSize: '3rem',
+                            color: '#22c55e',
+                            marginBottom: '10px'
+                        }}></i>
+                        <p style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
+                            {currentUser.name || currentUser.email}
+                        </p>
+                        <p style={{ fontSize: '0.9rem', opacity: '0.8' }}>
+                            {currentUser.email}
+                        </p>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+                        <button
+                            onClick={() => navigate('/')}
+                            className="glassmorphism-button"
+                            style={{
+                                padding: '12px',
+                                backgroundColor: 'rgba(106, 138, 255, 0.2)',
+                                fontSize: '1rem'
+                            }}
+                        >
+                            <i className="fas fa-home"></i> Bosh sahifaga o'tish
+                        </button>
+
+                        <button
+                            onClick={handleLogout}
+                            className="glassmorphism-button"
+                            style={{
+                                padding: '12px',
+                                backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                                fontSize: '1rem'
+                            }}
+                        >
+                            <i className="fas fa-sign-out-alt"></i> Boshqa hisob bilan kirish
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="container" style={{ 
+        <div className="container" style={{
             padding: '20px',
             marginTop: '80px',
             marginBottom: '50px',
             maxWidth: '500px'
         }}>
-            <div className="auth-container glassmorphism-card" style={{ 
+            <div className="auth-container glassmorphism-card" style={{
                 padding: '30px 20px',
                 borderRadius: '15px'
             }}>
-                <h2 style={{ 
+                <h2 style={{
                     fontSize: 'clamp(1.5rem, 5vw, 2rem)',
                     textAlign: 'center',
                     marginBottom: '30px'
                 }}>{isLogin ? 'Tizimga Kirish' : "Ro'yxatdan O'tish"}</h2>
-                
-                <form onSubmit={handleSubmit} className="auth-form" style={{ 
+
+                <form onSubmit={handleSubmit} className="auth-form" style={{
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '20px',
@@ -167,7 +261,7 @@ const AuthForm = ({ onSuccess }) => {
                                     disabled={loading}
                                 />
                             </div>
-                            
+
                             <div className="glassmorphism-input">
                                 <i className="fas fa-phone"></i>
                                 <input
@@ -178,7 +272,7 @@ const AuthForm = ({ onSuccess }) => {
                                     disabled={loading}
                                 />
                             </div>
-                            
+
                             <div className="glassmorphism-input">
                                 <i className="fab fa-telegram"></i>
                                 <input
@@ -190,7 +284,7 @@ const AuthForm = ({ onSuccess }) => {
                                     disabled={loading}
                                 />
                             </div>
-                            
+
                             <div className="glassmorphism-input" style={{ alignItems: 'flex-start' }}>
                                 <i className="fas fa-map-marker-alt" style={{ marginTop: '8px' }}></i>
                                 <textarea
@@ -200,7 +294,7 @@ const AuthForm = ({ onSuccess }) => {
                                     required={!isLogin}
                                     disabled={loading}
                                     rows="3"
-                                    style={{ 
+                                    style={{
                                         resize: 'vertical',
                                         minHeight: '60px'
                                     }}
@@ -208,7 +302,7 @@ const AuthForm = ({ onSuccess }) => {
                             </div>
                         </>
                     )}
-                    
+
                     <div className="glassmorphism-input">
                         <i className="fas fa-envelope"></i>
                         <input
@@ -220,7 +314,7 @@ const AuthForm = ({ onSuccess }) => {
                             disabled={loading}
                         />
                     </div>
-                    
+
                     <div className="glassmorphism-input password-input">
                         <i className="fas fa-lock"></i>
                         <input
@@ -241,7 +335,7 @@ const AuthForm = ({ onSuccess }) => {
                             <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
                         </button>
                     </div>
-                    
+
                     {!isLogin && (
                         <div className="glassmorphism-input password-input">
                             <i className="fas fa-lock"></i>
@@ -263,9 +357,9 @@ const AuthForm = ({ onSuccess }) => {
                             </button>
                         </div>
                     )}
-                    
+
                     {error && (
-                        <p className="error-message" style={{ 
+                        <p className="error-message" style={{
                             color: '#ff5252',
                             textAlign: 'center',
                             padding: '10px',
@@ -274,7 +368,7 @@ const AuthForm = ({ onSuccess }) => {
                             fontSize: '0.9rem'
                         }}>{error}</p>
                     )}
-                    
+
                     {/* Parol unutish modal */}
                     {showForgotPassword && (
                         <div style={{
@@ -300,15 +394,15 @@ const AuthForm = ({ onSuccess }) => {
                                     <i className="fas fa-key" style={{ marginRight: '10px', color: '#6A8AFF' }}></i>
                                     Parolni Unutdingizmi?
                                 </h3>
-                                
-                                <p style={{ 
-                                    marginBottom: '20px', 
+
+                                <p style={{
+                                    marginBottom: '20px',
                                     lineHeight: '1.5',
                                     opacity: '0.9'
                                 }}>
                                     {import.meta.env.VITE_SUPPORT_MESSAGE || 'Agar parolni eslay olmasangiz, admin bilan bog\'laning:'}
                                 </p>
-                                
+
                                 <div style={{
                                     background: 'rgba(0, 136, 204, 0.1)',
                                     padding: '15px',
@@ -316,8 +410,8 @@ const AuthForm = ({ onSuccess }) => {
                                     marginBottom: '20px',
                                     border: '1px solid rgba(0, 136, 204, 0.2)'
                                 }}>
-                                    <i className="fab fa-telegram" style={{ 
-                                        fontSize: '1.5rem', 
+                                    <i className="fab fa-telegram" style={{
+                                        fontSize: '1.5rem',
                                         color: '#0088cc',
                                         marginRight: '10px'
                                     }}></i>
@@ -325,16 +419,16 @@ const AuthForm = ({ onSuccess }) => {
                                         {import.meta.env.VITE_ADMIN_TELEGRAM || '@admin'}
                                     </a>
                                 </div>
-                                
-                                <p style={{ 
-                                    fontSize: '0.9rem', 
+
+                                <p style={{
+                                    fontSize: '0.9rem',
                                     opacity: '0.7',
                                     marginBottom: '20px'
                                 }}>
                                     Admin sizga yangi parol beradi yoki hisobingizni tiklashda yordam beradi.
                                 </p>
-                                
-                                <button 
+
+                                <button
                                     onClick={() => setShowForgotPassword(false)}
                                     className="glassmorphism-button"
                                     style={{
@@ -347,12 +441,12 @@ const AuthForm = ({ onSuccess }) => {
                             </div>
                         </div>
                     )}
-                    
-                    <button 
-                        type="submit" 
-                        className="glassmorphism-button" 
+
+                    <button
+                        type="submit"
+                        className="glassmorphism-button"
                         disabled={loading}
-                        style={{ 
+                        style={{
                             padding: '12px',
                             width: '100%',
                             fontSize: '1.1rem',
@@ -373,10 +467,10 @@ const AuthForm = ({ onSuccess }) => {
                             isLogin ? 'Kirish' : "Ro'yxatdan O'tish"
                         )}
                     </button>
-                    
+
                     {/* Parol unutish tugmasi - faqat login holatida */}
                     {isLogin && (
-                        <button 
+                        <button
                             type="button"
                             onClick={() => setShowForgotPassword(true)}
                             className="glassmorphism-button"
@@ -393,14 +487,14 @@ const AuthForm = ({ onSuccess }) => {
                         </button>
                     )}
                 </form>
-                
-                <p className="toggle-auth" style={{ 
+
+                <p className="toggle-auth" style={{
                     textAlign: 'center',
                     marginTop: '25px',
                     fontSize: '0.95rem'
                 }}>
                     {isLogin ? "Hisobingiz yo'qmi?" : "Hisobingiz bormi?"}{' '}
-                    <span 
+                    <span
                         onClick={() => {
                             setIsLogin(!isLogin);
                             // Form'ni tozalash
@@ -415,7 +509,7 @@ const AuthForm = ({ onSuccess }) => {
                             setShowPassword(false);
                             setShowConfirmPassword(false);
                         }}
-                        style={{ 
+                        style={{
                             color: 'var(--primary-color)',
                             fontWeight: 'bold',
                             cursor: 'pointer',

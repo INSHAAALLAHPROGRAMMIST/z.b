@@ -55,7 +55,6 @@ export const syncUserUniqueToDatabase = async (authUser, additionalData = {}) =>
                 telegram_username: additionalData.telegram_username || '',
                 role: 'user',
                 isActive: true,
-                registeredAt: new Date().toISOString(),
                 lastLoginAt: new Date().toISOString()
             };
 

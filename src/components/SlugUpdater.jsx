@@ -138,7 +138,7 @@ const SlugUpdater = () => {
 
 
     // Only show in development
-    if (!import.meta.env.DEV) return null;
+    if (import.meta.env.DEV) return null;
 
     return (
         <div style={{ 

@@ -37,9 +37,8 @@ function CartPage() {
             setLoading(true);
             setError(null);
             try {
-                // Foydalanuvchi ID'sini tekshirish: agar kirgan bo'lsa, uning ID'si, aks holda guest ID
-                const currentUser = await account.get().catch(() => null);
-                let currentUserId = currentUser ? currentUser.$id : localStorage.getItem('appwriteGuestId');
+                // Use cached user ID to avoid unnecessary account.get() calls
+                let currentUserId = localStorage.getItem('currentUserId') || localStorage.getItem('appwriteGuestId');
 
                 if (!currentUserId) {
                     currentUserId = ID.unique(); // Agar ID bo'lmasa, yangi ID yaratish
@@ -154,9 +153,10 @@ function CartPage() {
     // Checkout function
     const handleCheckout = async () => {
         try {
-            const currentUser = await account.get().catch(() => null);
+            // Check if user is logged in using cached data
+            const currentUserId = localStorage.getItem('currentUserId');
 
-            if (!currentUser) {
+            if (!currentUserId) {
                 toastMessages.loginRequired();
                 return;
             }

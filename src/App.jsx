@@ -3,19 +3,28 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { databases, ID, Query, account } from './appwriteConfig';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 
-// Komponentlarni import qilish
-import CartPage from './components/CartPage';
-import BookDetailPage from './components/BookDetailPage';
-import UserOrdersPage from './components/UserOrdersPage';
-import AdminLogin from './components/AdminLogin';
+// Core components (always needed)
 import AdminLayout from './components/AdminLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
-import AuthForm from './components/AuthForm';
-import ProfilePage from './components/ProfilePage';
 import ToastContainer from './components/Toast';
+// Performance monitoring disabled to reduce console noise
+// import PerformanceMonitor from './components/PerformanceMonitor';
 
-// Lazy load admin components for better performance
+// Lazy load pages for better performance
+import {
+    LazyHomePage,
+    LazySearchPage,
+    LazyCartPage,
+    LazyBookDetailPage,
+    LazyUserOrdersPage,
+    LazyProfilePage,
+    LazyAuthForm,
+    LazyAdminLogin,
+    LazyComingSoon
+} from './pages/LazyPages';
+
+// Lazy load admin components
 import {
     LazyAdminDashboard,
     LazyAdminBookManagement,
@@ -25,10 +34,6 @@ import {
     LazyAdminUserManagement,
     LazyAdminSettings
 } from './components/admin/LazyAdminComponents';
-
-import HomePage from './pages/HomePage';
-import SearchPage from './components/SearchPage';
-import ComingSoon from './components/ComingSoon';
 
 // --- Appwrite konsolidan olingan ID'lar ---
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -87,8 +92,10 @@ function MainLayout({ children }) {
 
     const updateGlobalCartCount = useCallback(async () => {
         try {
-            const currentUser = await account.get().catch(() => null);
-            let userIdToUse = currentUser ? currentUser.$id : localStorage.getItem('appwriteGuestId');
+            // Avoid unnecessary account.get() calls - use cached login state
+            let userIdToUse = isLoggedIn ? 
+                (localStorage.getItem('currentUserId') || localStorage.getItem('appwriteGuestId')) : 
+                localStorage.getItem('appwriteGuestId');
 
             if (!userIdToUse) {
                 userIdToUse = ID.unique();
@@ -125,11 +132,15 @@ function MainLayout({ children }) {
                 if (mounted) {
                     setIsLoggedIn(true);
                     setIsAdmin(user.labels?.includes('admin') || false);
+                    // Cache user ID to avoid future account.get() calls
+                    localStorage.setItem('currentUserId', user.$id);
                 }
             } catch (error) {
+                // Silent fail for 401 - user is not logged in, which is normal
                 if (mounted) {
                     setIsLoggedIn(false);
                     setIsAdmin(false);
+                    localStorage.removeItem('currentUserId');
                 }
             }
 
@@ -138,7 +149,7 @@ function MainLayout({ children }) {
                     DATABASE_ID,
                     GENRES_COLLECTION_ID,
                     [
-                        Query.limit(10), // Reduced from 20 to 10
+                        Query.limit(6), // Further reduced for faster header load
                         Query.orderAsc('name'),
                     ]
                 );
@@ -425,32 +436,37 @@ function MainLayout({ children }) {
 function App() {
     return (
         <>
+            {/* <PerformanceMonitor /> */}
             <ToastContainer />
             <Routes>
-                <Route path="/" element={<MainLayout><HomePage databases={databases} DATABASE_ID={DATABASE_ID} /></MainLayout>} />
-                <Route path="/book/:bookId" element={<MainLayout><BookDetailPage /></MainLayout>} />
-                <Route path="/cart" element={<MainLayout><CartPage /></MainLayout>} />
+                <Route path="/" element={<MainLayout><LazyHomePage databases={databases} DATABASE_ID={DATABASE_ID} /></MainLayout>} />
+                {/* Existing ID-based route */}
+                <Route path="/book/:bookId" element={<MainLayout><LazyBookDetailPage /></MainLayout>} />
+                
+                {/* New SEO-friendly slug-based route */}
+                <Route path="/kitob/:bookSlug" element={<MainLayout><LazyBookDetailPage /></MainLayout>} />
+                <Route path="/cart" element={<MainLayout><LazyCartPage /></MainLayout>} />
                 <Route path="/orders" element={
                     <ProtectedRoute>
-                        <MainLayout><UserOrdersPage /></MainLayout>
+                        <MainLayout><LazyUserOrdersPage /></MainLayout>
                     </ProtectedRoute>
                 } />
-                <Route path="/auth" element={<MainLayout><AuthForm /></MainLayout>} />
-                <Route path="/profile" element={<MainLayout><ProfilePage /></MainLayout>} />
+                <Route path="/auth" element={<MainLayout><LazyAuthForm /></MainLayout>} />
+                <Route path="/profile" element={<MainLayout><LazyProfilePage /></MainLayout>} />
                 {/* YANGI: Tasdiqlashdan keyin yo'naltiriladigan sahifalar */}
                 <Route path="/verification-success" element={<MainLayout><VerificationStatusPage status="success" /></MainLayout>} />
                 <Route path="/verification-failure" element={<MainLayout><VerificationStatusPage status="failure" /></MainLayout>} />
-                <Route path="/search" element={<MainLayout><SearchPage /></MainLayout>} />
+                <Route path="/search" element={<MainLayout><LazySearchPage /></MainLayout>} />
                 {/* YANGI: Tasdiqlashdan keyin yo'naltiriladigan sahifalar */}
-                <Route path="/authors" element={<MainLayout><ComingSoon title="Mualliflar" subtitle="Mualliflar sahifasi ishlab chiqilmoqda" description="Sevimli mualliflaringiz haqida to'liq ma'lumot va ularning barcha asarlari bilan tanishish imkoniyati yaqin orada!" /></MainLayout>} />
-                <Route path="/genres/:genreId" element={<MainLayout><ComingSoon title="Janr Sahifasi" subtitle="Janr bo'yicha kitoblar sahifasi ishlab chiqilmoqda" description="Har bir janr bo'yicha eng yaxshi kitoblarni topish va filtrlash imkoniyati yaqin orada!" /></MainLayout>} />
-                <Route path="/news" element={<MainLayout><ComingSoon title="Yangiliklar" subtitle="Yangiliklar sahifasi ishlab chiqilmoqda" description="Kitob dunyosidagi eng so'nggi yangiliklar, tadbirlar va chegirmalar haqida ma'lumot yaqin orada!" /></MainLayout>} />
-                <Route path="/contact" element={<MainLayout><ComingSoon title="Aloqa" subtitle="Aloqa sahifasi ishlab chiqilmoqda" description="Biz bilan bog'lanish, savollar berish va takliflar yuborish imkoniyati yaqin orada!" /></MainLayout>} />
-                <Route path="/faq" element={<MainLayout><ComingSoon title="Ko'p Beriladigan Savollar" subtitle="FAQ sahifasi ishlab chiqilmoqda" description="Eng ko'p beriladigan savollar va ularning javoblari yaqin orada!" /></MainLayout>} />
-                <Route path="/privacy" element={<MainLayout><ComingSoon title="Maxfiylik Siyosati" subtitle="Maxfiylik siyosati sahifasi ishlab chiqilmoqda" description="Shaxsiy ma'lumotlaringizning himoyalanishi va ishlatilishi haqida to'liq ma'lumot yaqin orada!" /></MainLayout>} />
-                <Route path="/terms" element={<MainLayout><ComingSoon title="Foydalanish Shartlari" subtitle="Foydalanish shartlari sahifasi ishlab chiqilmoqda" description="Saytdan foydalanish qoidalari va shartlari haqida to'liq ma'lumot yaqin orada!" /></MainLayout>} />
+                <Route path="/authors" element={<MainLayout><LazyComingSoon title="Mualliflar" subtitle="Mualliflar sahifasi ishlab chiqilmoqda" description="Sevimli mualliflaringiz haqida to'liq ma'lumot va ularning barcha asarlari bilan tanishish imkoniyati yaqin orada!" /></MainLayout>} />
+                <Route path="/genres/:genreId" element={<MainLayout><LazyComingSoon title="Janr Sahifasi" subtitle="Janr bo'yicha kitoblar sahifasi ishlab chiqilmoqda" description="Har bir janr bo'yicha eng yaxshi kitoblarni topish va filtrlash imkoniyati yaqin orada!" /></MainLayout>} />
+                <Route path="/news" element={<MainLayout><LazyComingSoon title="Yangiliklar" subtitle="Yangiliklar sahifasi ishlab chiqilmoqda" description="Kitob dunyosidagi eng so'nggi yangiliklar, tadbirlar va chegirmalar haqida ma'lumot yaqin orada!" /></MainLayout>} />
+                <Route path="/contact" element={<MainLayout><LazyComingSoon title="Aloqa" subtitle="Aloqa sahifasi ishlab chiqilmoqda" description="Biz bilan bog'lanish, savollar berish va takliflar yuborish imkoniyati yaqin orada!" /></MainLayout>} />
+                <Route path="/faq" element={<MainLayout><LazyComingSoon title="Ko'p Beriladigan Savollar" subtitle="FAQ sahifasi ishlab chiqilmoqda" description="Eng ko'p beriladigan savollar va ularning javoblari yaqin orada!" /></MainLayout>} />
+                <Route path="/privacy" element={<MainLayout><LazyComingSoon title="Maxfiylik Siyosati" subtitle="Maxfiylik siyosati sahifasi ishlab chiqilmoqda" description="Shaxsiy ma'lumotlaringizning himoyalanishi va ishlatilishi haqida to'liq ma'lumot yaqin orada!" /></MainLayout>} />
+                <Route path="/terms" element={<MainLayout><LazyComingSoon title="Foydalanish Shartlari" subtitle="Foydalanish shartlari sahifasi ishlab chiqilmoqda" description="Saytdan foydalanish qoidalari va shartlari haqida to'liq ma'lumot yaqin orada!" /></MainLayout>} />
 
-                <Route path="/admin-login" element={<MainLayout><AdminLogin /></MainLayout>} />
+                <Route path="/admin-login" element={<MainLayout><LazyAdminLogin /></MainLayout>} />
 
                 {/* Admin Panel Routes */}
                 <Route
@@ -524,7 +540,7 @@ function App() {
                     }
                 />
 
-                <Route path="*" element={<MainLayout><ComingSoon title="404 - Sahifa Topilmadi" subtitle="Siz qidirayotgan sahifa mavjud emas" description="Kechirasiz, siz qidirayotgan sahifa topilmadi yoki o'chirilgan bo'lishi mumkin. Bosh sahifaga qaytib, boshqa sahifalarni ko'rib chiqing." /></MainLayout>} />
+                <Route path="*" element={<MainLayout><LazyComingSoon title="404 - Sahifa Topilmadi" subtitle="Siz qidirayotgan sahifa mavjud emas" description="Kechirasiz, siz qidirayotgan sahifa topilmadi yoki o'chirilgan bo'lishi mumkin. Bosh sahifaga qaytib, boshqa sahifalarni ko'rib chiqing." /></MainLayout>} />
             </Routes>
         </>
     );

@@ -818,7 +818,7 @@ body.light-mode .genre-card.glassmorphism-card {
     }
 
     .hero-banner {
-        height: 300px;
+        min-height: 300px;
     }
 
     .hero-title-small {
@@ -904,7 +904,7 @@ body.light-mode .genre-card.glassmorphism-card {
     }
 
     .hero-banner {
-        height: 350px;
+        min-height: 350px;
     }
 
     .hero-content {
@@ -986,7 +986,7 @@ body.light-mode .genre-card.glassmorphism-card {
     }
 
     .hero-banner {
-        height: 250px;
+        min-height: 250px;
     }
 
     .hero-title-small {
@@ -2072,7 +2072,7 @@ main {
 /* Mobile uchun hero banner yaxshilanishlari */
 @media (max-width: 768px) {
     .hero-banner {
-        height: 300px;
+        min-height: 300px;
         padding: 20px;
     }
 
@@ -2100,7 +2100,7 @@ main {
 
 @media (max-width: 480px) {
     .hero-banner {
-        height: 280px;
+        min-height: 280px;
     }
 
     .hero-content {

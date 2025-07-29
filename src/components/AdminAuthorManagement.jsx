@@ -4,6 +4,7 @@ import { uploadToCloudinary } from '../config/cloudinaryConfig';
 import { prepareSearchText } from '../utils/transliteration';
 import { highlightText } from '../utils/highlightText.jsx';
 import { toastMessages, toast } from '../utils/toastUtils';
+import { generateAuthorSlug } from '../utils/slugUtils';
 import ImageUpload from './ImageUpload';
 import siteConfig from '../config/siteConfig';
 import '../index.css';
@@ -160,10 +161,14 @@ function AdminAuthorManagement() {
                 }
             }
             
+            // Generate slug automatically
+            const slug = generateAuthorSlug(authorForm.name);
+
             const authorData = {
                 name: authorForm.name,
                 bio: authorForm.bio,
-                profilePictureUrl: imageUrl
+                profilePictureUrl: imageUrl,
+                slug: slug // Auto-generated slug
             };
             
             if (authorFormMode === 'add') {
@@ -174,6 +179,9 @@ function AdminAuthorManagement() {
                     ID.unique(),
                     authorData
                 );
+                
+                // Success message with slug info
+                toast.success(`✅ Muallif yaratildi!\n👤 "${authorForm.name}"\n🔗 URL: /muallif/${slug}`);
             } else {
                 // Update existing author
                 await databases.updateDocument(
@@ -182,6 +190,9 @@ function AdminAuthorManagement() {
                     selectedAuthor.$id,
                     authorData
                 );
+                
+                // Success message with slug info
+                toast.success(`✅ Muallif yangilandi!\n👤 "${authorForm.name}"\n🔗 URL: /muallif/${slug}`);
             }
             
             // Close form and refresh authors

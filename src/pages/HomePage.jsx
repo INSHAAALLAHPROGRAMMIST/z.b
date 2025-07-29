@@ -3,6 +3,7 @@ import { databases, ID, Query, account } from '../appwriteConfig';
 import { Link } from 'react-router-dom';
 import { toastMessages } from '../utils/toastUtils';
 import LazyImage from '../components/LazyImage';
+import SlugUpdater from '../components/SlugUpdater';
 import '../index.css';
 // --- Appwrite konsolidan olingan ID'lar ---
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -21,9 +22,8 @@ const HomePage = () => {
 
     const addToCart = async (bookToAdd) => {
         try {
-            // Foydalanuvchi ID'sini tekshirish: agar kirgan bo'lsa, uning ID'si, aks holda guest ID
-            const currentUser = await account.get().catch(() => null);
-            let currentUserId = currentUser ? currentUser.$id : localStorage.getItem('appwriteGuestId');
+            // Use cached user ID to avoid unnecessary account.get() calls
+            let currentUserId = localStorage.getItem('currentUserId') || localStorage.getItem('appwriteGuestId');
 
             if (!currentUserId) {
                 currentUserId = ID.unique();
@@ -69,7 +69,7 @@ const HomePage = () => {
             }
             toastMessages.addedToCart(bookToAdd.title);
             window.dispatchEvent(new CustomEvent('cartUpdated'));
-            
+
             // Cart items'ni yangilash
             fetchCartItems();
 
@@ -85,29 +85,31 @@ const HomePage = () => {
 
         const fetchInitialData = async () => {
             try {
-                // First load: 8 books (4 ga karrali) + genres for fast display
+                // First load: Only 2 books for ultra-fast initial display
                 const [initialBooksResponse, genresResponse] = await Promise.all([
                     databases.listDocuments(
                         DATABASE_ID,
                         BOOKS_COLLECTION_ID,
-                        [Query.limit(8)] // 4 ga karrali - tez yuklash uchun
+                        [Query.limit(2)] // Minimal initial load for best performance
                     ),
                     databases.listDocuments(
                         DATABASE_ID,
                         GENRES_COLLECTION_ID,
-                        [Query.limit(6)]
+                        [Query.limit(4)] // Reduced for faster initial load
                     )
                 ]);
-                
+
                 if (mounted) {
-                    console.log('Initial books loaded:', initialBooksResponse.documents.length);
-                    console.log('Genres loaded:', genresResponse.documents.length);
+                    if (import.meta.env.DEV) {
+                        console.log('Initial books loaded:', initialBooksResponse.documents.length);
+                        console.log('Genres loaded:', genresResponse.documents.length);
+                    }
                     setBooks(initialBooksResponse.documents);
                     setGenres(genresResponse.documents);
                     setLoading(false);
-                    
-                    // Load remaining books after initial display
-                    setTimeout(() => loadMoreBooks(), 1000);
+
+                    // Load remaining books after initial display - faster timeout
+                    setTimeout(() => loadMoreBooks(), 500);
                 }
             } catch (err) {
                 if (mounted) {
@@ -120,7 +122,7 @@ const HomePage = () => {
 
         const loadMoreBooks = async () => {
             if (!mounted) return;
-            
+
             try {
                 setLoadingMore(true);
                 // Load all books (up to 100)
@@ -129,9 +131,11 @@ const HomePage = () => {
                     BOOKS_COLLECTION_ID,
                     [Query.limit(100)] // Barcha kitoblar
                 );
-                
+
                 if (mounted) {
-                    console.log('All books loaded:', allBooksResponse.documents.length);
+                    if (import.meta.env.DEV) {
+                        console.log('All books loaded:', allBooksResponse.documents.length);
+                    }
                     setAllBooks(allBooksResponse.documents);
                     setBooks(allBooksResponse.documents);
                     setLoadingMore(false);
@@ -154,7 +158,7 @@ const HomePage = () => {
         };
 
         fetchInitialData();
-        setTimeout(loadCartItems, 100); // Delay cart loading
+        setTimeout(loadCartItems, 300); // Delay cart loading more for better performance
 
         return () => {
             mounted = false;
@@ -168,9 +172,9 @@ const HomePage = () => {
             belowFoldElements.forEach((element, index) => {
                 setTimeout(() => {
                     element.classList.add('loaded');
-                }, index * 200);
+                }, index * 100); // Faster stagger animation
             });
-        }, 500);
+        }, 200); // Much faster initial delay
 
         return () => clearTimeout(timer);
     }, [loading]);
@@ -178,8 +182,8 @@ const HomePage = () => {
     // Savatdagi kitoblarni yuklash
     const fetchCartItems = async () => {
         try {
-            const currentUser = await account.get().catch(() => null);
-            let currentUserId = currentUser ? currentUser.$id : localStorage.getItem('appwriteGuestId');
+            // Use cached user ID to avoid unnecessary account.get() calls
+            let currentUserId = localStorage.getItem('currentUserId') || localStorage.getItem('appwriteGuestId');
 
             if (!currentUserId) {
                 return;
@@ -192,7 +196,7 @@ const HomePage = () => {
                     Query.equal('userId', currentUserId)
                 ]
             );
-            
+
             setCartItems(response.documents);
         } catch (err) {
             console.error("Savat elementlarini yuklashda xato:", err);
@@ -209,8 +213,8 @@ const HomePage = () => {
     // Savatdagi kitob miqdorini yangilash
     const updateBookQuantityInCart = async (bookId, newQuantity) => {
         try {
-            const currentUser = await account.get().catch(() => null);
-            let currentUserId = currentUser ? currentUser.$id : localStorage.getItem('appwriteGuestId');
+            // Use cached user ID to avoid unnecessary account.get() calls
+            let currentUserId = localStorage.getItem('currentUserId') || localStorage.getItem('appwriteGuestId');
 
             if (!currentUserId) {
                 currentUserId = ID.unique();
@@ -234,7 +238,7 @@ const HomePage = () => {
                         CART_ITEMS_COLLECTION_ID,
                         cartItem.$id
                     );
-                    
+
                     // Yangi hujjat yaratish
                     const book = books.find(b => b.$id === bookId);
                     if (book) {
@@ -268,7 +272,7 @@ const HomePage = () => {
                     );
                 }
             }
-            
+
             // Local state'ni yangilash
             setTimeout(() => {
                 fetchCartItems();
@@ -286,7 +290,7 @@ const HomePage = () => {
                 <section className="hero-banner">
                     <div className="hero-content">
                         <h1 className="hero-title-small">Kelajak kitoblari Zamon Books'da</h1>
-                        <p className="hero-subtitle-small">Dunyo adabiyotining eng sara asarlari, innovatsion texnologiyalar bilan birga.</p>
+                        <p className="hero-subtitle-small">Dunyo adabiyotining eng sara asarlari siz azizlar uchun.</p>
                     </div>
                 </section>
                 <div className="container" style={{ textAlign: 'center', padding: '50px' }}>
@@ -311,7 +315,7 @@ const HomePage = () => {
                 <section className="hero-banner">
                     <div className="hero-content">
                         <h1 className="hero-title-small">Kelajak kitoblari Zamon Books'da</h1>
-                        <p className="hero-subtitle-small">Dunyo adabiyotining eng sara asarlari, innovatsion texnologiyalar bilan birga.</p>
+                        <p className="hero-subtitle-small">Dunyo adabiyotining eng sara asarlari siz azizlar uchun.</p>
                     </div>
                 </section>
                 <div className="container" style={{ textAlign: 'center', padding: '50px', color: 'red' }}>
@@ -327,7 +331,7 @@ const HomePage = () => {
             <section className="hero-banner">
                 <div className="hero-content">
                     <h1 className="hero-title-small">Kelajak kitoblari Zamon Books'da</h1>
-                    <p className="hero-subtitle-small">Dunyo adabiyotining eng sara asarlari, innovatsion texnologiyalar bilan birga.</p>
+                    <p className="hero-subtitle-small">Dunyo adabiyotining eng sara asarlari siz azizlar uchun.</p>
                 </div>
             </section>
 
@@ -335,87 +339,93 @@ const HomePage = () => {
             <section className="container below-fold">
                 <h2 className="section-title">Eng So'nggi Kitoblar</h2>
                 <div className="book-grid">
-                    {books.map(book => (
-                        <Link to={`/book/${book.$id}`} key={book.$id} className="book-card glassmorphism-card">
-                            <LazyImage 
-                                src={book.imageUrl} 
-                                alt={book.title}
-                                style={{ height: '250px' }}
-                            />
-                            <div className="book-info">
-                                <h3>{book.title}</h3>
-                                {book.author && book.author.name && <p className="author">{book.author.name}</p>}
-                                {book.genres && book.genres.length > 0 && <p className="genre">{book.genres[0].name}</p>}
-                                <p className="price">{parseFloat(book.price).toFixed(2)} so'm</p>
-                                
-                                {getBookQuantityInCart(book.$id) === 0 ? (
-                                    <button
-                                        className="add-to-cart glassmorphism-button"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            addToCart(book);
-                                        }}
-                                    >
-                                        <i className="fas fa-shopping-cart"></i> Savatga qo'shish
-                                    </button>
-                                ) : (
-                                    <div className="quantity-controls" style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '10px',
-                                        marginTop: '10px'
-                                    }}>
+                    {books.map(book => {
+                        // Use slug if available, fallback to ID
+                        const bookUrl = book.slug ? `/kitob/${book.slug}` : `/book/${book.$id}`;
+
+                        return (
+                            <Link to={bookUrl} key={book.$id} className="book-card glassmorphism-card">
+                                <LazyImage
+                                    src={book.imageUrl}
+                                    alt={book.title}
+                                    className="book-image"
+                                    style={{ height: '250px' }}
+                                />
+                                <div className="book-info">
+                                    <h3>{book.title}</h3>
+                                    {book.author && book.author.name && <p className="author">{book.author.name}</p>}
+                                    {book.genres && book.genres.length > 0 && <p className="genre">{book.genres[0].name}</p>}
+                                    <p className="price">{parseFloat(book.price).toFixed(2)} so'm</p>
+
+                                    {getBookQuantityInCart(book.$id) === 0 ? (
                                         <button
-                                            className="glassmorphism-button"
-                                            style={{ 
-                                                width: '35px', 
-                                                height: '35px', 
-                                                padding: '0',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}
+                                            className="add-to-cart glassmorphism-button"
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
-                                                updateBookQuantityInCart(book.$id, getBookQuantityInCart(book.$id) - 1);
+                                                addToCart(book);
                                             }}
                                         >
-                                            -
+                                            <i className="fas fa-shopping-cart"></i> Savatga qo'shish
                                         </button>
-                                        <span style={{ 
-                                            fontSize: '1.1rem', 
-                                            fontWeight: 'bold', 
-                                            minWidth: '30px', 
-                                            textAlign: 'center' 
+                                    ) : (
+                                        <div className="quantity-controls" style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '10px',
+                                            marginTop: '10px'
                                         }}>
-                                            {getBookQuantityInCart(book.$id)}
-                                        </span>
-                                        <button
-                                            className="glassmorphism-button"
-                                            style={{ 
-                                                width: '35px', 
-                                                height: '35px', 
-                                                padding: '0',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                updateBookQuantityInCart(book.$id, getBookQuantityInCart(book.$id) + 1);
-                                            }}
-                                        >
-                                            +
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </Link>
-                    ))}
+                                            <button
+                                                className="glassmorphism-button"
+                                                style={{
+                                                    width: '35px',
+                                                    height: '35px',
+                                                    padding: '0',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    updateBookQuantityInCart(book.$id, getBookQuantityInCart(book.$id) - 1);
+                                                }}
+                                            >
+                                                -
+                                            </button>
+                                            <span style={{
+                                                fontSize: '1.1rem',
+                                                fontWeight: 'bold',
+                                                minWidth: '30px',
+                                                textAlign: 'center'
+                                            }}>
+                                                {getBookQuantityInCart(book.$id)}
+                                            </span>
+                                            <button
+                                                className="glassmorphism-button"
+                                                style={{
+                                                    width: '35px',
+                                                    height: '35px',
+                                                    padding: '0',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    updateBookQuantityInCart(book.$id, getBookQuantityInCart(book.$id) + 1);
+                                                }}
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </Link>
+                        );
+                    })}
                 </div>
 
                 {/* Loading more indicator */}
@@ -439,8 +449,8 @@ const HomePage = () => {
                 {/* Show total count */}
                 {!loadingMore && allBooks.length > 0 && (
                     <div style={{ textAlign: 'center', padding: '20px' }}>
-                        <p style={{ 
-                            color: 'var(--light-text-color)', 
+                        <p style={{
+                            color: 'var(--light-text-color)',
                             fontSize: '0.9rem',
                             background: 'rgba(106, 138, 255, 0.1)',
                             padding: '10px 20px',
@@ -459,12 +469,15 @@ const HomePage = () => {
                 <div className="genre-grid">
                     {genres.map(genre => (
                         <Link to={`/genres/${genre.$id}`} key={genre.$id} className="genre-card glassmorphism-card">
-                            <div className="genre-bg" style={{ backgroundImage: `url(${genre.imageUrl || 'https://source.unsplash.com/random/400x250/?books,abstract'})` }}></div>
+                            <div className="genre-bg" style={{ backgroundImage: `url(${genre.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2MzY2ZjEiIHN0b3Atb3BhY2l0eT0iMC44Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMzRkMzk5IiBzdG9wLW9wYWNpdHk9IjAuNiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjI0IiBmaWxsPSIjRkZGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+S2l0b2JsYXI8L3RleHQ+PC9zdmc+'})` }}></div>
                             <h3 className="genre-name">{genre.name}</h3>
                         </Link>
                     ))}
                 </div>
             </section>
+            
+            {/* Development Tools - Only in development */}
+            <SlugUpdater />
         </main>
     );
 }

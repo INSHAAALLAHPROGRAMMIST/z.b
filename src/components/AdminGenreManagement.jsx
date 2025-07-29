@@ -3,6 +3,7 @@ import { databases, Query, ID } from '../appwriteConfig';
 import { prepareSearchText } from '../utils/transliteration';
 import { highlightText } from '../utils/highlightText.jsx';
 import { toastMessages, toast } from '../utils/toastUtils';
+import { generateGenreSlug } from '../utils/slugUtils';
 import ImageUpload from './ImageUpload';
 import AdminFilters from './admin/AdminFilters';
 import AdminTable from './admin/AdminTable';
@@ -190,9 +191,12 @@ function AdminGenreManagement() {
                 imageUrl = genreForm.imagePreview; // Base64 data URL
             }
             
+            // Generate slug automatically if not provided
+            const slug = genreForm.slug || generateGenreSlug(genreForm.name);
+
             const genreData = {
                 name: genreForm.name,
-                slug: genreForm.slug || genreForm.name.toLowerCase().replace(/\s+/g, '-'),
+                slug: slug,
                 imgUrl: imageUrl || ''
             };
             
@@ -204,6 +208,9 @@ function AdminGenreManagement() {
                     ID.unique(),
                     genreData
                 );
+                
+                // Success message with slug info
+                toast.success(`✅ Janr yaratildi!\n📂 "${genreForm.name}"\n🔗 URL: /janr/${slug}`);
             } else {
                 // Update existing genre
                 await databases.updateDocument(
@@ -212,6 +219,9 @@ function AdminGenreManagement() {
                     selectedGenre.$id,
                     genreData
                 );
+                
+                // Success message with slug info
+                toast.success(`✅ Janr yangilandi!\n📂 "${genreForm.name}"\n🔗 URL: /janr/${slug}`);
             }
             
             // Close form and refresh genres

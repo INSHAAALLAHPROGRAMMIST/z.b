@@ -4,6 +4,7 @@ import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinaryCo
 import { prepareSearchText } from '../utils/transliteration';
 import { highlightText } from '../utils/highlightText.jsx';
 import { toastMessages, toast } from '../utils/toastUtils';
+import { generateSlug, generateAuthorSlug } from '../utils/slugUtils';
 import ImageUpload from './ImageUpload';
 import siteConfig from '../config/siteConfig';
 import '../index.css';
@@ -57,6 +58,10 @@ function AdminBookManagement() {
     // Delete confirmation
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [bookToDelete, setBookToDelete] = useState(null);
+    
+    // New author form states
+    const [showNewAuthorForm, setShowNewAuthorForm] = useState(false);
+    const [newAuthorForm, setNewAuthorForm] = useState({ name: '', bio: '' });
 
     // Fetch authors and genres
     useEffect(() => {
@@ -216,6 +221,70 @@ function AdminBookManagement() {
     const closeBookForm = () => {
         setShowBookForm(false);
         setSelectedBook(null);
+        setBookForm({
+            title: '',
+            description: '',
+            price: '',
+            author: '',
+            genres: [],
+            publishedYear: '',
+            isbn: '',
+            pages: '',
+            language: '',
+            isFeatured: false,
+            isNewArrival: false,
+            imageFile: null,
+            imageUrl: ''
+        });
+        setShowNewAuthorForm(false);
+        setNewAuthorForm({ name: '', bio: '' });
+    };
+    
+    // New author form handlers
+    const handleNewAuthorChange = (e) => {
+        const { name, value } = e.target;
+        setNewAuthorForm(prev => ({ ...prev, [name]: value }));
+    };
+    
+    const handleNewAuthorSubmit = async (e) => {
+        e.preventDefault();
+        
+        try {
+            // Generate slug for new author
+            const slug = generateAuthorSlug(newAuthorForm.name);
+            
+            const authorData = {
+                name: newAuthorForm.name,
+                bio: newAuthorForm.bio,
+                slug: slug,
+                profilePictureUrl: '' // Default empty
+            };
+            
+            // Create new author
+            const newAuthor = await databases.createDocument(
+                DATABASE_ID,
+                AUTHORS_COLLECTION_ID,
+                ID.unique(),
+                authorData
+            );
+            
+            // Refresh authors list
+            const authorsResponse = await databases.listDocuments(DATABASE_ID, AUTHORS_COLLECTION_ID);
+            setAuthors(authorsResponse.documents);
+            
+            // Select the new author in book form
+            setBookForm(prev => ({ ...prev, author: newAuthor.$id }));
+            
+            // Close new author form
+            setShowNewAuthorForm(false);
+            setNewAuthorForm({ name: '', bio: '' });
+            
+            toast.success(`✅ Yangi muallif yaratildi: "${newAuthorForm.name}"`);
+            
+        } catch (error) {
+            console.error('Yangi muallif yaratishda xato:', error);
+            toast.error('Muallif yaratishda xato yuz berdi');
+        }
     };
 
     const handleBookSubmit = async (e) => {
@@ -236,6 +305,12 @@ function AdminBookManagement() {
                 }
             }
 
+            // Get author name for slug generation
+            const authorName = authors.find(a => a.$id === bookForm.author)?.name || '';
+            
+            // Generate slug automatically
+            const slug = generateSlug(bookForm.title, authorName);
+
             const bookData = {
                 title: bookForm.title,
                 description: bookForm.description,
@@ -248,7 +323,8 @@ function AdminBookManagement() {
                 language: bookForm.language,
                 isFeatured: bookForm.isFeatured,
                 isNewArrival: bookForm.isNewArrival,
-                imageUrl: imageUrl
+                imageUrl: imageUrl,
+                slug: slug // Auto-generated slug
             };
 
             if (bookFormMode === 'add') {
@@ -259,6 +335,9 @@ function AdminBookManagement() {
                     ID.unique(),
                     bookData
                 );
+                
+                // Success message with slug info
+                toast.success(`✅ Kitob yaratildi!\n📖 "${bookForm.title}"\n🔗 URL: /kitob/${slug}`);
             } else {
                 // Update existing book
                 await databases.updateDocument(
@@ -267,6 +346,9 @@ function AdminBookManagement() {
                     selectedBook.$id,
                     bookData
                 );
+                
+                // Success message with slug info
+                toast.success(`✅ Kitob yangilandi!\n📖 "${bookForm.title}"\n🔗 URL: /kitob/${slug}`);
             }
 
             // Close form and refresh books
@@ -548,6 +630,19 @@ function AdminBookManagement() {
                                         onChange={handleBookFormChange}
                                         required
                                     />
+                                    {/* Auto-generated slug preview */}
+                                    {bookForm.title && (
+                                        <div style={{
+                                            marginTop: '8px',
+                                            padding: '8px 12px',
+                                            background: 'rgba(106, 138, 255, 0.1)',
+                                            borderRadius: '6px',
+                                            fontSize: '0.85rem',
+                                            color: 'var(--primary-color)'
+                                        }}>
+                                            <strong>🔗 Auto URL:</strong> /kitob/{generateSlug(bookForm.title, authors.find(a => a.$id === bookForm.author)?.name || '')}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="form-group">
@@ -593,20 +688,40 @@ function AdminBookManagement() {
                                 <div className="form-row">
                                     <div className="form-group">
                                         <label htmlFor="author">Muallif</label>
-                                        <select
-                                            id="author"
-                                            name="author"
-                                            value={bookForm.author}
-                                            onChange={handleBookFormChange}
-                                            required
-                                        >
-                                            <option value="">Muallifni tanlang</option>
-                                            {authors.map(author => (
-                                                <option key={author.$id} value={author.$id}>
-                                                    {author.name}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+                                            <div style={{ flex: 1 }}>
+                                                <select
+                                                    id="author"
+                                                    name="author"
+                                                    value={bookForm.author}
+                                                    onChange={handleBookFormChange}
+                                                    required
+                                                >
+                                                    <option value="">Muallifni tanlang</option>
+                                                    {authors.map(author => (
+                                                        <option key={author.$id} value={author.$id}>
+                                                            {author.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowNewAuthorForm(true)}
+                                                style={{
+                                                    padding: '8px 12px',
+                                                    background: 'var(--primary-color)',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem',
+                                                    whiteSpace: 'nowrap'
+                                                }}
+                                            >
+                                                + Yangi
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div className="form-group">
@@ -752,6 +867,78 @@ function AdminBookManagement() {
                                     O'chirish
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {/* New Author Modal */}
+            {showNewAuthorForm && (
+                <div className="admin-modal-overlay">
+                    <div className="admin-modal">
+                        <div className="admin-modal-header">
+                            <h3>Yangi Muallif Qo'shish</h3>
+                            <button 
+                                className="close-btn" 
+                                onClick={() => setShowNewAuthorForm(false)}
+                            >
+                                ×
+                            </button>
+                        </div>
+                        
+                        <div className="admin-modal-body">
+                            <form onSubmit={handleNewAuthorSubmit} className="admin-form">
+                                <div className="form-group">
+                                    <label htmlFor="newAuthorName">Muallif ismi *</label>
+                                    <input
+                                        type="text"
+                                        id="newAuthorName"
+                                        name="name"
+                                        value={newAuthorForm.name}
+                                        onChange={handleNewAuthorChange}
+                                        placeholder="Masalan: Abdulla Qodiriy"
+                                        required
+                                    />
+                                    {/* Auto-generated slug preview */}
+                                    {newAuthorForm.name && (
+                                        <div style={{
+                                            marginTop: '8px',
+                                            padding: '8px 12px',
+                                            background: 'rgba(106, 138, 255, 0.1)',
+                                            borderRadius: '6px',
+                                            fontSize: '0.85rem',
+                                            color: 'var(--primary-color)'
+                                        }}>
+                                            <strong>🔗 Auto URL:</strong> /muallif/{generateAuthorSlug(newAuthorForm.name)}
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="form-group">
+                                    <label htmlFor="newAuthorBio">Qisqa biografiya</label>
+                                    <textarea
+                                        id="newAuthorBio"
+                                        name="bio"
+                                        value={newAuthorForm.bio}
+                                        onChange={handleNewAuthorChange}
+                                        placeholder="Muallif haqida qisqa ma'lumot..."
+                                        rows="3"
+                                    />
+                                </div>
+                                
+                                <div className="form-actions">
+                                    <button 
+                                        type="button" 
+                                        className="cancel-btn"
+                                        onClick={() => setShowNewAuthorForm(false)}
+                                    >
+                                        Bekor qilish
+                                    </button>
+                                    <button type="submit" className="submit-btn">
+                                        Muallif Yaratish
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

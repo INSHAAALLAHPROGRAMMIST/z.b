@@ -19,12 +19,25 @@ export const createOrdersFromCart = async (cartItems, notes = '') => {
         const createdOrders = [];
 
         for (const item of cartItems) {
+            // Cart item strukturasini tekshirish
+            const bookId = item.bookId || (typeof item.books === 'object' ? item.books.$id : item.books);
+            const bookPrice = item.priceAtTimeOfAdd || item.book?.price || (typeof item.books === 'object' ? item.books.price : 0);
+            
+            console.log('Cart item:', item);
+            console.log('Book ID:', bookId);
+            console.log('Book price:', bookPrice);
+            
+            if (!bookId) {
+                console.error('Book ID topilmadi:', item);
+                throw new Error(`Book ID topilmadi: ${JSON.stringify(item)}`);
+            }
+            
             const orderData = {
                 orderId: ID.unique(),
                 userId: currentUser.$id, // Auth user ID (user jadvaliga reference)
-                bookId: item.bookId,
+                bookId: bookId,
                 quantity: item.quantity || 1, // Default 1
-                priceAtTimeOfOrder: item.priceAtTimeOfAdd || item.book?.price || 0,
+                priceAtTimeOfOrder: parseFloat(bookPrice) || 0,
                 orderDate: new Date().toISOString(),
                 status: 'pending', // Required field, har doim pending
                 notes: notes || '' // Optional field
@@ -41,11 +54,17 @@ export const createOrdersFromCart = async (cartItems, notes = '') => {
             createdOrders.push(order);
 
             // Cart itemni o'chirish
-            await databases.deleteDocument(
-                DATABASE_ID,
-                CART_ITEMS_COLLECTION_ID,
-                item.$id
-            );
+            try {
+                await databases.deleteDocument(
+                    DATABASE_ID,
+                    CART_ITEMS_COLLECTION_ID,
+                    item.$id
+                );
+                console.log('Cart item o\'chirildi:', item.$id);
+            } catch (deleteError) {
+                console.error('Cart item o\'chirishda xato:', deleteError);
+                // Cart item o'chirilmasa ham order yaratilgan bo'ladi
+            }
         }
 
         return createdOrders;

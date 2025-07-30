@@ -168,6 +168,9 @@ function CartPage() {
 
             setLoading(true);
 
+            // Get current user from Appwrite Auth
+            const currentUser = await account.get();
+            
             // User'ning database ma'lumotlarini olish
             const { getUserByAuthId } = await import('../utils/userSync');
             const dbUser = await getUserByAuthId(currentUser.$id);
@@ -222,7 +225,7 @@ ${orderDetails}
 
             const telegramApiUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
 
-            await fetch(telegramApiUrl, {
+            const telegramResponse = await fetch(telegramApiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -233,6 +236,12 @@ ${orderDetails}
                     parse_mode: 'HTML' // Xabarni HTML formatida yuborish
                 })
             });
+
+            if (!telegramResponse.ok) {
+                const telegramError = await telegramResponse.text();
+                console.error('Telegram API xatosi:', telegramError);
+                // Telegram xatosi bo'lsa ham buyurtma davom etsin
+            }
             // -
             // Orders sahifasiga yo'naltirish
             navigate('/orders');
@@ -246,7 +255,20 @@ ${orderDetails}
 
         } catch (error) {
             console.error('Checkout xatosi:', error);
-            toastMessages.orderError();
+            console.error('Error details:', {
+                message: error.message,
+                stack: error.stack,
+                cartItems: cartItems
+            });
+            
+            // Xato turini aniqlash
+            if (error.message && error.message.includes('Book ID topilmadi')) {
+                toast.error('Savat ma\'lumotlarida xatolik bor. Sahifani yangilab qaytadan urinib ko\'ring.');
+            } else if (error.message && error.message.includes('network')) {
+                toast.error('Internet aloqasi bilan muammo. Iltimos, qaytadan urinib ko\'ring.');
+            } else {
+                toastMessages.orderError();
+            }
         } finally {
             setLoading(false);
         }

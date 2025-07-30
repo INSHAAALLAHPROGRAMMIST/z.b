@@ -155,7 +155,7 @@ function SearchPage() {
         <div className="container" style={{ 
             padding: '30px 15px', 
             minHeight: 'calc(100vh - 200px)',
-            marginTop: '70px'
+            marginTop: '15px'
         }}>
             <h1 className="section-title" style={{ 
                 fontSize: 'clamp(1.5rem, 5vw, 2.2rem)',

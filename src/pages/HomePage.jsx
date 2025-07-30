@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { databases, ID, Query, account } from '../appwriteConfig';
+import { databases, ID, Query } from '../appwriteConfig';
 import { Link } from 'react-router-dom';
 import { toastMessages } from '../utils/toastUtils';
-import LazyImage from '../components/LazyImage';
-import SlugUpdater from '../components/SlugUpdater';
+import ResponsiveImage from '../components/ResponsiveImage';
+// BookCardSkeleton not needed - simple loading
+// Lazy load SlugUpdater for better initial performance
+const SlugUpdater = React.lazy(() => import('../components/SlugUpdater'));
 import '../index.css';
+import '../styles/responsive-images.css';
 // --- Appwrite konsolidan olingan ID'lar ---
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
@@ -19,6 +22,11 @@ const HomePage = () => {
     const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState(null);
     const [cartItems, setCartItems] = useState([]); // Savatdagi kitoblar
+
+    // Simple loading state
+    const [initialBooksLoaded, setInitialBooksLoaded] = useState(false);
+
+    // No progressive loading - simple approach
 
     const addToCart = async (bookToAdd) => {
         try {
@@ -85,31 +93,32 @@ const HomePage = () => {
 
         const fetchInitialData = async () => {
             try {
-                // First load: Only 2 books for ultra-fast initial display
+                // Load all books at once (simple approach)
                 const [initialBooksResponse, genresResponse] = await Promise.all([
                     databases.listDocuments(
                         DATABASE_ID,
                         BOOKS_COLLECTION_ID,
-                        [Query.limit(2)] // Minimal initial load for best performance
+                        [Query.limit(50)] // Load all books initially
                     ),
                     databases.listDocuments(
                         DATABASE_ID,
                         GENRES_COLLECTION_ID,
-                        [Query.limit(4)] // Reduced for faster initial load
+                        [Query.limit(10)] // All genres
                     )
                 ]);
 
                 if (mounted) {
                     if (import.meta.env.DEV) {
-                        console.log('Initial books loaded:', initialBooksResponse.documents.length);
-                        console.log('Genres loaded:', genresResponse.documents.length);
+                        console.log('📚 All books loaded:', initialBooksResponse.documents.length);
+                        console.log('🏷️ Genres loaded:', genresResponse.documents.length);
                     }
                     setBooks(initialBooksResponse.documents);
+                    setAllBooks(initialBooksResponse.documents); // Same data
                     setGenres(genresResponse.documents);
+                    setInitialBooksLoaded(true);
                     setLoading(false);
-
-                    // Load remaining books after initial display - faster timeout
-                    setTimeout(() => loadMoreBooks(), 500);
+                    
+                    // No need for background loading - all loaded
                 }
             } catch (err) {
                 if (mounted) {
@@ -120,33 +129,7 @@ const HomePage = () => {
             }
         };
 
-        const loadMoreBooks = async () => {
-            if (!mounted) return;
-
-            try {
-                setLoadingMore(true);
-                // Load all books (up to 100)
-                const allBooksResponse = await databases.listDocuments(
-                    DATABASE_ID,
-                    BOOKS_COLLECTION_ID,
-                    [Query.limit(100)] // Barcha kitoblar
-                );
-
-                if (mounted) {
-                    if (import.meta.env.DEV) {
-                        console.log('All books loaded:', allBooksResponse.documents.length);
-                    }
-                    setAllBooks(allBooksResponse.documents);
-                    setBooks(allBooksResponse.documents);
-                    setLoadingMore(false);
-                }
-            } catch (err) {
-                if (mounted) {
-                    console.error("Qo'shimcha kitoblarni yuklashda xato:", err);
-                    setLoadingMore(false);
-                }
-            }
-        };
+        // No need for loadMoreBooks - all books loaded initially
 
         // Load cart items separately to not block main content
         const loadCartItems = async () => {
@@ -158,7 +141,7 @@ const HomePage = () => {
         };
 
         fetchInitialData();
-        setTimeout(loadCartItems, 300); // Delay cart loading more for better performance
+        setTimeout(loadCartItems, 300); // Delay cart loading for better performance
 
         return () => {
             mounted = false;
@@ -339,17 +322,18 @@ const HomePage = () => {
             <section className="container below-fold">
                 <h2 className="section-title">Eng So'nggi Kitoblar</h2>
                 <div className="book-grid">
-                    {books.map(book => {
+                    {books.map((book, index) => {
                         // Use slug if available, fallback to ID
                         const bookUrl = book.slug ? `/kitob/${book.slug}` : `/book/${book.$id}`;
 
                         return (
                             <Link to={bookUrl} key={book.$id} className="book-card glassmorphism-card">
-                                <LazyImage
+                                <ResponsiveImage
                                     src={book.imageUrl}
                                     alt={book.title}
                                     className="book-image"
-                                    style={{ height: '250px' }}
+                                    context="homepage-card"
+                                    loading={index < 8 ? 'eager' : 'lazy'} // First 8 images eager, rest lazy
                                 />
                                 <div className="book-info">
                                     <h3>{book.title}</h3>
@@ -426,6 +410,8 @@ const HomePage = () => {
                             </Link>
                         );
                     })}
+
+                    {/* No skeleton loading needed */}
                 </div>
 
                 {/* Loading more indicator */}
@@ -475,9 +461,13 @@ const HomePage = () => {
                     ))}
                 </div>
             </section>
-            
+
             {/* Development Tools - Only in development */}
-            <SlugUpdater />
+            {import.meta.env.DEV && (
+                <React.Suspense fallback={null}>
+                    <SlugUpdater />
+                </React.Suspense>
+            )}
         </main>
     );
 }

@@ -4,7 +4,9 @@ import { databases, Query, ID, account } from '../appwriteConfig';
 import { Link, useNavigate } from 'react-router-dom';
 import { createTelegramHTMLLink } from '../utils/telegramUtils';
 import { toastMessages } from '../utils/toastUtils';
+import ResponsiveImage from './ResponsiveImage';
 import '../index.css'; // Umumiy stil faylini import qilish
+import '../styles/responsive-images.css';
 
 // --- Appwrite konsolidan olingan ID'lar ---
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -279,7 +281,7 @@ ${orderDetails}
 
     return (
         <>
-            <main className="cart-page container" style={{ marginTop: '80px' }}>
+            <main className="cart-page container" style={{ marginTop: '5px' }}>
                 <h1 className="section-title">Savat</h1>
                 {cartItems.length === 0 ? (
                     <div className="empty-cart glassmorphism-card" style={{
@@ -312,19 +314,11 @@ ${orderDetails}
                                             height: '150px',
                                             margin: '0 auto'
                                         }}>
-                                            <img
+                                            <ResponsiveImage
                                                 src={item.book.imageUrl || 'https://res.cloudinary.com/dcn4maral/image/upload/v1753237051/No_image_available_f8lfjd.svg'}
                                                 alt={item.book.title}
-                                                style={{
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    objectFit: 'cover',
-                                                    borderRadius: '8px',
-                                                    border: '1px solid rgba(255, 255, 255, 0.1)'
-                                                }}
-                                                onError={(e) => {
-                                                    e.target.src = 'https://res.cloudinary.com/dcn4maral/image/upload/v1753237051/No_image_available_f8lfjd.svg';
-                                                }}
+                                                className="cart-item-image"
+                                                context="cart-item"
                                             />
                                         </Link>
                                         <div className="cart-item-details" style={{ flex: '1', minWidth: '250px' }}>

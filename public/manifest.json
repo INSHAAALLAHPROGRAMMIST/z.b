@@ -1,0 +1,41 @@
+{
+  "name": "Zamon Books - O'zbek Kitoblar Onlayn Do'koni",
+  "short_name": "Zamon Books",
+  "description": "O'zbekistondagi eng yaxshi kitoblar onlayn do'koni. Zamonaviy va klassik asarlar, ilmiy kitoblar va boshqalar.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6a8aff",
+  "orientation": "portrait-primary",
+  "categories": ["books", "education", "shopping"],
+  "lang": "uz",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Yangi Kitoblar",
+      "short_name": "Yangi",
+      "description": "Eng so'nggi qo'shilgan kitoblar",
+      "url": "/?filter=new"
+    },
+    {
+      "name": "Savat",
+      "short_name": "Savat",
+      "description": "Xarid savati",
+      "url": "/cart"
+    }
+  ]
+}

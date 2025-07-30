@@ -160,7 +160,7 @@ const AuthForm = ({ onSuccess }) => {
         return (
             <div className="container" style={{
                 padding: '20px',
-                marginTop: '80px',
+                marginTop: '15px',
                 marginBottom: '50px',
                 maxWidth: '500px'
             }}>
@@ -227,7 +227,7 @@ const AuthForm = ({ onSuccess }) => {
     return (
         <div className="container" style={{
             padding: '20px',
-            marginTop: '80px',
+            marginTop: '15px',
             marginBottom: '50px',
             maxWidth: '500px'
         }}>

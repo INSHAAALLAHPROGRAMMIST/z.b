@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { databases, account, Query } from '../appwriteConfig';
 import { Link } from 'react-router-dom';
+import ResponsiveImage from './ResponsiveImage';
 import '../index.css';
 import '../styles/userOrders.css';
+import '../styles/responsive-images.css';
 
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 const CART_ITEMS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_CART_ITEMS_ID;
@@ -77,7 +79,7 @@ function UserOrdersPage() {
 
     if (loading) {
         return (
-            <main className="container" style={{ marginTop: '100px', textAlign: 'center', padding: '50px 20px' }}>
+            <main className="container" style={{ marginTop: '15px', textAlign: 'center', padding: '50px 20px' }}>
                 <div className="loading-spinner" style={{
                     width: '50px',
                     height: '50px',
@@ -94,7 +96,7 @@ function UserOrdersPage() {
 
     if (error) {
         return (
-            <main className="container" style={{ marginTop: '100px', textAlign: 'center', padding: '50px 20px' }}>
+            <main className="container" style={{ marginTop: '15px', textAlign: 'center', padding: '50px 20px' }}>
                 <div className="error-message glassmorphism-card" style={{
                     padding: '30px',
                     maxWidth: '500px',
@@ -117,7 +119,7 @@ function UserOrdersPage() {
     }
 
     return (
-        <main className="user-orders-page container" style={{ marginTop: '100px', marginBottom: '50px' }}>
+        <main className="user-orders-page container" style={{ marginTop: '15px', marginBottom: '50px' }}>
                 <div className="page-header" style={{ marginBottom: '30px' }}>
                     <h1 className="section-title">Mening Buyurtmalarim</h1>
                     {user && (
@@ -194,16 +196,11 @@ function UserOrdersPage() {
                                     }}>
                                         {/* Book Image */}
                                         <div className="order-book-image" style={{ flexShrink: 0 }}>
-                                            <img 
+                                            <ResponsiveImage
                                                 src={order.book.imageUrl || 'https://res.cloudinary.com/dcn4maral/image/upload/v1753237051/No_image_available_f8lfjd.svg'}
                                                 alt={order.book.title}
-                                                style={{
-                                                    width: '80px',
-                                                    height: '100px',
-                                                    objectFit: 'cover',
-                                                    borderRadius: '8px',
-                                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-                                                }}
+                                                className="order-book-image"
+                                                context="order-item"
                                             />
                                         </div>
 

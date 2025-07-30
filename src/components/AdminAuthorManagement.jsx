@@ -6,6 +6,8 @@ import { highlightText } from '../utils/highlightText.jsx';
 import { toastMessages, toast } from '../utils/toastUtils';
 import { generateAuthorSlug } from '../utils/slugUtils';
 import ImageUpload from './ImageUpload';
+import ResponsiveImage from './ResponsiveImage';
+import ImageModal from './ImageModal';
 import siteConfig from '../config/siteConfig';
 import '../index.css';
 import '../styles/admin.css';
@@ -13,6 +15,7 @@ import '../styles/admin/authors.css';
 import '../styles/admin/pagination.css';
 import '../styles/admin/modal.css';
 import '../styles/admin/forms.css';
+import '../styles/responsive-images.css';
 
 // Appwrite konsolidan olingan ID'lar
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -43,6 +46,10 @@ function AdminAuthorManagement() {
     // Delete confirmation
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [authorToDelete, setAuthorToDelete] = useState(null);
+    
+    // Image modal state
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [modalImageSrc, setModalImageSrc] = useState('');
 
     // Fetch authors
     const fetchAuthors = async () => {
@@ -302,10 +309,15 @@ function AdminAuthorManagement() {
                                     authors.map(author => (
                                         <tr key={author.$id}>
                                             <td className="author-image">
-                                                <img
+                                                <ResponsiveImage
                                                     src={author.profilePictureUrl || 'https://res.cloudinary.com/dcn4maral/image/upload/v1753237051/No_image_available_f8lfjd.svg'}
                                                     alt={author.name}
-                                                    loading="lazy"
+                                                    className="admin-author-image"
+                                                    context="admin-thumb"
+                                                    onClick={() => {
+                                                        setModalImageSrc(author.profilePictureUrl);
+                                                        setIsImageModalOpen(true);
+                                                    }}
                                                 />
                                             </td>
                                             <td className="author-name">
@@ -505,6 +517,14 @@ function AdminAuthorManagement() {
                     </div>
                 </div>
             )}
+            
+            {/* Image Modal */}
+            <ImageModal
+                isOpen={isImageModalOpen}
+                onClose={() => setIsImageModalOpen(false)}
+                imageSrc={modalImageSrc}
+                imageAlt="Muallif rasmi"
+            />
         </div>
     );
 }

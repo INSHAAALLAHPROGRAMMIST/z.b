@@ -1,213 +1,91 @@
-/* Critical Above-the-fold CSS - Inline in HTML head */
+/* Critical CSS - Above the fold styles only */
+/* Inline this CSS in index.html for fastest loading */
 
-/* Essential variables for immediate rendering */
-:root {
-    --primary-color: #6366f1;
-    --text-color: #f3f4f6;
-    --glass-bg-light: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
-    --transition-fast: 0.3s ease;
-}
-
-/* Light mode critical variables */
-body.light-mode {
-    --primary-color: #4f46e5;
-    --text-color: #1f2937;
-    --glass-bg-light: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(0, 0, 0, 0.1);
-}
-
-/* Critical reset for immediate layout */
-*, *::before, *::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-/* Body and layout essentials */
-body {
-    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    line-height: 1.6;
-    color: var(--text-color);
-    background: linear-gradient(145deg, #0f172a, #1e293b);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    transition: all var(--transition-fast);
-}
-
-body.light-mode {
-    background: linear-gradient(145deg, #f8fafc, #e2e8f0);
-}
-
-/* Critical header styles for immediate visibility */
-.glassmorphism-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all var(--transition-fast);
-    height: 70px;
-}
-
-.glassmorphism-header .container {
+/* Essential layout */
+.container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 30px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 100%;
+    padding: 0 20px;
 }
 
-/* Logo critical styles */
-.logo {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: var(--text-color);
-    font-size: 1.5rem;
+/* Critical font loading */
+@font-display: swap; /* Ensure text remains visible during font load */
+
+/* Hero section - critical for FCP */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.hero-title {
+    font-size: 2.5rem;
     font-weight: bold;
-    flex-shrink: 0;
+    margin-bottom: 20px;
 }
 
-.header-logo {
-    height: 40px;
-    width: auto;
-    margin-right: 10px;
+.hero-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 30px;
 }
 
-/* Critical button styles */
-.glassmorphism-button {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+/* Book grid - critical for LCP */
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.book-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.book-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
     border-radius: 8px;
-    padding: 8px 12px;
-    color: var(--text-color);
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.95em;
+    margin-bottom: 15px;
 }
 
-/* Critical navigation styles */
-.main-nav {
-    display: flex;
-    align-items: center;
+/* Mobile responsive - critical */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .book-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .book-image {
+        height: 200px;
+    }
 }
 
-.glassmorphism-nav-list {
-    display: flex;
-    list-style: none;
-    gap: 15px;
-    margin: 0;
-    padding: 0;
-    align-items: center;
-}
-
-/* Critical mobile menu toggle */
-.hamburger-menu {
-    display: none;
-    font-size: 1.8rem;
-    cursor: pointer;
-    color: var(--text-color);
-    z-index: 1005;
-}
-
-.theme-toggle-button {
+/* Loading states - critical for perceived performance */
+.loading-spinner {
     width: 40px;
     height: 40px;
+    border: 3px solid rgba(106, 138, 255, 0.2);
+    border-top: 3px solid #6a8aff;
     border-radius: 50%;
-    background: var(--glass-bg-light);
-    border: 1px solid var(--glass-border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 1.2rem;
-    color: var(--text-color);
-    transition: all var(--transition-fast);
-    flex-shrink: 0;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
 }
 
-/* Critical mobile styles */
-@media (max-width: 1191px) {
-    .hamburger-menu {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 35px;
-        height: 35px;
-        margin-left: auto;
-        margin-right: 3px;
-    }
-    
-    .theme-toggle-button {
-        width: 35px;
-        height: 35px;
-        margin-left: 3px;
-    }
-    
-    .main-nav {
-        position: fixed;
-        top: 0;
-        right: -100%;
-        width: 100%;
-        max-width: 400px;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.95);
-        backdrop-filter: blur(40px);
-        -webkit-backdrop-filter: blur(40px);
-        transition: right 0.4s ease-in-out;
-        z-index: 1002;
-        padding-top: 80px;
-    }
-    
-    .main-nav.active {
-        right: 0;
-    }
-}
-
-/* Critical loading state */
-.loading-placeholder {
-    background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0.1) 0%, 
-        rgba(255, 255, 255, 0.2) 50%, 
-        rgba(255, 255, 255, 0.1) 100%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-}
-
-/* Critical content spacing */
-main {
-    margin-top: 70px;
-    flex: 1;
-}
-
-/* Hide non-critical elements initially */
-.below-fold {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.below-fold.loaded {
-    opacity: 1;
-    transform: translateY(0);
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

@@ -448,13 +448,16 @@ section {
 
 .book-card img {
     width: 100%;
-    height: 250px;
+    height: 300px;
     object-fit: cover;
     border-radius: 10px;
     margin-bottom: 15px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     transition: transform var(--transition-fast);
     flex-shrink: 0;
+    background-color: #f5f5f5;
+    /* Ensure consistent aspect ratio */
+    aspect-ratio: 3/4;
 }
 
 .book-card:hover img {

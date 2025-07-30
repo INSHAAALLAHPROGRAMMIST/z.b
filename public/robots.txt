@@ -1,0 +1,53 @@
+# Robots.txt for Zamon Books
+User-agent: *
+Allow: /
+
+# Allow all search engines to crawl the site
+Allow: /kitob/
+Allow: /muallif/
+Allow: /janr/
+Allow: /search
+
+# Disallow admin and private areas
+Disallow: /admin-dashboard
+Disallow: /admin/
+Disallow: /api/
+Disallow: /profile
+Disallow: /orders
+Disallow: /cart
+
+# Disallow auth pages (not useful for SEO)
+Disallow: /login
+Disallow: /register
+Disallow: /reset-password
+
+# Allow CSS and JS files
+Allow: /assets/
+Allow: /src/
+Allow: *.css
+Allow: *.js
+Allow: *.png
+Allow: *.jpg
+Allow: *.jpeg
+Allow: *.gif
+Allow: *.svg
+Allow: *.webp
+
+# Sitemap location
+Sitemap: https://zamonbooks.uz/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1
+
+# Specific rules for major search engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Yandex
+Allow: /
+Crawl-delay: 1

@@ -1,0 +1,137 @@
+/* Responsive Images Optimization */
+
+/* Admin panel thumbnails */
+.admin-book-image,
+.admin-author-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-book-image:hover,
+.admin-author-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Cart item images */
+.cart-item-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Order item images */
+.order-book-image {
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* HomePage book images - fixed aspect ratio */
+.book-image {
+    width: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+    
+    /* Fixed height for consistent layout */
+    height: 300px;
+    
+    /* Ensure consistent aspect ratio */
+    aspect-ratio: 3/4;
+    background-color: #f5f5f5;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .book-image {
+        height: 280px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .book-image {
+        height: 250px;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+    .book-image {
+        height: 220px;
+    }
+}
+
+/* Performance optimizations */
+.responsive-image {
+    /* GPU acceleration */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    
+    /* Smooth loading */
+    transition: opacity 0.3s ease;
+}
+
+.responsive-image-placeholder {
+    /* Skeleton loading animation */
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+/* Skeleton loading animations */
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.7;
+    }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .book-image {
+        height: 200px;
+    }
+    
+    .cart-item-image {
+        border-radius: 6px;
+    }
+    
+    .order-book-image {
+        width: 60px;
+        height: 80px;
+        border-radius: 6px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+    .book-image {
+        height: 180px;
+    }
+    
+    .order-book-image {
+        width: 50px;
+        height: 70px;
+    }
+}

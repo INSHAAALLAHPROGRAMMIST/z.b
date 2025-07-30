@@ -8,7 +8,11 @@ import { useLazyCSS } from '../hooks/useLazyCSS';
 
 // SEO Components - Direct import
 import BookSEO from './SEO/BookSEO';
-import Breadcrumb from './SEO/Breadcrumb';
+// import Breadcrumb from './SEO/Breadcrumb'; // Yashirildi
+
+// Image Components
+import ResponsiveImage from './ResponsiveImage';
+import ImageModal from './ImageModal';
 // import SEODebug from './SEODebug';
 
 // --- Appwrite konsolidan olingan ID'lar ---
@@ -22,6 +26,9 @@ function BookDetailPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [cartItems, setCartItems] = useState([]);
+    
+    // Image modal state
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
     // Lazy load component-specific CSS
     useLazyCSS('/src/styles/components/book-detail.css');
@@ -219,13 +226,13 @@ function BookDetailPage() {
         return <div className="container" style={{ textAlign: 'center', padding: '50px', minHeight: 'calc(100vh - 200px)' }}>Kitob topilmadi.</div>;
     }
 
-    // SEO data for breadcrumb
-    const breadcrumbItems = [
-        { name: 'Bosh sahifa', url: '/' },
-        { name: book.genres?.[0]?.name || 'Kitoblar', url: book.genres?.[0]?.slug ? `/janr/${book.genres[0].slug}` : '/kitoblar' },
-        { name: book.author?.name || 'Muallif', url: book.author?.slug ? `/muallif/${book.author.slug}` : null },
-        { name: book.title, url: null }
-    ];
+    // Breadcrumb data yashirildi - keraksiz
+    // const breadcrumbItems = [
+    //     { name: 'Bosh sahifa', url: '/' },
+    //     { name: book.genres?.[0]?.name || 'Kitoblar', url: book.genres?.[0]?.slug ? `/janr/${book.genres[0].slug}` : '/kitoblar' },
+    //     { name: book.author?.name || 'Muallif', url: book.author?.slug ? `/muallif/${book.author.slug}` : null },
+    //     { name: book.title, url: null }
+    // ];
 
     // Kitobning savatdagi miqdorini olish
     const getBookQuantityInCart = (bookId) => {
@@ -240,10 +247,11 @@ function BookDetailPage() {
         <>
             {/* SEO Components */}
             <BookSEO book={book} />
-            <Breadcrumb items={breadcrumbItems} />
+            {/* Breadcrumb yashirildi - keraksiz */}
+            {/* <Breadcrumb items={breadcrumbItems} /> */}
             {/* <SEODebug /> */}
 
-            <main className="container" style={{ padding: '40px 20px', minHeight: 'calc(100vh - 200px)', marginTop: '70px' }}>
+            <main className="container" style={{ padding: '40px 20px', minHeight: 'calc(100vh - 200px)', marginTop: '15px' }}>
                 <div className="book-detail-card glassmorphism-card" style={{ 
                     display: 'flex', 
                     gap: '30px', 
@@ -251,20 +259,19 @@ function BookDetailPage() {
                     flexWrap: 'wrap', 
                     justifyContent: 'center' 
                 }}>
-                    <img
-                        src={bookImageUrl}
-                        alt={`${book.title} kitobining muqovasi - ${book.author?.name || 'Noma\'lum muallif'}`}
-                        className="book-detail-image"
-                        style={{ 
-                            width: '100%', 
-                            maxWidth: '300px', 
-                            height: 'auto', 
-                            maxHeight: '450px', 
-                            objectFit: 'cover',
-                            borderRadius: '10px',
-                            margin: '0 auto 20px auto'
-                        }}
-                    />
+                    <div style={{ 
+                        width: '100%', 
+                        maxWidth: '300px', 
+                        margin: '0 auto 20px auto'
+                    }}>
+                        <ResponsiveImage
+                            src={bookImageUrl}
+                            alt={`${book.title} kitobining muqovasi - ${book.author?.name || 'Noma\'lum muallif'}`}
+                            className="book-detail-image"
+                            onClick={() => setIsImageModalOpen(true)}
+                            context="book-detail"
+                        />
+                    </div>
                     <div className="book-detail-info" style={{ 
                         flex: 1, 
                         minWidth: '280px', 
@@ -396,6 +403,14 @@ function BookDetailPage() {
                     </div>
                 </div>
             </main>
+            
+            {/* Image Modal */}
+            <ImageModal
+                isOpen={isImageModalOpen}
+                onClose={() => setIsImageModalOpen(false)}
+                imageSrc={bookImageUrl}
+                imageAlt={`${book.title} kitobining muqovasi - ${book.author?.name || 'Noma\'lum muallif'}`}
+            />
         </>
     );
 }

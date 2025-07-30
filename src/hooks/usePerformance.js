@@ -1,89 +1,59 @@
-import { useEffect, useCallback, useRef } from 'react';
-
-// Debounce hook for performance optimization
-export const useDebounce = (callback, delay) => {
-    const timeoutRef = useRef(null);
-    
-    return useCallback((...args) => {
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
-        
-        timeoutRef.current = setTimeout(() => {
-            callback(...args);
-        }, delay);
-    }, [callback, delay]);
-};
-
-// Throttle hook for performance optimization
-export const useThrottle = (callback, delay) => {
-    const lastRun = useRef(Date.now());
-    
-    return useCallback((...args) => {
-        if (Date.now() - lastRun.current >= delay) {
-            callback(...args);
-            lastRun.current = Date.now();
-        }
-    }, [callback, delay]);
-};
-
-// Intersection Observer hook for lazy loading
-export const useIntersectionObserver = (options = {}) => {
-    const elementRef = useRef(null);
-    const observerRef = useRef(null);
-    
-    const { threshold = 0.1, rootMargin = '0px', onIntersect } = options;
-    
-    useEffect(() => {
-        const element = elementRef.current;
-        if (!element || !onIntersect) return;
-        
-        observerRef.current = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    onIntersect(entry);
-                }
-            },
-            { threshold, rootMargin }
-        );
-        
-        observerRef.current.observe(element);
-        
-        return () => {
-            if (observerRef.current) {
-                observerRef.current.disconnect();
-            }
-        };
-    }, [threshold, rootMargin, onIntersect]);
-    
-    return elementRef;
-};
+import { useEffect, useRef } from 'react';
 
 // Performance monitoring hook
-export const usePerformanceMonitor = (componentName) => {
-    const renderStartTime = useRef(Date.now());
+export const usePerformance = (componentName) => {
+    const renderStart = useRef(performance.now());
+    const mountTime = useRef(null);
     
     useEffect(() => {
-        const renderTime = Date.now() - renderStartTime.current;
+        // Component mount time
+        mountTime.current = performance.now() - renderStart.current;
         
-        if (renderTime > 16) { // More than one frame (16ms)
-            console.warn(`${componentName} render took ${renderTime}ms`);
+        if (import.meta.env.DEV) {
+            console.log(`🔧 ${componentName} mount time: ${mountTime.current.toFixed(2)}ms`);
         }
         
-        renderStartTime.current = Date.now();
+        // Memory usage monitoring
+        if ('memory' in performance) {
+            const memoryInfo = performance.memory;
+            if (import.meta.env.DEV) {
+                console.log(`💾 ${componentName} memory:`, {
+                    used: `${(memoryInfo.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
+                    total: `${(memoryInfo.totalJSHeapSize / 1024 / 1024).toFixed(2)}MB`
+                });
+            }
+        }
+    }, [componentName]);
+    
+    // Re-render performance tracking
+    useEffect(() => {
+        renderStart.current = performance.now();
     });
+    
+    return {
+        mountTime: mountTime.current,
+        markRender: () => {
+            const renderTime = performance.now() - renderStart.current;
+            if (import.meta.env.DEV) {
+                console.log(`🔄 ${componentName} render time: ${renderTime.toFixed(2)}ms`);
+            }
+            return renderTime;
+        }
+    };
 };
 
-// Memory cleanup hook
-export const useCleanup = (cleanupFn) => {
-    const cleanupRef = useRef(cleanupFn);
-    cleanupRef.current = cleanupFn;
-    
+// Web Vitals monitoring
+export const useWebVitals = () => {
     useEffect(() => {
-        return () => {
-            if (cleanupRef.current) {
-                cleanupRef.current();
-            }
-        };
+        // Only in production
+        if (import.meta.env.PROD) {
+            import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+                getCLS(console.log);
+                getFID(console.log);
+                getFCP(console.log);
+                getLCP(console.log);
+                getTTFB(console.log);
+            });
+        }
     }, []);
 };

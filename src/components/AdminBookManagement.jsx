@@ -6,6 +6,8 @@ import { highlightText } from '../utils/highlightText.jsx';
 import { toastMessages, toast } from '../utils/toastUtils';
 import { generateSlug, generateAuthorSlug } from '../utils/slugUtils';
 import ImageUpload from './ImageUpload';
+import ResponsiveImage from './ResponsiveImage';
+import ImageModal from './ImageModal';
 import siteConfig from '../config/siteConfig';
 import '../index.css';
 import '../styles/admin.css';
@@ -13,6 +15,7 @@ import '../styles/admin/books.css';
 import '../styles/admin/pagination.css';
 import '../styles/admin/modal.css';
 import '../styles/admin/forms.css';
+import '../styles/responsive-images.css';
 
 // Appwrite konsolidan olingan ID'lar
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -62,6 +65,10 @@ function AdminBookManagement() {
     // New author form states
     const [showNewAuthorForm, setShowNewAuthorForm] = useState(false);
     const [newAuthorForm, setNewAuthorForm] = useState({ name: '', bio: '' });
+    
+    // Image modal state
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [modalImageSrc, setModalImageSrc] = useState('');
 
     // Fetch authors and genres
     useEffect(() => {
@@ -496,10 +503,15 @@ function AdminBookManagement() {
                                     books.map(book => (
                                         <tr key={book.$id}>
                                             <td className="book-image">
-                                                <img
+                                                <ResponsiveImage
                                                     src={book.imageUrl || 'https://res.cloudinary.com/dcn4maral/image/upload/v1753237051/No_image_available_f8lfjd.svg'}
                                                     alt={book.title}
-                                                    loading="lazy"
+                                                    className="admin-book-image"
+                                                    context="admin-thumb"
+                                                    onClick={() => {
+                                                        setModalImageSrc(book.imageUrl);
+                                                        setIsImageModalOpen(true);
+                                                    }}
                                                 />
                                             </td>
                                             <td className="book-title">
@@ -943,6 +955,14 @@ function AdminBookManagement() {
                     </div>
                 </div>
             )}
+            
+            {/* Image Modal */}
+            <ImageModal
+                isOpen={isImageModalOpen}
+                onClose={() => setIsImageModalOpen(false)}
+                imageSrc={modalImageSrc}
+                imageAlt="Kitob rasmi"
+            />
         </div>
     );
 }

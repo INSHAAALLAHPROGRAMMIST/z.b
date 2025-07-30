@@ -137,6 +137,10 @@ function MainLayout({ children }) {
                 }
             } catch (error) {
                 // Silent fail for 401 - user is not logged in, which is normal
+                // Don't log 401 errors to console as they're expected
+                if (mounted && error.code !== 401) {
+                    console.error('Auth check error:', error);
+                }
                 if (mounted) {
                     setIsLoggedIn(false);
                     setIsAdmin(false);
@@ -569,7 +573,7 @@ const VerificationStatusPage = ({ status }) => {
     }, [status]);
 
     return (
-        <div className="container auth-container glassmorphism-card" style={{ marginTop: '50px', marginBottom: '50px' }}>
+        <div className="container auth-container glassmorphism-card" style={{ marginTop: '15px', marginBottom: '50px' }}>
             <h2 className="section-title">Elektron Pochta Tasdiqlash Holati</h2>
             {isProcessing ? (
                 <p>Tasdiqlash jarayonida...</p>

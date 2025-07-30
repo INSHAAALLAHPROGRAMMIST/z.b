@@ -378,6 +378,19 @@ function AdminGenreManagement() {
                             onChange={handleGenreFormChange}
                             required
                         />
+                        {/* Auto-generated slug preview */}
+                        {genreForm.name && !genreForm.slug && (
+                            <div style={{
+                                marginTop: '8px',
+                                padding: '8px 12px',
+                                background: 'rgba(106, 138, 255, 0.1)',
+                                borderRadius: '6px',
+                                fontSize: '0.85rem',
+                                color: 'var(--primary-color)'
+                            }}>
+                                <strong>🔗 Auto URL:</strong> /janr/{generateGenreSlug(genreForm.name)}
+                            </div>
+                        )}
                     </FormGroup>
                     
                     <FormGroup label="Slug (URL uchun)" required>

@@ -422,6 +422,19 @@ function AdminAuthorManagement() {
                                         onChange={handleAuthorFormChange}
                                         required
                                     />
+                                    {/* Auto-generated slug preview */}
+                                    {authorForm.name && (
+                                        <div style={{
+                                            marginTop: '8px',
+                                            padding: '8px 12px',
+                                            background: 'rgba(106, 138, 255, 0.1)',
+                                            borderRadius: '6px',
+                                            fontSize: '0.85rem',
+                                            color: 'var(--primary-color)'
+                                        }}>
+                                            <strong>🔗 Auto URL:</strong> /muallif/{generateAuthorSlug(authorForm.name)}
+                                        </div>
+                                    )}
                                 </div>
                                 
                                 <div className="form-group">

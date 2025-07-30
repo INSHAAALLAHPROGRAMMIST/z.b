@@ -136,7 +136,8 @@ const SlugUpdater = () => {
         setLoading(false);
     };
 
-
+{/*
+    
     // Only show in development
     if (import.meta.env.DEV) return null;
 
@@ -237,7 +238,7 @@ const SlugUpdater = () => {
                 ⚠️ Faqat development'da ko'rinadi
             </p>
         </div>
-    );
+    );*/}
 
 };
 

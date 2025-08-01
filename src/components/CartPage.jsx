@@ -4,6 +4,7 @@ import { databases, Query, ID, account } from '../appwriteConfig';
 import { Link, useNavigate } from 'react-router-dom';
 import { createTelegramHTMLLink } from '../utils/telegramUtils';
 import { toastMessages } from '../utils/toastUtils';
+import { getOrderRateLimiter } from '../utils/rateLimiter';
 import ResponsiveImage from './ResponsiveImage';
 import '../index.css'; // Umumiy stil faylini import qilish
 import '../styles/responsive-images.css';
@@ -21,8 +22,67 @@ function CartPage() {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [rateLimitRemaining, setRateLimitRemaining] = useState(0);
+    const [selectedItems, setSelectedItems] = useState(new Set()); // Tanlangan kitoblar
     const navigate = useNavigate();
 
+
+    // Rate limiting timer
+    useEffect(() => {
+        const currentUserId = localStorage.getItem('currentUserId');
+        if (!currentUserId) return;
+
+        const rateLimiter = getOrderRateLimiter(currentUserId);
+        const remaining = rateLimiter.getRemainingTime();
+
+        if (remaining > 0) {
+            setRateLimitRemaining(remaining);
+
+            const timer = setInterval(() => {
+                const newRemaining = rateLimiter.getRemainingTime();
+                setRateLimitRemaining(newRemaining);
+
+                if (newRemaining <= 0) {
+                    clearInterval(timer);
+                }
+            }, 1000);
+
+            return () => clearInterval(timer);
+        }
+    }, []);
+
+    // Checkbox funksiyalari
+    const handleItemSelect = (itemId) => {
+        const newSelected = new Set(selectedItems);
+        if (newSelected.has(itemId)) {
+            newSelected.delete(itemId);
+        } else {
+            newSelected.add(itemId);
+        }
+        setSelectedItems(newSelected);
+    };
+
+    const handleSelectAll = () => {
+        if (selectedItems.size === cartItems.length) {
+            // Agar hammasi tanlangan bo'lsa, hammasini bekor qilish
+            setSelectedItems(new Set());
+        } else {
+            // Hammasini tanlash
+            const allItemIds = new Set(cartItems.map(item => item.$id));
+            setSelectedItems(allItemIds);
+        }
+    };
+
+    // Tanlangan kitoblar uchun hisob-kitob
+    const getSelectedItems = () => {
+        return cartItems.filter(item => selectedItems.has(item.$id));
+    };
+
+    const calculateSelectedTotal = () => {
+        return getSelectedItems().reduce((total, item) =>
+            total + (item.book ? parseFloat(item.book.price || 0) * item.quantity : 0), 0
+        );
+    };
 
     // Headerdagi savat sonini yangilash funksiyasi
     const updateCartCount = async () => {
@@ -94,6 +154,11 @@ function CartPage() {
                     })
                 );
                 setCartItems(itemsWithBookDetails);
+
+                // Barcha kitoblarni default tanlangan qilish
+                const allItemIds = new Set(itemsWithBookDetails.map(item => item.$id));
+                setSelectedItems(allItemIds);
+
                 updateCartCount(); // Savat sonini yangilash
                 setLoading(false);
             } catch (err) {
@@ -113,6 +178,14 @@ function CartPage() {
                 cartItemId
             );
             setCartItems(prevItems => prevItems.filter(item => item.$id !== cartItemId));
+
+            // Selected items'dan ham olib tashlash
+            setSelectedItems(prevSelected => {
+                const newSelected = new Set(prevSelected);
+                newSelected.delete(cartItemId);
+                return newSelected;
+            });
+
             updateCartCount(); // Savat sonini yangilash
             toastMessages.removedFromCart();
         } catch (err) {
@@ -168,11 +241,27 @@ function CartPage() {
                 return;
             }
 
+            // Tanlangan kitoblarni tekshirish
+            const selectedCartItems = getSelectedItems();
+            if (selectedCartItems.length === 0) {
+                toastMessages.error("Buyurtma berish uchun kamida bitta kitob tanlang!");
+                return;
+            }
+
+            // Rate limiting check
+            const rateLimiter = getOrderRateLimiter(currentUserId);
+            const rateLimitResult = rateLimiter.canMakeOrder();
+
+            if (!rateLimitResult.allowed) {
+                toastMessages.rateLimitError(rateLimitResult.remainingTime);
+                return;
+            }
+
             setLoading(true);
 
             // Get current user from Appwrite Auth
             const currentUser = await account.get();
-            
+
             // User'ning database ma'lumotlarini olish
             const { getUserByAuthId } = await import('../utils/userSync');
             const dbUser = await getUserByAuthId(currentUser.$id);
@@ -180,19 +269,23 @@ function CartPage() {
             // Orders service'ni import qilish
             const { createOrdersFromCart } = await import('../utils/orderService');
 
-            // Cart itemlarni orderga aylantirish
-            await createOrdersFromCart(cartItems);
+            // Faqat tanlangan cart itemlarni orderga aylantirish
+            await createOrdersFromCart(selectedCartItems);
 
-            // Cart'ni tozalash
-            setCartItems([]);
+            // Faqat tanlangan kitoblarni cart'dan olib tashlash
+            const remainingItems = cartItems.filter(item => !selectedItems.has(item.$id));
+            setCartItems(remainingItems);
+
+            // Tanlangan kitoblarni tozalash
+            setSelectedItems(new Set());
 
             // Global cart count'ni yangilash
             window.dispatchEvent(new CustomEvent('cartUpdated'));
 
             // --- Telegram bot orqali xabar yuborish (HTML formatda) ---
-            const totalAmount = calculateTotal().toLocaleString();
+            const totalAmount = calculateSelectedTotal().toLocaleString();
 
-            const orderDetails = cartItems.map((item, index) => {
+            const orderDetails = selectedCartItems.map((item, index) => {
                 const itemTotal = (parseFloat(item.book.price || 0) * item.quantity).toLocaleString();
                 return `<b>${index + 1}. ${item.book.title}</b>\n` +
                     `  Muallif: ${item.book.author?.name || 'Noma\'lum'}\n` +
@@ -202,9 +295,9 @@ function CartPage() {
             }).join('\n\n'); // Har bir kitob orasida bo'sh qator
 
             // Telegram username'ni auth preferences va database'dan olish
-            const telegramUsername = dbUser?.telegram_username || 
-                                   currentUser.prefs?.telegram_username || 
-                                   'Kiritilmagan';
+            const telegramUsername = dbUser?.telegram_username ||
+                currentUser.prefs?.telegram_username ||
+                'Kiritilmagan';
 
             // Telegram HTML link yaratish
             const telegramLink = createTelegramHTMLLink(telegramUsername);
@@ -245,6 +338,20 @@ ${orderDetails}
                 // Telegram xatosi bo'lsa ham buyurtma davom etsin
             }
             // -
+            // Rate limiter'ni yangilash - buyurtma muvaffaqiyatli bo'ldi
+            rateLimiter.recordOrder();
+
+            // UI'da timer'ni boshlash
+            setRateLimitRemaining(15); // 15 soniya
+            const timer = setInterval(() => {
+                const newRemaining = rateLimiter.getRemainingTime();
+                setRateLimitRemaining(newRemaining);
+
+                if (newRemaining <= 0) {
+                    clearInterval(timer);
+                }
+            }, 1000);
+
             // Orders sahifasiga yo'naltirish
             navigate('/orders');
             // ==========================================================
@@ -262,7 +369,7 @@ ${orderDetails}
                 stack: error.stack,
                 cartItems: cartItems
             });
-            
+
             // Xato turini aniqlash
             if (error.message && error.message.includes('Book ID topilmadi')) {
                 toast.error('Savat ma\'lumotlarida xatolik bor. Sahifani yangilab qaytadan urinib ko\'ring.');
@@ -298,6 +405,34 @@ ${orderDetails}
                     </div>
                 ) : (
                     <div className="cart-content" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        {/* Select All Checkbox */}
+                        <div className="select-all-section glassmorphism-card" style={{
+                            padding: '15px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            backgroundColor: 'rgba(255, 255, 255, 0.05)'
+                        }}>
+                            <input
+                                type="checkbox"
+                                checked={selectedItems.size === cartItems.length && cartItems.length > 0}
+                                onChange={handleSelectAll}
+                                style={{
+                                    width: '20px',
+                                    height: '20px',
+                                    cursor: 'pointer',
+                                    accentColor: '#68d639'
+                                }}
+                            />
+                            <label style={{
+                                cursor: 'pointer',
+                                fontSize: '1.1rem',
+                                fontWeight: '500'
+                            }} onClick={handleSelectAll}>
+                                Hammasini tanlash ({selectedItems.size}/{cartItems.length})
+                            </label>
+                        </div>
+
                         <div className="cart-items" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                             {cartItems.map(item => (
                                 <div key={item.$id} className="cart-item glassmorphism-card" style={{
@@ -305,10 +440,33 @@ ${orderDetails}
                                     flexDirection: 'column',
                                     padding: '15px',
                                     gap: '15px',
-                                    position: 'relative'
+                                    position: 'relative',
+                                    opacity: selectedItems.has(item.$id) ? 1 : 0.6,
+                                    border: selectedItems.has(item.$id)
+                                        ? '2px solid rgba(104, 214, 57, 0.5)'
+                                        : '1px solid rgba(255, 255, 255, 0.2)'
                                 }}>
+                                    {/* Checkbox */}
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '10px',
+                                        right: '10px',
+                                        zIndex: 10
+                                    }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedItems.has(item.$id)}
+                                            onChange={() => handleItemSelect(item.$id)}
+                                            style={{
+                                                width: '20px',
+                                                height: '20px',
+                                                cursor: 'pointer',
+                                                accentColor: '#68d639'
+                                            }}
+                                        />
+                                    </div>
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
-                                        <Link to={`/book/${item.book.$id}`} style={{
+                                        <Link to={item.book.slug ? `/kitob/${item.book.slug}` : `/book/${item.book.$id}`} style={{
                                             flexShrink: 0,
                                             width: '100px',
                                             height: '150px',
@@ -323,7 +481,7 @@ ${orderDetails}
                                         </Link>
                                         <div className="cart-item-details" style={{ flex: '1', minWidth: '250px' }}>
                                             <h3 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>
-                                                <Link to={`/book/${item.book.$id}`}>{item.book.title}</Link>
+                                                <Link to={item.book.slug ? `/kitob/${item.book.slug}` : `/book/${item.book.$id}`}>{item.book.title}</Link>
                                             </h3>
                                             <p style={{ fontSize: '0.9rem', marginBottom: '5px', opacity: '0.8' }}>
                                                 <i className="fas fa-user" style={{ marginRight: '5px' }}></i>
@@ -350,7 +508,16 @@ ${orderDetails}
                                                     <button
                                                         onClick={() => updateQuantity(item, item.quantity - 1)}
                                                         className="glassmorphism-button"
-                                                        style={{ width: '35px', height: '35px', padding: '0' }}
+                                                        style={{ 
+                                                            width: '35px', 
+                                                            height: '35px', 
+                                                            padding: '0',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '1.2rem',
+                                                            fontWeight: 'bold'
+                                                        }}
                                                     >-</button>
                                                     <span style={{ fontSize: '1.1rem', fontWeight: 'bold', minWidth: '30px', textAlign: 'center' }}>
                                                         {item.quantity}
@@ -358,7 +525,16 @@ ${orderDetails}
                                                     <button
                                                         onClick={() => updateQuantity(item, item.quantity + 1)}
                                                         className="glassmorphism-button"
-                                                        style={{ width: '35px', height: '35px', padding: '0' }}
+                                                        style={{ 
+                                                            width: '35px', 
+                                                            height: '35px', 
+                                                            padding: '0',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '1.2rem',
+                                                            fontWeight: 'bold'
+                                                        }}
                                                     >+</button>
                                                 </div>
 
@@ -394,28 +570,51 @@ ${orderDetails}
                             <h2 style={{ marginBottom: '15px', fontSize: '1.5rem' }}>Savat Hisobi</h2>
                             <div style={{
                                 display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
+                                flexDirection: 'column',
+                                gap: '10px',
                                 marginBottom: '20px',
                                 padding: '10px 0',
                                 borderBottom: '1px solid var(--glass-border)'
                             }}>
-                                <p style={{ fontSize: '1.1rem' }}>Umumiy narx:</p>
-                                <span style={{ fontSize: '1.3rem', fontWeight: 'bold', color: 'var(--accent-light)' }}>{calculateTotal().toLocaleString()} so'm</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <p style={{ fontSize: '1rem', opacity: 0.8 }}>Tanlangan kitoblar:</p>
+                                    <span style={{ fontSize: '1rem' }}>{selectedItems.size} ta</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <p style={{ fontSize: '1.1rem' }}>Umumiy narx:</p>
+                                    <span style={{ fontSize: '1.3rem', fontWeight: 'bold', color: 'var(--accent-light)' }}>
+                                        {calculateSelectedTotal().toLocaleString()} so'm
+                                    </span>
+                                </div>
                             </div>
                             <button
                                 className="checkout-btn glassmorphism-button"
                                 onClick={handleCheckout}
-                                disabled={loading}
+                                disabled={loading || rateLimitRemaining > 0 || selectedItems.size === 0}
                                 style={{
                                     width: '100%',
                                     padding: '12px',
                                     fontSize: '1.1rem',
                                     fontWeight: 'bold',
-                                    backgroundColor: 'rgba(104, 214, 57, 0.2)'
+                                    backgroundColor: rateLimitRemaining > 0
+                                        ? 'rgba(255, 193, 7, 0.2)'
+                                        : 'rgba(104, 214, 57, 0.2)',
+                                    opacity: rateLimitRemaining > 0 ? 0.6 : 1
                                 }}
                             >
-                                <i className="fas fa-check-circle"></i> Xaridni yakunlash
+                                {rateLimitRemaining > 0 ? (
+                                    <>
+                                        <i className="fas fa-clock"></i> {rateLimitRemaining} soniya kuting
+                                    </>
+                                ) : selectedItems.size === 0 ? (
+                                    <>
+                                        <i className="fas fa-exclamation-circle"></i> Kitob tanlang
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fas fa-check-circle"></i> Tanlangan kitoblarni buyurtma qilish ({selectedItems.size} ta)
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>

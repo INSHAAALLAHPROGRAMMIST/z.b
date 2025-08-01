@@ -1,0 +1,329 @@
+/* Improved Admin Dashboard Styles */
+
+/* Shimmer animation for loading */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Enhanced stat cards */
+.admin-stat-card {
+    padding: 28px !important;
+    border-radius: 18px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: pointer !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.admin-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    opacity: 0;
+    transition: all 0.4s ease;
+    border-radius: 18px 18px 0 0;
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-6px) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15) !important;
+}
+
+.admin-stat-card:hover::before {
+    opacity: 1;
+}
+
+/* Enhanced stat icons */
+.admin-stat-card .stat-icon {
+    width: 64px !important;
+    height: 64px !important;
+    border-radius: 16px !important;
+    font-size: 1.6rem !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+    position: relative !important;
+}
+
+.admin-stat-card .stat-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+/* Enhanced stat details */
+.admin-stat-card .stat-details h3 {
+    font-size: 0.9rem !important;
+    margin: 0 0 8px 0 !important;
+    color: var(--light-text-color) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    font-weight: 500 !important;
+    opacity: 1 !important;
+}
+
+.admin-stat-card .stat-value {
+    font-size: 2.2rem !important;
+    font-weight: 700 !important;
+    margin: 0 0 8px 0 !important;
+    line-height: 1 !important;
+}
+
+/* Trend indicators */
+.stat-trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.stat-trend i {
+    font-size: 0.7rem;
+}
+
+.stat-trend.positive {
+    color: #22c55e;
+}
+
+.stat-trend.negative {
+    color: #ef4444;
+}
+
+.stat-trend.negative i {
+    transform: rotate(180deg);
+}
+
+/* Color variants */
+.books-card {
+    border: 1px solid rgba(34, 197, 94, 0.3) !important;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(34, 197, 94, 0.03)) !important;
+}
+
+.books-card .stat-icon {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.3)) !important;
+    color: #22C55E !important;
+    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.2) !important;
+}
+
+.books-card:hover {
+    box-shadow: 0 12px 40px rgba(34, 197, 94, 0.15) !important;
+}
+
+.orders-card {
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.03)) !important;
+}
+
+.orders-card .stat-icon {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.3)) !important;
+    color: #3B82F6 !important;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2) !important;
+}
+
+.orders-card:hover {
+    box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15) !important;
+}
+
+.users-card {
+    border: 1px solid rgba(168, 85, 247, 0.3) !important;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(168, 85, 247, 0.03)) !important;
+}
+
+.users-card .stat-icon {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(168, 85, 247, 0.3)) !important;
+    color: #A855F7 !important;
+    box-shadow: 0 4px 16px rgba(168, 85, 247, 0.2) !important;
+}
+
+.users-card:hover {
+    box-shadow: 0 12px 40px rgba(168, 85, 247, 0.15) !important;
+}
+
+.revenue-card {
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.03)) !important;
+}
+
+.revenue-card .stat-icon {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.3)) !important;
+    color: #F59E0B !important;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2) !important;
+}
+
+.revenue-card:hover {
+    box-shadow: 0 12px 40px rgba(245, 158, 11, 0.15) !important;
+}
+
+/* Mobile improvements */
+@media (max-width: 768px) {
+    .admin-stat-card {
+        padding: 20px !important;
+    }
+    
+    .admin-stat-card .stat-icon {
+        width: 56px !important;
+        height: 56px !important;
+        font-size: 1.4rem !important;
+    }
+    
+    .admin-stat-card .stat-value {
+        font-size: 1.8rem !important;
+    }
+}
+
+/* Loading skeleton improvements */
+.loading-skeleton {
+    background: linear-gradient(90deg, 
+        rgba(255,255,255,0.1) 0%, 
+        rgba(255,255,255,0.2) 50%, 
+        rgba(255,255,255,0.1) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+}
+
+.skeleton-card {
+    padding: 28px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.skeleton-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: linear-gradient(90deg, 
+        rgba(255,255,255,0.1) 0%, 
+        rgba(255,255,255,0.2) 50%, 
+        rgba(255,255,255,0.1) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.skeleton-text {
+    background: linear-gradient(90deg, 
+        rgba(255,255,255,0.1) 0%, 
+        rgba(255,255,255,0.2) 50%, 
+        rgba(255,255,255,0.1) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+.skeleton-title {
+    height: 16px;
+    width: 80px;
+    margin-bottom: 8px;
+}
+
+.skeleton-value {
+    height: 32px;
+    width: 60px;
+}
+/*
+ Webhook Monitor Compact Styles */
+.webhook-monitor-compact {
+    position: relative;
+}
+
+.webhook-monitor-compact::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    border-radius: 12px 12px 0 0;
+    opacity: 0.6;
+}
+
+/* Mobile responsive for webhook monitor */
+@media (max-width: 768px) {
+    .webhook-monitor-compact {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        padding: 16px !important;
+    }
+    
+    .webhook-monitor-compact > div:first-child {
+        width: 100%;
+    }
+    
+    .webhook-monitor-compact > div:last-child {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}/*
+ Pulse animation for auto-refresh indicator */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Webhook monitor controls */
+.webhook-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.webhook-controls button {
+    transition: all 0.2s ease;
+}
+
+.webhook-controls button:hover {
+    transform: translateY(-1px);
+}
+
+/* Auto-refresh indicator */
+.auto-refresh-indicator {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.auto-refresh-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.auto-refresh-dot.active {
+    animation: pulse 2s infinite;
+}
+
+/* Hidden webhook monitor */
+.webhook-hidden-toggle {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.webhook-hidden-toggle button {
+    transition: all 0.2s ease;
+}
+
+.webhook-hidden-toggle button:hover {
+    transform: scale(1.05);
+}

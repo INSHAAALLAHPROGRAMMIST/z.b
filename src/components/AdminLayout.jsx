@@ -12,6 +12,7 @@ function AdminLayout({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
@@ -49,6 +50,20 @@ function AdminLayout({ children }) {
         };
         checkUser();
     }, [navigate, theme]);
+
+    // Mobile menu effect
+    useEffect(() => {
+        if (mobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+
+        // Cleanup on unmount
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [mobileMenuOpen]);
 
     const handleLogout = async () => {
         try {
@@ -97,6 +112,10 @@ function AdminLayout({ children }) {
                 document.body.style.overflow = 'auto';
             }
         }
+    };
+
+    const toggleMobileMenu = () => {
+        setMobileMenuOpen(!mobileMenuOpen);
     };
 
     // Global qidiruv funksiyasi
@@ -148,7 +167,7 @@ function AdminLayout({ children }) {
                 title: book.title,
                 type: 'Kitob',
                 icon: 'fa-book',
-                link: `/book/${book.$id}`
+                link: book.slug ? `/kitob/${book.slug}` : `/book/${book.$id}`
             }));
             
             const filteredAuthors = authorsResponse.documents.filter(author => 
@@ -229,8 +248,11 @@ function AdminLayout({ children }) {
 
     return (
         <div className="admin-layout">
+            {/* Mobile Overlay */}
+            {mobileMenuOpen && <div className="mobile-overlay active" onClick={toggleMobileMenu}></div>}
+            
             {/* Sidebar */}
-            <aside className={`admin-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+            <aside className={`admin-sidebar ${sidebarCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'open' : ''}`}>
                 <div className="admin-sidebar-header">
                     <div className="admin-logo">
                         <img src="https://res.cloudinary.com/dcn4maral/image/upload/v1752356041/favicon_maovuy.svg" alt="Zamon Books Logo" />
@@ -317,6 +339,9 @@ function AdminLayout({ children }) {
             <div className="admin-main">
                 <header className="admin-header">
                     <div className="admin-header-left">
+                        <button className="mobile-menu-toggle" onClick={toggleMobileMenu}>
+                            <i className="fas fa-bars"></i>
+                        </button>
                         <h1 className="admin-page-title">
                             {location.pathname === '/admin-dashboard' && 'Dashboard'}
                             {location.pathname === '/admin/books' && 'Kitoblar'}
@@ -380,11 +405,7 @@ function AdminLayout({ children }) {
                             <i className="fas fa-bell"></i>
                             <span className="notification-badge">3</span>
                         </div>
-                        <div className="admin-mobile-menu">
-                            <button onClick={toggleSidebar}>
-                                <i className="fas fa-bars"></i>
-                            </button>
-                        </div>
+
                     </div>
                 </header>
                 

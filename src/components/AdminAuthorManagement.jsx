@@ -312,6 +312,7 @@ function AdminAuthorManagement() {
                                                 <ResponsiveImage
                                                     src={author.profilePictureUrl || 'https://res.cloudinary.com/dcn4maral/image/upload/v1753237051/No_image_available_f8lfjd.svg'}
                                                     alt={author.name}
+                                                    isProtected={false}
                                                     className="admin-author-image"
                                                     context="admin-thumb"
                                                     onClick={() => {

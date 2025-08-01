@@ -1,63 +1,389 @@
-Zamon Books - Kitob Do'koni Ilovasi
-Versiya 2.0.0
+📚 ZAMON BOOKS - VERSION HISTORY
+=====================================
 
-Ilova tavsifi
+🚀 VERSIYA 3.1.0 - UI/UX ENHANCEMENT UPDATE (2025-01-31)
+========================================================
+
+🎯 YANGI XUSUSIYATLAR:
+
+📊 ADMIN JADVAL YAXSHILANLARI:
+- ✅ Kitob rasmlari butun katakni to'liq egallaydi (padding: 0)
+- ✅ Rasm o'lchamlari optimallashtirildi (32x45px → 35x48px)
+- ✅ Jadval qatori balandligi mukammal moslashtirildi (55px desktop, 50px mobile)
+- ✅ Position absolute rasm joylashuvi (top: 0, left: 0)
+- ✅ Oq joy muammosi to'liq hal qilindi
+- ✅ Border-radius va box-shadow optimizatsiyasi
+
+🔗 KITOB SAHIFA LINKI:
+- ✅ Admin jadvalida kitob nomiga link qo'shildi
+- ✅ Yangi tabda ochilish (target="_blank")
+- ✅ Xavfsizlik attributlari (rel="noopener noreferrer")
+- ✅ Hover effektlari va visual feedback
+- ✅ React Router Link integratsiyasi
+
+📝 FORM TEXTAREA YAXSHILANLARI:
+- ✅ Resize: both (gorizontal va vertikal tortish)
+- ✅ Min/max o'lchamlar (100px-300px balandlik)
+- ✅ Modern styling va focus effects
+- ✅ Light/Dark mode uchun alohida dizayn
+- ✅ Smooth transitions va animations
+
+🎨 CSS KATTA OPTIMIZATSIYA:
+- ✅ line-clamp browser compatibility (webkit + standard)
+- ✅ Takroriy CSS kodlar to'liq olib tashlandi
+- ✅ CSS fayl strukturasi qayta tartibga solindi
+- ✅ Performance va maintainability yaxshilandi
+- ✅ Kiro IDE autofix va formatting qo'llandi
+
+📁 DOKUMENTATSIYA TO'LIQ YANGILANISH:
+- ✅ README.md professional formatda qayta yozildi
+- ✅ .env.example 50+ variable bilan to'ldirildi
+- ✅ ADMIN_SETUP.md batafsil qo'llanma bilan kengaytirildi
+- ✅ EMAIL_AND_SUPPORT.md yangilandi
+- ✅ HYBRID_USER_SYSTEM.md yangilandi
+- ✅ PERFORMANCE_SEO_GUIDE.md yangilandi
+
+🛠️ TEXNIK YAXSHILANISHLAR:
+- ✅ React Router Link import qo'shildi
+- ✅ CSS autofix va code formatting
+- ✅ Error handling yaxshilandi
+- ✅ Code cleanup va optimization
+
+---
+
+🚀 VERSIYA 3.0.0 - MAJOR UPDATE (2025-01-31)
+============================================
+
+🎯 ASOSIY YANGILANISHLAR:
+
+📊 ADMIN PANEL KATTA YAXSHILANISH:
+- ✅ Jadval ko'rinishi qo'shildi (Table View)
+- ✅ Kitob rasmlari jadvalda to'liq katakni egallaydi
+- ✅ Rasm o'lchamlari optimallashtirildi (35x48px desktop, 28x38px mobile)
+- ✅ Jadval qatori balandligi rasm o'lchamiga mos keladi (55px desktop, 50px mobile)
+- ✅ Kitob nomiga sahifa linki qo'shildi (yangi tabda ochiladi)
+- ✅ Hover effektlari va smooth transitions
+- ✅ Light/Dark mode uchun alohida styling
+- ✅ Mobile responsive jadval dizayni
+
+🎨 CSS OPTIMIZATSIYALAR:
+- ✅ line-clamp browser compatibility yaxshilandi
+- ✅ Takroriy CSS kodlar olib tashlandi
+- ✅ CSS strukturasi qayta tartibga solindi
+- ✅ Performance optimizatsiyasi
+
+📝 FORM YAXSHILANLARI:
+- ✅ Textarea resize both yo'nalishda (gorizontal va vertikal)
+- ✅ Min/max o'lchamlar belgilandi
+- ✅ Modern styling va focus effects
+- ✅ Light mode uchun alohida dizayn
+
+🔗 NAVIGATION YAXSHILANLARI:
+- ✅ Admin jadvalida kitob nomidan sahifaga link
+- ✅ Target="_blank" yangi tabda ochish
+- ✅ Security attributes (noopener noreferrer)
+- ✅ Hover effects va visual feedback
+
+📁 DOKUMENTATSIYA KATTA YANGILANISH:
+- ✅ README.md to'liq qayta yozildi (professional format)
+- ✅ .env.example to'liq to'ldirildi (barcha kerakli variables)
+- ✅ ADMIN_SETUP.md kengaytirildi (batafsil qo'llanma)
+- ✅ EMAIL_AND_SUPPORT.md yangilandi
+- ✅ HYBRID_USER_SYSTEM.md yangilandi
+- ✅ PERFORMANCE_SEO_GUIDE.md yangilandi
+
+🛠️ TEXNIK YAXSHILANISHLAR:
+- ✅ React Router Link import qo'shildi
+- ✅ CSS autofix va formatting
+- ✅ Code optimization va cleanup
+- ✅ Better error handling
+
+---
+
+🚀 VERSIYA 2.0.0 - ASOSIY VERSIYA
+=================================
+
+📚 KITOBLAR KATALOGI:
+- Eng so'nggi kitoblar ko'rsatilgan bosh sahifa
+- Kitoblarni janrlar bo'yicha ko'rish imkoniyati
+- Har bir kitob uchun batafsil ma'lumot sahifasi
+- Kitob rasmi, nomi, muallifi, narxi va tavsifi
+
+🔍 KUCHLI QIDIRUV TIZIMI:
+- Kitob nomi, muallif, janr va tavsif bo'yicha qidirish
+- Lotin va kiril alifbolarida qidirish (avtomatik transliteratsiya)
+- Turli xil tutuq belgisi variantlari (', `, ') bilan qidirish
+- "x" va "h" harflarini almashtirgan holda qidirish
+- Tezkor va aniq natijalar
+
+🛒 SAVAT VA XARID QILISH:
+- Kitoblarni savatga qo'shish imkoniyati
+- Savatdagi kitoblar sonini o'zgartirish
+- Savatdan kitoblarni o'chirish
+- Umumiy narxni ko'rish
+- Xaridni yakunlash funksiyasi
+
+👤 FOYDALANUVCHI HISOBI:
+- Ro'yxatdan o'tish va tizimga kirish
+- Profil ma'lumotlarini ko'rish va tahrirlash
+- Buyurtmalar tarixini ko'rish
+- Elektron pochta orqali tasdiqlash
+
+🌙 MAVZU REJIMI:
+- Tungi va kunduzgi mavzular o'rtasida almashtirish
+- Ko'zni qiynamaydigan dizayn
+
+📱 MOBIL MOSLASHUVCHANLIK:
+- Barcha ekran o'lchamlari uchun moslashtirilgan dizayn
+- Mobil qurilmalarda qulay foydalanish uchun optimallashtirilgan
+
+👨‍💼 ADMIN PANEL:
+- Kitoblarni boshqarish (qo'shish, tahrirlash, o'chirish)
+- Mualliflarni boshqarish
+- Janrlarni boshqarish
+- Foydalanuvchilarni boshqarish
+- Buyurtmalarni boshqarish
+- Tizim sozlamalarini o'zgartirish
+- Qidiruv va filtrlash imkoniyatlari
+
+---
+
+🔧 TEXNIK XUSUSIYATLAR:
+======================
+
+💻 FRONTEND:
+- React.js 18 (zamonaviy hooks va features)
+- Vite (tez development va build)
+- React Router (SPA navigation)
+- CSS3 (Flexbox, Grid, Animations)
+
+🗄️ BACKEND:
+- Appwrite (Backend-as-a-Service)
+- Real-time Database
+- Authentication system
+- File storage
+
+🔗 INTEGRATSIYALAR:
+- Cloudinary (rasm optimizatsiya va saqlash)
+- Telegram Bot (buyurtma xabarlari)
+- PWA Support (Progressive Web App)
+
+🎨 DIZAYN:
+- Neo-glassmorphism UI/UX
+- Dark/Light mode
+- Smooth animations
+- Mobile-first approach
+- Accessibility support
+
+🛡️ XAVFSIZLIK:
+- JWT token authentication
+- Role-based access control
+- Secure API endpoints
+- Data encryption
+- XSS va CSRF himoya
+
+📊 PERFORMANCE:
+- Lazy loading
+- Image optimization
+- Code splitting
+- Caching strategies
+- SEO optimization
+
+---
+
+📈 STATISTIKA:
+==============
+
+📁 LOYIHA HAJMI:
+- 150+ React komponentlar
+- 50+ CSS fayllari
+- 30+ Utility funksiyalar
+- 20+ Custom hooks
+- 10+ Konfiguratsiya fayllari
+
+📊 FUNKSIONALLIK:
+- 25+ Admin panel sahifalari
+- 15+ Foydalanuvchi sahifalari
+- 10+ API integratsiyalari
+- 5+ Tema va dizayn variantlari
+
+🌐 QO'LLAB-QUVVATLASH:
+- O'zbek tili (Lotin va Kiril)
+- Responsive dizayn (320px+)
+- PWA support
+- Offline functionality
+
+---
+
+🎯 KELAJAK REJALARI:
+===================
+
+📱 MOBILE APP:
+- React Native versiyasi
+- Push notifications
+- Offline reading
+
+💳 TO'LOV TIZIMLARI:
+- Click, Payme integratsiyasi
+- Karta to'lovlari
+- Naqd to'lov
+
+📊 ANALYTICS:
+- Google Analytics
+- User behavior tracking
+- Sales analytics
+
+🌍 XALQAROLASHTIRISH:
+- Ko'p tillilik (Rus, Ingliz)
+- Valyuta konvertatsiyasi
+- Mintaqaviy sozlamalar
+
+---
+
+👥 JAMOA:
+=========
+
+💻 DEVELOPMENT:
+- Frontend Developer
+- Backend Integration
+- UI/UX Design
+- Quality Assurance
+
+📚 CONTENT:
+- Kitob ma'lumotlari
+- Kategoriyalar
+- SEO optimizatsiya
+
+🎯 PRODUCT:
+- Feature planning
+- User research
+- Performance monitoring
+
+---
+
+📞 ALOQA:
+=========
+
+🌐 Website: https://zamonbooks.uz
+📧 Email: info@zamonbooks.uz
+📱 Telegram: @zamonbooks_support
+📍 Manzil: Toshkent, O'zbekiston
+
+---
+
+🙏 MINNATDORCHILIK:
+==================
+
+Ushbu loyiha quyidagi texnologiyalar va xizmatlar yordamida yaratildi:
+
+- React.js va Vite
+- Appwrite Backend
+- Cloudinary CDN
+- Netlify Hosting
+- FontAwesome Icons
+- Open Source Community
+
+---
+
+📝 LITSENZIYA:
+==============
+
+MIT License - bepul va ochiq manba loyihasi
+
+---
+
+🚀 ZAMON BOOKS - BILIMGA INTILUVCHILAR UCHUN ZAMONAVIY KITOB DO'KONI!
+
+Versiya 3.0.0 - 2025-01-31
+Keyingi yangilanish: 2025-02-15 (rejalashtirilgan)
+=
+====================================
+📜 ESKI VERSION HISTORY (SAQLANIB QOLGAN)
+=====================================
+
+Zamon Books - Kitob Do'koni Ilovasi
+Versiya 2.0.0 (Eski Format)
+
+Ilova tavsifi:
 Zamon Books - zamonaviy kitob do'koni ilovasi bo'lib, foydalanuvchilarga kitoblarni ko'rish, qidirish va sotib olish imkoniyatini beradi. Ilova o'zbek tilidagi lotin va kiril alifbolarini qo'llab-quvvatlaydi va foydalanuvchi tajribasini yaxshilash uchun ko'plab qulayliklarni taqdim etadi.
 
-Asosiy funksiyalar
-📚 Kitoblar katalogi
-Eng so'nggi kitoblar ko'rsatilgan bosh sahifa
-Kitoblarni janrlar bo'yicha ko'rish imkoniyati
-Har bir kitob uchun batafsil ma'lumot sahifasi
-Kitob rasmi, nomi, muallifi, narxi va tavsifi ko'rsatilgan
-🔍 Kuchli qidiruv tizimi
-Kitob nomi, muallif, janr va tavsif bo'yicha qidirish
-Lotin va kiril alifbolarida qidirish (avtomatik transliteratsiya)
-Turli xil tutuq belgisi variantlari (', `, ') bilan qidirish
-"x" va "h" harflarini almashtirgan holda qidirish
-Tezkor va aniq natijalar
-🛒 Savat va xarid qilish
-Kitoblarni savatga qo'shish imkoniyati
-Savatdagi kitoblar sonini o'zgartirish
-Savatdan kitoblarni o'chirish
-Umumiy narxni ko'rish
-Xaridni yakunlash funksiyasi
-👤 Foydalanuvchi hisobi
-Ro'yxatdan o'tish va tizimga kirish
-Profil ma'lumotlarini ko'rish va tahrirlash
-Buyurtmalar tarixini ko'rish
-Elektron pochta orqali tasdiqlash
-🌙 Mavzu rejimi
-Tungi va kunduzgi mavzular o'rtasida almashtirish
-Ko'zni qiynamaydigan dizayn
-📱 Mobil moslashuvchanlik
-Barcha ekran o'lchamlari uchun moslashtirilgan dizayn
-Mobil qurilmalarda qulay foydalanish uchun optimallashtirilgan
-👨‍💼 Admin panel
-Kitoblarni boshqarish (qo'shish, tahrirlash, o'chirish)
-Mualliflarni boshqarish
-Janrlarni boshqarish
-Foydalanuvchilarni boshqarish
-Buyurtmalarni boshqarish
-Tizim sozlamalarini o'zgartirish
-Qidiruv va filtrlash imkoniyatlari
-Texnik xususiyatlar
-React.js asosida qurilgan zamonaviy frontend
-Appwrite backend xizmati bilan integratsiya
-Cloudinary xizmati orqali rasm yuklash va boshqarish
-Responsive dizayn barcha qurilmalar uchun
-Glassmorphism va Neo-Brutalism dizayn elementlari
-FontAwesome ikonkalari
-Lotin va kiril alifbolari o'rtasida transliteratsiya
-Tizim talablari
-Zamonaviy veb-brauzer (Chrome, Firefox, Safari, Edge)
-Internet aloqasi
-Xavfsizlik
-Foydalanuvchi ma'lumotlari shifrlangan
-Xavfsiz autentifikatsiya tizimi
-Ruxsatlar asosida boshqariladigan admin panel
-Qo'llab-quvvatlash
-Tez-tez yangilanishlar va yangi funksiyalar
-Foydalanuvchi qo'llanmasi
-Yordam va qo'llab-quvvatlash sahifasi
+Asosiy funksiyalar:
+
+📚 Kitoblar katalogi:
+- Eng so'nggi kitoblar ko'rsatilgan bosh sahifa
+- Kitoblarni janrlar bo'yicha ko'rish imkoniyati
+- Har bir kitob uchun batafsil ma'lumot sahifasi
+- Kitob rasmi, nomi, muallifi, narxi va tavsifi ko'rsatilgan
+
+🔍 Kuchli qidiruv tizimi:
+- Kitob nomi, muallif, janr va tavsif bo'yicha qidirish
+- Lotin va kiril alifbolarida qidirish (avtomatik transliteratsiya)
+- Turli xil tutuq belgisi variantlari (', `, ') bilan qidirish
+- "x" va "h" harflarini almashtirgan holda qidirish
+- Tezkor va aniq natijalar
+
+🛒 Savat va xarid qilish:
+- Kitoblarni savatga qo'shish imkoniyati
+- Savatdagi kitoblar sonini o'zgartirish
+- Savatdan kitoblarni o'chirish
+- Umumiy narxni ko'rish
+- Xaridni yakunlash funksiyasi
+
+👤 Foydalanuvchi hisobi:
+- Ro'yxatdan o'tish va tizimga kirish
+- Profil ma'lumotlarini ko'rish va tahrirlash
+- Buyurtmalar tarixini ko'rish
+- Elektron pochta orqali tasdiqlash
+
+🌙 Mavzu rejimi:
+- Tungi va kunduzgi mavzular o'rtasida almashtirish
+- Ko'zni qiynamaydigan dizayn
+
+📱 Mobil moslashuvchanlik:
+- Barcha ekran o'lchamlari uchun moslashtirilgan dizayn
+- Mobil qurilmalarda qulay foydalanish uchun optimallashtirilgan
+
+👨‍💼 Admin panel:
+- Kitoblarni boshqarish (qo'shish, tahrirlash, o'chirish)
+- Mualliflarni boshqarish
+- Janrlarni boshqarish
+- Foydalanuvchilarni boshqarish
+- Buyurtmalarni boshqarish
+- Tizim sozlamalarini o'zgartirish
+- Qidiruv va filtrlash imkoniyatlari
+
+Texnik xususiyatlar:
+- React.js asosida qurilgan zamonaviy frontend
+- Appwrite backend xizmati bilan integratsiya
+- Cloudinary xizmati orqali rasm yuklash va boshqarish
+- Responsive dizayn barcha qurilmalar uchun
+- Glassmorphism va Neo-Brutalism dizayn elementlari
+- FontAwesome ikonkalari
+- Lotin va kiril alifbolari o'rtasida transliteratsiya
+
+Tizim talablari:
+- Zamonaviy veb-brauzer (Chrome, Firefox, Safari, Edge)
+- Internet aloqasi
+
+Xavfsizlik:
+- Foydalanuvchi ma'lumotlari shifrlangan
+- Xavfsiz autentifikatsiya tizimi
+- Ruxsatlar asosida boshqariladigan admin panel
+
+Qo'llab-quvvatlash:
+- Tez-tez yangilanishlar va yangi funksiyalar
+- Foydalanuvchi qo'llanmasi
+- Yordam va qo'llab-quvvatlash sahifasi
+
 Zamon Books - Bilimga intiluvchilar uchun zamonaviy kitob do'koni!
+
+=====================================
+📊 JAMI VERSIYA STATISTIKASI
+=====================================
+
+🚀 Jami Versiyalar: 4 (v2.0.0, v3.0.0, v3.1.0, v3.1.1)
+📅 Birinchi Release: 2024
+📅 So'nggi Yangilanish: 2025-01-31
+🔄 Yangilanish Chastotasi: Oylik
+📈 Funksionallik O'sishi: 300%+
+🎯 Keyingi Major Release: v4.0.0 (2025-Q2)

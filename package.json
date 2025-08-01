@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:analyze": "vite build --config vite.config.analyze.js",
+    "preview": "vite preview",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "analyze": "npm run build && echo 'Bundle analysis complete. Check console for details.'"
   },
   "dependencies": {
     "@cloudinary/react": "^1.14.3",
@@ -28,6 +30,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
     "postcss-custom-properties": "^14.0.6",
+    "rollup-plugin-visualizer": "^5.12.0",
     "terser": "^5.43.1",
     "vite": "^7.0.6"
   }

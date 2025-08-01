@@ -1,6 +1,6 @@
 // D:\zamon-books-frontend\src\components\BookDetailPage.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { databases, Query, ID } from '../appwriteConfig';
 import { toastMessages } from '../utils/toastUtils';
@@ -8,12 +8,98 @@ import { useLazyCSS } from '../hooks/useLazyCSS';
 
 // SEO Components - Direct import
 import BookSEO from './SEO/BookSEO';
-// import Breadcrumb from './SEO/Breadcrumb'; // Yashirildi
 
 // Image Components
 import ResponsiveImage from './ResponsiveImage';
 import ImageModal from './ImageModal';
-// import SEODebug from './SEODebug';
+
+// Enhanced linkify function with line break and formatting support
+const linkifyText = (text) => {
+  if (!text) return text;
+
+  // Simplified URL regex - detects common URL patterns
+  const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|uz|ru|co|uk|de|fr|it|es|nl|au|ca|jp|cn|in|br|io|ai|me|ly|cc|tv|fm|am|to|gg|tk|ml|ga|cf|gq|tel|app|dev|tech|info|biz|name|pro|mobi|travel|museum|aero|coop|jobs|post|xxx|asia|cat|int|mil|arpa|onion|local|test|example|invalid|localhost)[^\s]*)/gi;
+
+  // First, split by line breaks to preserve paragraphs
+  const paragraphs = text.split(/\n\s*\n/); // Double line breaks = new paragraph
+  
+  return paragraphs.map((paragraph, paragraphIndex) => {
+    // Split each paragraph by single line breaks
+    const lines = paragraph.split('\n');
+    
+    const processedLines = lines.map((line, lineIndex) => {
+      // Split line by URLs and process each part
+      const parts = line.split(urlRegex);
+      
+      const processedParts = parts.map((part, partIndex) => {
+        // Check if this part is a URL
+        if (urlRegex.test(part)) {
+          // Clean up the URL
+          let url = part.trim();
+          
+          // Add protocol if missing
+          if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            if (url.startsWith('www.')) {
+              url = 'https://' + url;
+            } else {
+              // For domains without www, add https
+              url = 'https://' + url;
+            }
+          }
+
+          // Determine link text (show original part)
+          let linkText = part;
+          
+          // Shorten very long URLs for display
+          if (linkText.length > 50) {
+            linkText = linkText.substring(0, 47) + '...';
+          }
+
+          return (
+            <a
+              key={`${paragraphIndex}-${lineIndex}-${partIndex}`}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="description-link"
+              style={{
+                color: 'var(--primary-color)',
+                textDecoration: 'underline',
+                wordBreak: 'break-all',
+                transition: 'color 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.color = 'var(--accent-color)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.color = 'var(--primary-color)';
+              }}
+            >
+              {linkText}
+            </a>
+          );
+        }
+        
+        // Return regular text, preserving tabs as spaces
+        return part.replace(/\t/g, '    '); // Convert tabs to 4 spaces
+      });
+      
+      // Add line break after each line (except the last one in paragraph)
+      if (lineIndex < lines.length - 1) {
+        processedParts.push(<br key={`br-${paragraphIndex}-${lineIndex}`} />);
+      }
+      
+      return processedParts;
+    });
+    
+    // Wrap each paragraph in a div with margin
+    return (
+      <div key={`paragraph-${paragraphIndex}`} className="description-paragraph">
+        {processedLines}
+      </div>
+    );
+  });
+};
 
 // --- Appwrite konsolidan olingan ID'lar ---
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -26,15 +112,14 @@ function BookDetailPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [cartItems, setCartItems] = useState([]);
-    
-    // Image modal state
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
     // Lazy load component-specific CSS
-    useLazyCSS('/src/styles/components/book-detail.css');
+    useLazyCSS('/src/styles/components/book-detail-clean.css');
+    useLazyCSS('/src/styles/components/book-detail-animations.css');
 
     // Savatdagi elementlarni yuklash
-    const fetchCartItems = async () => {
+    const fetchCartItems = useCallback(async () => {
         try {
             let currentUserId = localStorage.getItem('currentUserId') || localStorage.getItem('appwriteGuestId');
 
@@ -47,28 +132,21 @@ function BookDetailPage() {
                 CART_ITEMS_COLLECTION_ID,
                 [Query.equal('userId', currentUserId)]
             );
-            
+
             setCartItems(response.documents);
         } catch (err) {
-            console.error("Savat elementlarini yuklashda xato:", err);
+            if (import.meta.env.DEV) {
+                console.error("Savat elementlarini yuklashda xato:", err);
+            }
         }
-    };
-
-    useEffect(() => {
-        fetchCartItems();
-        
-        const handleCartUpdate = () => {
-            fetchCartItems();
-        };
-        
-        window.addEventListener('cartUpdated', handleCartUpdate);
-        
-        return () => {
-            window.removeEventListener('cartUpdated', handleCartUpdate);
-        };
     }, []);
 
-    const addToCart = async (bookToAdd) => {
+    const addToCart = useCallback(async (bookToAdd) => {
+        if (!bookToAdd?.$id) {
+            toastMessages.cartError();
+            return;
+        }
+
         try {
             let currentUserId = localStorage.getItem('currentUserId') || localStorage.getItem('appwriteGuestId');
 
@@ -104,22 +182,24 @@ function BookDetailPage() {
                         userId: currentUserId,
                         bookId: bookToAdd.$id,
                         quantity: 1,
-                        priceAtTimeOfAdd: parseFloat(bookToAdd.price)
+                        priceAtTimeOfAdd: parseFloat(bookToAdd.price) || 0
                     }
                 );
             }
-            
+
             toastMessages.addedToCart(bookToAdd.title);
+            await fetchCartItems();
             window.dispatchEvent(new CustomEvent('cartUpdated'));
-            fetchCartItems();
 
         } catch (err) {
-            console.error("Savatga qo'shishda xato yuz berdi:", err);
+            if (import.meta.env.DEV) {
+                console.error("Savatga qo'shishda xato yuz berdi:", err);
+            }
             toastMessages.cartError();
         }
-    };
+    }, [fetchCartItems]);
 
-    const updateBookQuantityInCart = async (bookId, newQuantity) => {
+    const updateBookQuantityInCart = useCallback(async (bookId, newQuantity) => {
         try {
             let currentUserId = localStorage.getItem('currentUserId') || localStorage.getItem('appwriteGuestId');
 
@@ -143,8 +223,7 @@ function BookDetailPage() {
                         CART_ITEMS_COLLECTION_ID,
                         cartItem.$id
                     );
-                    
-                    const book = book;
+
                     if (book) {
                         await databases.createDocument(
                             DATABASE_ID,
@@ -160,53 +239,159 @@ function BookDetailPage() {
                     }
                 }
             }
-            
-            setTimeout(() => {
-                fetchCartItems();
-                window.dispatchEvent(new CustomEvent('cartUpdated'));
-            }, 100);
+
+            await fetchCartItems();
+            window.dispatchEvent(new CustomEvent('cartUpdated'));
         } catch (err) {
-            console.error("Savat miqdorini yangilashda xato:", err);
+            if (import.meta.env.DEV) {
+                console.error("Savat miqdorini yangilashda xato:", err);
+            }
             toastMessages.cartError();
         }
-    };
+    }, [cartItems, book, fetchCartItems]);
+
+    // Memoized values - MUST be before any conditional returns
+    const bookQuantityInCart = useMemo(() => {
+        if (!book) return 0;
+        const cartItem = cartItems.find(item => item.bookId === book.$id);
+        return cartItem ? cartItem.quantity : 0;
+    }, [cartItems, book]);
+
+    const bookImageUrl = useMemo(() => {
+        return book?.imageUrl || 'https://res.cloudinary.com/dcn4maral/image/upload/v1753237051/No_image_available_f8lfjd.svg';
+    }, [book?.imageUrl]);
+
+    const structuredData = useMemo(() => {
+        if (!book) return null;
+        return {
+            "@context": "https://schema.org",
+            "@type": "Book",
+            "name": book.title,
+            "author": {
+                "@type": "Person",
+                "name": book.author?.name || book.authorName || "Noma'lum muallif"
+            },
+            "genre": book.genres?.map(g => g.name).join(", ") || "",
+            "description": book.description || "",
+            "image": bookImageUrl,
+            "offers": {
+                "@type": "Offer",
+                "price": parseFloat(book.price),
+                "priceCurrency": "UZS",
+                "availability": "https://schema.org/InStock"
+            }
+        };
+    }, [book, bookImageUrl]);
+
+    useEffect(() => {
+        fetchCartItems();
+
+        const handleCartUpdate = () => {
+            fetchCartItems();
+        };
+
+        window.addEventListener('cartUpdated', handleCartUpdate);
+
+        return () => {
+            window.removeEventListener('cartUpdated', handleCartUpdate);
+        };
+    }, [fetchCartItems]);
 
     useEffect(() => {
         const fetchBookDetail = async () => {
             setLoading(true);
             setError(null);
+            
+            // Validate parameters
+            if (!bookId && !bookSlug) {
+                setError('Kitob ID yoki slug ko\'rsatilmagan');
+                setLoading(false);
+                return;
+            }
+            
             try {
                 let response;
-                
+
                 if (bookId) {
-                    response = await databases.getDocument(
-                        DATABASE_ID,
-                        BOOKS_COLLECTION_ID,
-                        bookId
-                    );
+                    // Clean bookId - remove any extra characters
+                    const cleanBookId = bookId.trim();
+                    
+                    // Validate bookId format (Appwrite ID should be 20-36 chars, alphanumeric + underscore)
+                    if (!/^[a-zA-Z0-9_]{20,36}$/.test(cleanBookId)) {
+                        // If bookId is invalid, try to use it as slug instead
+                        const books = await databases.listDocuments(
+                            DATABASE_ID,
+                            BOOKS_COLLECTION_ID,
+                            [
+                                Query.equal('slug', cleanBookId),
+                                Query.limit(1)
+                            ]
+                        );
+
+                        if (books.documents.length === 0) {
+                            throw new Error(`Kitob topilmadi. ID: "${cleanBookId}" (uzunlik: ${cleanBookId.length})`);
+                        }
+
+                        response = books.documents[0];
+                    } else {
+                        response = await databases.getDocument(
+                            DATABASE_ID,
+                            BOOKS_COLLECTION_ID,
+                            cleanBookId
+                        );
+                    }
                 } else if (bookSlug) {
+                    // Clean slug
+                    const cleanSlug = bookSlug.trim();
+                    
+                    // Validate slug format (should be URL-safe)
+                    if (!/^[a-zA-Z0-9\-_]+$/.test(cleanSlug)) {
+                        throw new Error(`Noto'g'ri kitob slug formati: "${cleanSlug}"`);
+                    }
+                    
                     const books = await databases.listDocuments(
                         DATABASE_ID,
                         BOOKS_COLLECTION_ID,
                         [
-                            Query.equal('slug', bookSlug),
+                            Query.equal('slug', cleanSlug),
                             Query.limit(1)
                         ]
                     );
-                    
+
                     if (books.documents.length === 0) {
-                        throw new Error('Kitob topilmadi');
+                        throw new Error(`Slug bilan kitob topilmadi: "${cleanSlug}"`);
                     }
-                    
+
                     response = books.documents[0];
                 }
-                
-                // console.log("Kitob ma'lumotlari:", response); // Debug log removed
+
+                if (!response) {
+                    throw new Error('Kitob ma\'lumotlari olinmadi');
+                }
+
                 setBook(response);
                 setLoading(false);
             } catch (err) {
-                console.error("Kitob ma'lumotlarini yuklashda xato yuz berdi:", err);
-                setError(err.message || "Kitob ma'lumotlarini yuklashda noma'lum xato.");
+                if (import.meta.env.DEV) {
+                    console.error("Kitob ma'lumotlarini yuklashda xato yuz berdi:", err);
+                }
+                
+                // More specific error messages
+                let errorMessage = "Kitob ma'lumotlarini yuklashda xato.";
+                
+                if (err.message.includes('Invalid `documentId`')) {
+                    errorMessage = 'Noto\'g\'ri kitob ID. URL\'ni tekshiring.';
+                } else if (err.message.includes('Document with the requested ID could not be found')) {
+                    errorMessage = 'Kitob topilmadi. Ehtimol o\'chirilgan yoki mavjud emas.';
+                } else if (err.message.includes('topilmadi')) {
+                    errorMessage = 'Kitob topilmadi.';
+                } else if (err.message.includes('format')) {
+                    errorMessage = err.message;
+                } else {
+                    errorMessage = err.message || errorMessage;
+                }
+                
+                setError(errorMessage);
                 setLoading(false);
             }
         };
@@ -214,196 +399,169 @@ function BookDetailPage() {
         fetchBookDetail();
     }, [bookId, bookSlug]);
 
+    // Conditional returns AFTER all hooks
     if (loading) {
-        return <div className="container" style={{ textAlign: 'center', padding: '50px', minHeight: 'calc(100vh - 200px)' }}>Kitob yuklanmoqda...</div>;
+        return (
+            <div className="book-detail-main">
+                <div className="loading-container">
+                    <div className="loading-spinner"></div>
+                    <p>Kitob yuklanmoqda...</p>
+                </div>
+            </div>
+        );
     }
 
     if (error) {
-        return <div className="container" style={{ textAlign: 'center', padding: '50px', color: 'red', minHeight: 'calc(100vh - 200px)' }}>Xato: {error}</div>;
+        return (
+            <div className="book-detail-main">
+                <div className="error-container">
+                    <i className="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                    <h2>Xato yuz berdi</h2>
+                    <p>{error}</p>
+                    <div className="error-actions">
+                        <button
+                            className="retry-btn"
+                            onClick={() => window.location.reload()}
+                            aria-label="Sahifani qayta yuklash"
+                        >
+                            <i className="fas fa-redo" aria-hidden="true"></i>
+                            Qayta urinish
+                        </button>
+                        <a href="/" className="back-home-btn">
+                            <i className="fas fa-home" aria-hidden="true"></i>
+                            Bosh sahifaga qaytish
+                        </a>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     if (!book) {
-        return <div className="container" style={{ textAlign: 'center', padding: '50px', minHeight: 'calc(100vh - 200px)' }}>Kitob topilmadi.</div>;
+        return (
+            <div className="book-detail-main">
+                <div className="not-found-container">
+                    <i className="fas fa-book" aria-hidden="true"></i>
+                    <h2>Kitob topilmadi</h2>
+                    <p>Kechirasiz, siz qidirayotgan kitob mavjud emas.</p>
+                    <a href="/" className="back-home-btn">Bosh sahifaga qaytish</a>
+                </div>
+            </div>
+        );
     }
-
-    // Breadcrumb data yashirildi - keraksiz
-    // const breadcrumbItems = [
-    //     { name: 'Bosh sahifa', url: '/' },
-    //     { name: book.genres?.[0]?.name || 'Kitoblar', url: book.genres?.[0]?.slug ? `/janr/${book.genres[0].slug}` : '/kitoblar' },
-    //     { name: book.author?.name || 'Muallif', url: book.author?.slug ? `/muallif/${book.author.slug}` : null },
-    //     { name: book.title, url: null }
-    // ];
-
-    // Kitobning savatdagi miqdorini olish
-    const getBookQuantityInCart = (bookId) => {
-        const cartItem = cartItems.find(item => item.bookId === bookId);
-        return cartItem ? cartItem.quantity : 0;
-    };
-
-    // Kitob rasmi URL'ini tayyorlash
-    const bookImageUrl = book.imageUrl || 'https://res.cloudinary.com/dcn4maral/image/upload/v1753237051/No_image_available_f8lfjd.svg';
 
     return (
         <>
             {/* SEO Components */}
             <BookSEO book={book} />
-            {/* Breadcrumb yashirildi - keraksiz */}
-            {/* <Breadcrumb items={breadcrumbItems} /> */}
-            {/* <SEODebug /> */}
 
-            <main className="container" style={{ padding: '40px 20px', minHeight: 'calc(100vh - 200px)', marginTop: '15px' }}>
-                <div className="book-detail-card glassmorphism-card" style={{ 
-                    display: 'flex', 
-                    gap: '30px', 
-                    padding: '20px', 
-                    flexWrap: 'wrap', 
-                    justifyContent: 'center' 
-                }}>
-                    <div style={{ 
-                        width: '100%', 
-                        maxWidth: '300px', 
-                        margin: '0 auto 20px auto'
-                    }}>
-                        <ResponsiveImage
-                            src={bookImageUrl}
-                            alt={`${book.title} kitobining muqovasi - ${book.author?.name || 'Noma\'lum muallif'}`}
-                            className="book-detail-image"
-                            onClick={() => setIsImageModalOpen(true)}
-                            context="book-detail"
-                        />
+            {/* Structured Data for SEO */}
+            {structuredData && (
+                <script type="application/ld+json">
+                    {JSON.stringify(structuredData)}
+                </script>
+            )}
+
+            <main className="book-detail-main">
+                <div className="book-detail-container">
+                    <div className="book-detail-image-section">
+                        <div className="book-image-wrapper">
+                            <ResponsiveImage
+                                src={bookImageUrl}
+                                alt={`${book.title} kitobining muqovasi - ${book.author?.name || 'Noma\'lum muallif'}`}
+                                className="book-detail-image"
+                                onClick={() => setIsImageModalOpen(true)}
+                                context="book-detail"
+                            />
+                        </div>
                     </div>
-                    <div className="book-detail-info" style={{ 
-                        flex: 1, 
-                        minWidth: '280px', 
-                        width: '100%' 
-                    }}>
-                        <h1 style={{ 
-                            fontFamily: 'Montserrat', 
-                            fontSize: 'clamp(1.5em, 5vw, 2.5em)', 
-                            marginBottom: '15px', 
-                            color: 'var(--text-color-light)',
-                            wordBreak: 'break-word'
-                        }}>"{book.title}" - {book.author?.name || book.authorName || 'Noma\'lum muallif'}</h1>
-                        
-                        {/* Muallif ma'lumotlari */}
-                        {(book.author?.name || book.authorName) && (
-                            <p style={{ 
-                                fontSize: '1.2em', 
-                                marginBottom: '10px', 
-                                color: 'var(--text-color)' 
-                            }}>
-                                <strong>Muallif:</strong> {book.author?.name || book.authorName}
-                            </p>
-                        )}
-                        
+
+                    <div className="book-detail-content">
+                        <header className="book-header">
+                            <h1 className="book-title" id="book-title">{book.title}</h1>
+
+                            {/* Muallif ma'lumotlari */}
+                            {(book.author?.name || book.authorName) && (
+                                <div className="book-author" role="complementary" aria-labelledby="book-title">
+                                    <i className="fas fa-feather-alt" aria-hidden="true"></i>
+                                    <span>Muallif: {book.author?.name || book.authorName}</span>
+                                </div>
+                            )}
+                        </header>
+
                         {/* Janr ma'lumotlari */}
                         {book.genres && book.genres.length > 0 && (
-                            <p style={{ 
-                                fontSize: '1em', 
-                                marginBottom: '10px', 
-                                color: 'var(--text-color)' 
-                            }}>
-                                <strong>Janr:</strong> {book.genres.map(genre => genre.name).join(', ')}
-                            </p>
-                        )}
-                        
-                        {/* Narx */}
-                        <p style={{ 
-                            fontSize: '1.5em', 
-                            fontWeight: 'bold', 
-                            color: 'var(--primary-color)', 
-                            marginBottom: '20px' 
-                        }}>
-                            {parseFloat(book.price).toFixed(2)} so'm
-                        </p>
-                        
-                        {/* Savatga qo'shish tugmasi */}
-                        {getBookQuantityInCart(book.$id) === 0 ? (
-                            <button
-                                className="glassmorphism-button"
-                                onClick={() => addToCart(book)}
-                                style={{
-                                    padding: '15px 30px',
-                                    fontSize: '1.1em',
-                                    fontWeight: 'bold',
-                                    marginBottom: '20px'
-                                }}
-                            >
-                                <i className="fas fa-shopping-cart"></i> Savatga qo'shish
-                            </button>
-                        ) : (
-                            <div className="quantity-controls" style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '15px',
-                                marginBottom: '20px'
-                            }}>
-                                <button
-                                    className="glassmorphism-button"
-                                    style={{ 
-                                        width: '40px', 
-                                        height: '40px', 
-                                        padding: '0',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '1.2rem',
-                                        fontWeight: 'bold'
-                                    }}
-                                    onClick={() => updateBookQuantityInCart(book.$id, getBookQuantityInCart(book.$id) - 1)}
-                                >
-                                    -
-                                </button>
-                                <span style={{ 
-                                    fontSize: '1.2rem', 
-                                    fontWeight: 'bold', 
-                                    minWidth: '40px', 
-                                    textAlign: 'center' 
-                                }}>
-                                    {getBookQuantityInCart(book.$id)}
-                                </span>
-                                <button
-                                    className="glassmorphism-button"
-                                    style={{ 
-                                        width: '40px', 
-                                        height: '40px', 
-                                        padding: '0',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '1.2rem',
-                                        fontWeight: 'bold'
-                                    }}
-                                    onClick={() => updateBookQuantityInCart(book.$id, getBookQuantityInCart(book.$id) + 1)}
-                                >
-                                    +
-                                </button>
+                            <div className="book-genres" role="list" aria-label="Kitob janrlari">
+                                {book.genres.map((genre, index) => (
+                                    <span 
+                                        key={genre.$id || index} 
+                                        className="genre-badge"
+                                        role="listitem"
+                                    >
+                                        {genre.name}
+                                    </span>
+                                ))}
                             </div>
                         )}
-                        
+
+                        {/* Narx va harid bo'limi */}
+                        <section className="book-purchase-section" aria-labelledby="purchase-heading">
+                            <h2 id="purchase-heading" className="sr-only">Kitob narxi va xarid</h2>
+                            <div className="book-price" role="text" aria-label={`Kitob narxi ${parseFloat(book.price).toLocaleString()} so'm`}>
+                                <span className="price-amount">{parseFloat(book.price).toLocaleString()}</span>
+                                <span className="price-currency">so'm</span>
+                            </div>
+
+                            {/* Savatga qo'shish tugmasi */}
+                            {bookQuantityInCart === 0 ? (
+                                <button
+                                    className="add-to-cart-btn"
+                                    onClick={() => addToCart(book)}
+                                    aria-label={`${book.title} kitobini savatga qo'shish`}
+                                >
+                                    <i className="fas fa-shopping-cart" aria-hidden="true"></i>
+                                    <span>Savatga qo'shish</span>
+                                    <i className="fas fa-arrow-right" aria-hidden="true"></i>
+                                </button>
+                            ) : (
+                                <div className="quantity-controls">
+                                    <button
+                                        className="quantity-btn quantity-decrease"
+                                        onClick={() => updateBookQuantityInCart(book.$id, bookQuantityInCart - 1)}
+                                        aria-label="Miqdorni kamaytirish"
+                                    >
+                                        <i className="fas fa-minus" aria-hidden="true"></i>
+                                    </button>
+                                    <span className="quantity-display" aria-label={`Hozirgi miqdor: ${bookQuantityInCart}`}>
+                                        {bookQuantityInCart}
+                                    </span>
+                                    <button
+                                        className="quantity-btn quantity-increase"
+                                        onClick={() => updateBookQuantityInCart(book.$id, bookQuantityInCart + 1)}
+                                        aria-label="Miqdorni oshirish"
+                                    >
+                                        <i className="fas fa-plus" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            )}
+                        </section>
+
                         {/* Kitob tavsifi */}
                         {book.description && (
-                            <div style={{ marginTop: '30px' }}>
-                                <h2 style={{ 
-                                    fontSize: '1.5em', 
-                                    marginBottom: '15px', 
-                                    color: 'var(--text-color)' 
-                                }}>
+                            <section className="book-description" aria-labelledby="description-heading">
+                                <h2 id="description-heading" className="description-title">
+                                    <i className="fas fa-book-open" aria-hidden="true"></i>
                                     Kitob haqida
                                 </h2>
-                                <p style={{ 
-                                    lineHeight: '1.6', 
-                                    color: 'var(--text-color)', 
-                                    fontSize: '1em' 
-                                }}>
-                                    {book.description}
-                                </p>
-                            </div>
+                                <div className="description-text">
+                                    {linkifyText(book.description)}
+                                </div>
+                            </section>
                         )}
                     </div>
                 </div>
             </main>
-            
+
             {/* Image Modal */}
             <ImageModal
                 isOpen={isImageModalOpen}

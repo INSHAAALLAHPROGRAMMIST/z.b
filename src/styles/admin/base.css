@@ -301,9 +301,10 @@
 /* === MOBILE BASE === */
 @media (max-width: 768px) {
     .mobile-menu-toggle {
-        display: flex;
+        display: flex !important;
         align-items: center;
         justify-content: center;
+        margin-right: 12px;
     }
 
     .admin-sidebar {
@@ -582,6 +583,25 @@ body.light-mode .sidebar-toggle:hover {
     font-size: 12px;
     color: var(--light-text-color);
     font-weight: 500;
+}
+
+/* Mobile overlay */
+.mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.mobile-overlay.active {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Mobile responsive */

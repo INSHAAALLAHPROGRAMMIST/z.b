@@ -40,6 +40,9 @@ export const toastMessages = {
     testUsersCreated: () => toast.success("Test foydalanuvchilari muvaffaqiyatli yaratildi!"),
     testOrdersCreated: () => toast.success("Test buyurtmalari muvaffaqiyatli yaratildi!"),
     
+    // Rate limiting
+    rateLimitError: (remainingTime) => toast.warning(`Juda tez buyurtma berayapsiz. Yana ${remainingTime} soniya kuting.`),
+    
     // Generic messages
     updateError: () => toast.error("Xato yuz berdi. Iltimos, qaytadan urinib ko'ring."),
     logoutError: () => toast.error("Chiqishda xato yuz berdi. Iltimos, keyinroq urinib ko'ring."),

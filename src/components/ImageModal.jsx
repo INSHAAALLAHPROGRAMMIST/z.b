@@ -114,10 +114,31 @@ const ImageModal = ({ isOpen, onClose, imageSrc, imageAlt = '' }) => {
                         src={highResSrc}
                         alt={imageAlt}
                         className="image-modal-image"
+                        draggable={false}
+                        onContextMenu={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            return false;
+                        }}
+                        onDragStart={(e) => {
+                            e.preventDefault();
+                            return false;
+                        }}
+                        onMouseDown={(e) => {
+                            if (e.button === 1 || e.button === 2) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                return false;
+                            }
+                        }}
                         style={{
                             // Original o'lchamda, lekin viewport'ga sig'adigan qilib
                             maxHeight: '90vh',
                             maxWidth: '95vw',
+                            userSelect: 'none',
+                            WebkitUserSelect: 'none',
+                            MozUserSelect: 'none',
+                            msUserSelect: 'none',
                             width: naturalSize.width > 0 ? `${Math.min(naturalSize.width, window.innerWidth * 0.95)}px` : 'auto',
                             height: naturalSize.height > 0 ? `${Math.min(naturalSize.height, window.innerHeight * 0.9)}px` : 'auto',
                             objectFit: 'contain'

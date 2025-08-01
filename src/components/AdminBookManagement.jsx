@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { databases, Query, ID } from '../appwriteConfig';
 import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinaryConfig';
 import { prepareSearchText } from '../utils/transliteration';
@@ -16,6 +17,7 @@ import '../styles/admin/pagination.css';
 import '../styles/admin/modal.css';
 import '../styles/admin/forms.css';
 import '../styles/responsive-images.css';
+import '../styles/admin/improved-books.css';
 
 // Appwrite konsolidan olingan ID'lar
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -414,7 +416,24 @@ function AdminBookManagement() {
     }
 
     return (
-        <div className="admin-book-management" style={{ marginTop: `${siteConfig.layout.contentSpacing}px` }}>
+        <div className="admin-book-management">
+            {/* Header */}
+            <div className="books-header">
+                <div>
+                    <h1 className="books-title">
+                        <i className="fas fa-book"></i>
+                        Kitoblar Boshqaruvi
+                    </h1>
+                    <div className="books-stats">
+                        <span className="stat-badge">Jami: {totalBooks} ta kitob</span>
+                        <span className="stat-badge">Sahifa: {currentPage}/{totalPages}</span>
+                    </div>
+                </div>
+                <button className="admin-add-button" onClick={openAddBookForm}>
+                    <i className="fas fa-plus"></i> Yangi kitob
+                </button>
+            </div>
+
             {/* Filters and Search */}
             <div className="admin-filters">
                 <div className="search-box">
@@ -465,10 +484,6 @@ function AdminBookManagement() {
                         ))}
                     </select>
                 </div>
-
-                <button className="admin-add-button" onClick={openAddBookForm}>
-                    <i className="fas fa-plus"></i> Yangi kitob
-                </button>
             </div>
 
             {/* Books Display */}
@@ -481,6 +496,15 @@ function AdminBookManagement() {
                 <div className="admin-error">
                     <i className="fas fa-exclamation-triangle"></i>
                     <p>Xato: {error}</p>
+                </div>
+            ) : books.length === 0 ? (
+                <div className="books-empty">
+                    <i className="fas fa-book-open"></i>
+                    <h3>Kitoblar topilmadi</h3>
+                    <p>Hozircha hech qanday kitob qo'shilmagan yoki qidiruv natijasida hech narsa topilmadi.</p>
+                    <button className="admin-add-button" onClick={openAddBookForm}>
+                        <i className="fas fa-plus"></i> Birinchi kitobni qo'shish
+                    </button>
                 </div>
             ) : (
                 <>
@@ -499,72 +523,78 @@ function AdminBookManagement() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {books.length > 0 ? (
-                                    books.map(book => (
-                                        <tr key={book.$id}>
-                                            <td className="book-image">
-                                                <ResponsiveImage
-                                                    src={book.imageUrl || 'https://res.cloudinary.com/dcn4maral/image/upload/v1753237051/No_image_available_f8lfjd.svg'}
-                                                    alt={book.title}
-                                                    className="admin-book-image"
-                                                    context="admin-thumb"
-                                                    onClick={() => {
-                                                        setModalImageSrc(book.imageUrl);
-                                                        setIsImageModalOpen(true);
-                                                    }}
-                                                />
-                                            </td>
-                                            <td className="book-title">
+                                {books.map(book => (
+                                    <tr key={book.$id}>
+                                        <td className="book-image">
+                                            <ResponsiveImage
+                                                src={book.imageUrl || 'https://res.cloudinary.com/dcn4maral/image/upload/v1753237051/No_image_available_f8lfjd.svg'}
+                                                alt={book.title}
+                                                isProtected={false}
+                                                className="admin-book-image-small"
+                                                context="admin-thumb"
+                                                onClick={() => {
+                                                    setModalImageSrc(book.imageUrl);
+                                                    setIsImageModalOpen(true);
+                                                }}
+                                            />
+                                        </td>
+                                        <td className="book-title">
+                                            <Link 
+                                                to={book.slug ? `/kitob/${book.slug}` : `/book/${book.$id}`} 
+                                                className="book-title-link"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
                                                 <div className="book-title-text">{searchTerm ? highlightText(book.title, searchTerm) : book.title}</div>
-                                                {book.description && (
-                                                    <div className="book-description">
-                                                        {searchTerm
-                                                            ? highlightText(book.description.length > 100
-                                                                ? book.description.substring(0, 100) + '...'
-                                                                : book.description, searchTerm)
-                                                            : (book.description.length > 100
-                                                                ? book.description.substring(0, 100) + '...'
-                                                                : book.description)
-                                                        }
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td>{searchTerm ? highlightText(book.author?.name || 'Noma\'lum', searchTerm) : (book.author?.name || 'Noma\'lum')}</td>
-                                            <td>{book.genres && book.genres.length > 0 ? (
-                                                searchTerm
-                                                    ? highlightText(book.genres.map(g => g.name || g).join(', '), searchTerm)
-                                                    : book.genres.map(g => g.name || g).join(', ')
-                                            ) : 'Janr belgilanmagan'}</td>
-                                            <td className="book-price">{parseFloat(book.price).toLocaleString()} so'm</td>
-                                            <td>{book.publishedYear || '-'}</td>
-                                            <td className="book-actions">
-                                                <button
-                                                    className="action-btn edit-btn"
-                                                    onClick={() => openEditBookForm(book)}
-                                                    title="Tahrirlash"
-                                                    aria-label={`${book.title} kitobini tahrirlash`}
-                                                >
-                                                    <i className="fas fa-edit"></i>
-                                                </button>
-                                                <button
-                                                    className="action-btn delete-btn"
-                                                    onClick={() => openDeleteConfirm(book)}
-                                                    title="O'chirish"
-                                                    aria-label={`${book.title} kitobini o'chirish`}
-                                                >
-                                                    <i className="fas fa-trash-alt"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="7" className="no-data">
-                                            <i className="fas fa-book-open"></i>
-                                            <p>Kitoblar topilmadi</p>
+                                            </Link>
+                                            {book.description && (
+                                                <div className="book-description">
+                                                    {searchTerm
+                                                        ? highlightText(book.description.length > 100
+                                                            ? book.description.substring(0, 100) + '...'
+                                                            : book.description, searchTerm)
+                                                        : (book.description.length > 100
+                                                            ? book.description.substring(0, 100) + '...'
+                                                            : book.description)
+                                                    }
+                                                </div>
+                                            )}
+                                            {/* Badges */}
+                                            {(book.isFeatured || book.isNewArrival) && (
+                                                <div className="book-badges" style={{ marginTop: '8px' }}>
+                                                    {book.isFeatured && <span className="book-badge badge-featured">Tavsiya</span>}
+                                                    {book.isNewArrival && <span className="book-badge badge-new">Yangi</span>}
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td>{searchTerm ? highlightText(book.author?.name || 'Noma\'lum', searchTerm) : (book.author?.name || 'Noma\'lum')}</td>
+                                        <td>{book.genres && book.genres.length > 0 ? (
+                                            searchTerm
+                                                ? highlightText(book.genres.map(g => g.name || g).join(', '), searchTerm)
+                                                : book.genres.map(g => g.name || g).join(', ')
+                                        ) : 'Janr belgilanmagan'}</td>
+                                        <td className="book-price">{parseFloat(book.price).toLocaleString()} so'm</td>
+                                        <td>{book.publishedYear || '-'}</td>
+                                        <td className="book-actions">
+                                            <button
+                                                className="action-btn edit-btn"
+                                                onClick={() => openEditBookForm(book)}
+                                                title="Tahrirlash"
+                                                aria-label={`${book.title} kitobini tahrirlash`}
+                                            >
+                                                <i className="fas fa-edit"></i>
+                                            </button>
+                                            <button
+                                                className="action-btn delete-btn"
+                                                onClick={() => openDeleteConfirm(book)}
+                                                title="O'chirish"
+                                                aria-label={`${book.title} kitobini o'chirish`}
+                                            >
+                                                <i className="fas fa-trash-alt"></i>
+                                            </button>
                                         </td>
                                     </tr>
-                                )}
+                                ))}
                             </tbody>
                         </table>
                     </div>

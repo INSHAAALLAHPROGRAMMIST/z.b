@@ -1,0 +1,216 @@
+/* Professional BookDetailPage Animation Styles */
+
+/* Button hover arrow animation */
+.add-to-cart-btn:hover .fa-arrow-right {
+    transform: translateX(4px);
+}
+
+/* Gradient text animation */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.book-title {
+    background: linear-gradient(135deg, var(--text-color), var(--primary-color), var(--accent-color));
+    background-size: 200% 200%;
+    animation: gradientShift 6s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Price hover animation */
+@keyframes priceGlow {
+    0% { 
+        transform: scale(1);
+        text-shadow: 0 0 10px rgba(var(--primary-color-rgb, 79, 70, 229), 0.3);
+    }
+    50% { 
+        transform: scale(1.02);
+        text-shadow: 0 0 20px rgba(var(--primary-color-rgb, 79, 70, 229), 0.5);
+    }
+    100% { 
+        transform: scale(1);
+        text-shadow: 0 0 10px rgba(var(--primary-color-rgb, 79, 70, 229), 0.3);
+    }
+}
+
+.book-price:hover .price-amount {
+    animation: priceGlow 0.8s ease;
+}
+
+/* Author card entrance animation */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.book-author {
+    animation: slideInUp 0.6s ease 0.2s both;
+}
+
+/* Genre badges stagger animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.genre-badge {
+    animation: fadeInUp 0.4s ease;
+}
+
+.genre-badge:nth-child(1) { animation-delay: 0.1s; }
+.genre-badge:nth-child(2) { animation-delay: 0.2s; }
+.genre-badge:nth-child(3) { animation-delay: 0.3s; }
+.genre-badge:nth-child(4) { animation-delay: 0.4s; }
+
+/* Description section entrance */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.book-description {
+    animation: fadeInScale 0.8s ease 0.4s both;
+}
+
+/* Floating accent border */
+@keyframes borderGlow {
+    0%, 100% { 
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        box-shadow: 0 0 10px rgba(var(--primary-color-rgb, 79, 70, 229), 0.3);
+    }
+    50% { 
+        background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+        box-shadow: 0 0 20px rgba(var(--primary-color-rgb, 79, 70, 229), 0.5);
+    }
+}
+
+.book-description::before {
+    animation: borderGlow 4s ease-in-out infinite;
+}
+
+/* Button ripple effect */
+@keyframes ripple {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+.add-to-cart-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+}
+
+.add-to-cart-btn:focus:not(:active)::after {
+    animation: ripple 1s ease-out;
+}
+
+/* Image entrance and hover effects */
+@keyframes imageEntrance {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.book-detail-image {
+    animation: imageEntrance 0.8s ease both;
+}
+
+/* Purchase section entrance */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.book-purchase-section {
+    animation: slideInRight 0.8s ease 0.3s both;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .book-title {
+        animation-duration: 8s;
+    }
+    
+    .book-author,
+    .genre-badge,
+    .book-purchase-section,
+    .book-description {
+        animation-duration: 0.6s;
+    }
+    
+    /* Reduce motion for mobile performance */
+    .book-detail-image {
+        animation-duration: 0.6s;
+    }
+}
+
+/* Theme-specific animations */
+body.light-mode .book-title {
+    background: linear-gradient(135deg, #1f2937, #4f46e5, #059669);
+    background-size: 200% 200%;
+}
+
+/* Smooth theme transitions */
+.book-detail-container,
+.book-purchase-section,
+.book-description,
+.book-author,
+.genre-badge {
+    transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

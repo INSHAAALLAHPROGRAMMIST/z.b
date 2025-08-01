@@ -10,12 +10,12 @@ export const createSampleUsers = async () => {
         const sampleUsers = [
             {
                 email: 'user1@test.com',
-                password: 'password123',
+                password: import.meta.env.VITE_DEFAULT_USER_PASSWORD || 'TempPass123!',
                 name: 'Ali Valiyev'
             },
             {
                 email: 'user2@test.com', 
-                password: 'password123',
+                password: import.meta.env.VITE_DEFAULT_USER_PASSWORD || 'TempPass123!',
                 name: 'Malika Karimova'
             },
             {
@@ -76,13 +76,13 @@ export const getSampleUserCredentials = () => {
     return [
         {
             email: 'user1@test.com',
-            password: 'password123',
+            password: import.meta.env.VITE_DEFAULT_USER_PASSWORD || 'TempPass123!',
             name: 'Ali Valiyev',
             role: 'user'
         },
         {
             email: 'user2@test.com', 
-            password: 'password123',
+            password: import.meta.env.VITE_DEFAULT_USER_PASSWORD || 'TempPass123!',
             name: 'Malika Karimova',
             role: 'user'
         },

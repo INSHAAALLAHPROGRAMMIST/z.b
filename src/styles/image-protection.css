@@ -1,0 +1,267 @@
+/* Enhanced Image Protection Styles */
+
+/* Disable right-click context menu on images */
+.responsive-image-container,
+.responsive-image,
+.admin-book-image-small,
+.book-image,
+img[src*="cloudinary"] {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    
+    -webkit-user-drag: none !important;
+    -khtml-user-drag: none !important;
+    -moz-user-drag: none !important;
+    -o-user-drag: none !important;
+    user-drag: none !important;
+    
+    -webkit-touch-callout: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    
+    pointer-events: auto; /* Allow clicks for modals */
+}
+
+/* Prevent context menu globally on protected images */
+.responsive-image-container * {
+    -webkit-context-menu: none !important;
+    -moz-context-menu: none !important;
+    context-menu: none !important;
+}
+
+/* Clean Image Container Styles */
+.responsive-image-container {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    width: 100%;
+}
+
+.responsive-image-container img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: inherit;
+}
+
+/* Disable text selection around images */
+.book-card,
+.admin-table,
+.book-detail-container {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Re-enable text selection for text content */
+.book-title,
+.book-description,
+.book-author,
+.book-price,
+.admin-table td:not(.book-image),
+.admin-table th,
+p, h1, h2, h3, h4, h5, h6,
+span:not(.book-image *),
+div:not(.book-image *) {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+/* Disable drag and drop for images */
+img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+}
+
+/* Disable image saving shortcuts */
+body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Re-enable selection for text elements */
+input, textarea, [contenteditable="true"] {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+}
+
+/* Disable print screen and developer tools (partial) */
+@media print {
+    .responsive-image,
+    .admin-book-image-small,
+    img[src*="cloudinary"] {
+        display: none !important;
+    }
+    
+    .responsive-image-container::after {
+        content: "🔒 Rasm himoyalangan";
+        display: block;
+        text-align: center;
+        padding: 20px;
+        background: #f0f0f0;
+        border: 2px dashed #ccc;
+        color: #666;
+    }
+}
+
+/* Disable image context menu specifically */
+.responsive-image-container img,
+.admin-book-image-small,
+img[src*="cloudinary"] {
+    -webkit-context-menu: none;
+    -moz-context-menu: none;
+    context-menu: none;
+}
+
+/* Additional protection for mobile devices */
+@media (max-width: 768px) {
+    .responsive-image-container,
+    .admin-book-image-small {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+}
+
+/* Disable image highlighting */
+.responsive-image,
+.admin-book-image-small,
+img[src*="cloudinary"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-focus-ring-color: transparent;
+    outline: none;
+}
+
+/* Prevent image URL exposure in status bar */
+.responsive-image-container a,
+a img {
+    text-decoration: none;
+    border: none;
+    outline: none;
+}
+
+/* Hide image URLs from being displayed */
+.responsive-image[src]::before {
+    content: "";
+    display: none;
+}
+
+/* Disable image selection with CSS */
+::selection {
+    background: transparent;
+}
+
+::-moz-selection {
+    background: transparent;
+}
+
+/* Disable image dragging visual feedback */
+.responsive-image::-webkit-drag,
+.admin-book-image-small::-webkit-drag {
+    display: none !important;
+}
+
+/* Additional security for Cloudinary images */
+img[src*="cloudinary.com"]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Disable browser's built-in image controls */
+img::-webkit-media-controls,
+img::-webkit-media-controls-panel {
+    display: none !important;
+}
+
+/* Prevent image caching inspection */
+.responsive-image,
+.admin-book-image-small {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Watermark overlay (optional) */
+.responsive-image-container.watermarked::after {
+    content: "© Zamon Books";
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 6px;
+    font-size: 10px;
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.8;
+}
+
+/* Disable image inspection tools */
+.responsive-image-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.responsive-image-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Loading and error states */
+.responsive-image-placeholder,
+.responsive-image-error {
+    border-radius: 12px !important;
+}
+
+/* Admin table specific styling */
+.admin-table .responsive-image-container {
+    border-radius: 6px;
+}
+
+.admin-table .responsive-image-container img {
+    border-radius: 6px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .responsive-image-placeholder,
+    .responsive-image-error {
+        border-radius: 10px !important;
+    }
+    
+    .admin-table .responsive-image-container {
+        border-radius: 4px;
+    }
+    
+    .admin-table .responsive-image-container img {
+        border-radius: 4px;
+    }
+}

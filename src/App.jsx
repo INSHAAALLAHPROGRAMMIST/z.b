@@ -8,6 +8,7 @@ import AdminLayout from './components/AdminLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import ToastContainer from './components/Toast';
+import ErrorBoundary from './components/ErrorBoundary';
 // Performance monitoring disabled to reduce console noise
 // import PerformanceMonitor from './components/PerformanceMonitor';
 
@@ -126,6 +127,20 @@ function MainLayout({ children }) {
     useEffect(() => {
         let mounted = true;
 
+        // Webhook xavfsizligini tekshirish (har doim, lekin silent)
+        const initWebhookSecurity = async () => {
+            try {
+                const { checkWebhookSecurity } = await import('./utils/webhookSecurity');
+                // Silent mode - oddiy userlar uchun console'da ko'rsatmaslik
+                await checkWebhookSecurity(true);
+            } catch (error) {
+                // Silent error - faqat development'da ko'rinadi
+                if (process.env.NODE_ENV === 'development') {
+                    console.error('Webhook security check failed:', error);
+                }
+            }
+        };
+
         const checkLoginStatusAndFetchGenres = async () => {
             try {
                 const user = await account.get();
@@ -169,11 +184,40 @@ function MainLayout({ children }) {
             }
         };
 
-        checkLoginStatusAndFetchGenres();
+        let webhookInterval;
+        
+        const initializeApp = async () => {
+            await checkLoginStatusAndFetchGenres();
+            
+            // Webhook security har doim tekshiriladi (silent mode)
+            if (mounted) {
+                initWebhookSecurity();
+                
+                // Smart monitoring - faqat muhim hollarda
+                webhookInterval = setInterval(() => {
+                    // Faqat tab active bo'lsa va user faol bo'lsa
+                    if (document.visibilityState === 'visible' && 
+                        Date.now() - (window.lastUserActivity || 0) < 30 * 60 * 1000) {
+                        initWebhookSecurity();
+                    }
+                }, 30 * 60 * 1000); // 30 daqiqa (kamroq)
+                
+                // User activity tracking
+                const updateActivity = () => window.lastUserActivity = Date.now();
+                ['click', 'keydown', 'scroll', 'mousemove'].forEach(event => {
+                    document.addEventListener(event, updateActivity, { passive: true });
+                });
+            }
+        };
+        
+        initializeApp();
         updateGlobalCartCount();
 
         return () => {
             mounted = false;
+            if (webhookInterval) {
+                clearInterval(webhookInterval);
+            }
         };
     }, [updateGlobalCartCount]);
 
@@ -442,8 +486,9 @@ function App() {
         <>
             {/* <PerformanceMonitor /> */}
             <ToastContainer />
-            <Routes>
-                <Route path="/" element={<MainLayout><LazyHomePage databases={databases} DATABASE_ID={DATABASE_ID} /></MainLayout>} />
+            <ErrorBoundary>
+                <Routes>
+                    <Route path="/" element={<MainLayout><LazyHomePage databases={databases} DATABASE_ID={DATABASE_ID} /></MainLayout>} />
                 {/* Existing ID-based route */}
                 <Route path="/book/:bookId" element={<MainLayout><LazyBookDetailPage /></MainLayout>} />
                 
@@ -544,8 +589,9 @@ function App() {
                     }
                 />
 
-                <Route path="*" element={<MainLayout><LazyComingSoon title="404 - Sahifa Topilmadi" subtitle="Siz qidirayotgan sahifa mavjud emas" description="Kechirasiz, siz qidirayotgan sahifa topilmadi yoki o'chirilgan bo'lishi mumkin. Bosh sahifaga qaytib, boshqa sahifalarni ko'rib chiqing." /></MainLayout>} />
-            </Routes>
+                    <Route path="*" element={<MainLayout><LazyComingSoon title="404 - Sahifa Topilmadi" subtitle="Siz qidirayotgan sahifa mavjud emas" description="Kechirasiz, siz qidirayotgan sahifa topilmadi yoki o'chirilgan bo'lishi mumkin. Bosh sahifaga qaytib, boshqa sahifalarni ko'rib chiqing." /></MainLayout>} />
+                </Routes>
+            </ErrorBoundary>
         </>
     );
 }

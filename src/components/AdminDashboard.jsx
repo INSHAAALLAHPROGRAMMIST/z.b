@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { databases } from '../appwriteConfig';
+import WebhookMonitor from './WebhookMonitor';
 import '../index.css';
 import '../styles/admin.css';
 import '../styles/admin/dashboard.css';
+import '../styles/admin/improved-dashboard.css';
 
 // Appwrite konsolidan olingan ID'lar
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -72,7 +74,90 @@ function AdminDashboard() {
     }, []);
 
     if (stats.loading) {
-        return <div className="admin-loading">Yuklanmoqda...</div>;
+        return (
+            <div className="admin-dashboard" style={{ marginTop: '0px', padding: '0 15px' }}>
+                {/* Loading Skeleton */}
+                <div style={{
+                    background: 'linear-gradient(135deg, rgba(106, 138, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)',
+                    padding: '25px',
+                    borderRadius: '15px',
+                    marginBottom: '25px',
+                    border: '1px solid rgba(106, 138, 255, 0.2)'
+                }}>
+                    <div style={{
+                        height: '32px',
+                        background: 'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%)',
+                        backgroundSize: '200% 100%',
+                        animation: 'shimmer 1.5s infinite',
+                        borderRadius: '8px',
+                        marginBottom: '10px'
+                    }}></div>
+                    <div style={{
+                        height: '20px',
+                        width: '60%',
+                        background: 'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%)',
+                        backgroundSize: '200% 100%',
+                        animation: 'shimmer 1.5s infinite',
+                        borderRadius: '4px'
+                    }}></div>
+                </div>
+
+                {/* Stats Cards Skeleton */}
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                    gap: '24px',
+                    marginBottom: '32px'
+                }}>
+                    {[1,2,3,4].map(i => (
+                        <div key={i} style={{
+                            padding: '28px',
+                            borderRadius: '18px',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '20px'
+                        }}>
+                            <div style={{
+                                width: '64px',
+                                height: '64px',
+                                borderRadius: '16px',
+                                background: 'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%)',
+                                backgroundSize: '200% 100%',
+                                animation: 'shimmer 1.5s infinite'
+                            }}></div>
+                            <div style={{ flex: 1 }}>
+                                <div style={{
+                                    height: '16px',
+                                    width: '80px',
+                                    background: 'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%)',
+                                    backgroundSize: '200% 100%',
+                                    animation: 'shimmer 1.5s infinite',
+                                    borderRadius: '4px',
+                                    marginBottom: '8px'
+                                }}></div>
+                                <div style={{
+                                    height: '32px',
+                                    width: '60px',
+                                    background: 'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%)',
+                                    backgroundSize: '200% 100%',
+                                    animation: 'shimmer 1.5s infinite',
+                                    borderRadius: '4px'
+                                }}></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <style jsx>{`
+                    @keyframes shimmer {
+                        0% { background-position: -200% 0; }
+                        100% { background-position: 200% 0; }
+                    }
+                `}</style>
+            </div>
+        );
     }
 
     if (stats.error) {
@@ -86,7 +171,7 @@ function AdminDashboard() {
                 background: 'linear-gradient(135deg, rgba(106, 138, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)',
                 padding: '25px',
                 borderRadius: '15px',
-                marginBottom: '25px',
+                marginBottom: '20px',
                 border: '1px solid rgba(106, 138, 255, 0.2)'
             }}>
                 <h1 style={{ 
@@ -109,55 +194,72 @@ function AdminDashboard() {
                 </p>
             </div>
 
+            {/* Webhook Security Monitor - Compact */}
+            <WebhookMonitor />
+
             {/* Stats Cards */}
             <div className="admin-stats-grid" style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                gap: '20px',
-                marginBottom: '30px'
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '24px',
+                marginBottom: '32px'
             }}>
-                <div className="admin-stat-card glassmorphism-card" style={{
-                    padding: '25px',
-                    borderRadius: '15px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '20px',
-                    border: '1px solid rgba(34, 197, 94, 0.2)',
-                    background: 'rgba(34, 197, 94, 0.05)'
-                }}>
+                <div className="admin-stat-card books-card glassmorphism-card">
                     <div className="stat-icon" style={{
-                        width: '60px',
-                        height: '60px',
-                        borderRadius: '15px',
-                        background: 'rgba(34, 197, 94, 0.2)',
+                        width: '64px',
+                        height: '64px',
+                        borderRadius: '16px',
+                        background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.3))',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '1.5rem',
-                        color: '#22C55E'
+                        fontSize: '1.6rem',
+                        color: '#22C55E',
+                        boxShadow: '0 4px 16px rgba(34, 197, 94, 0.2)',
+                        position: 'relative'
                     }}>
                         <i className="fas fa-book"></i>
+                        <div style={{
+                            position: 'absolute',
+                            inset: 0,
+                            borderRadius: '16px',
+                            padding: '2px',
+                            background: 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05))',
+                            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                            WebkitMaskComposite: 'xor'
+                        }}></div>
                     </div>
-                    <div className="stat-details">
-                        <h3 style={{ fontSize: '0.9rem', opacity: '0.7', margin: '0 0 5px 0' }}>Jami Kitoblar</h3>
+                    <div className="stat-details" style={{ flex: 1 }}>
+                        <h3 style={{ 
+                            fontSize: '0.9rem', 
+                            margin: '0 0 8px 0',
+                            color: 'var(--light-text-color)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontWeight: '500'
+                        }}>Jami Kitoblar</h3>
                         <p className="stat-value" style={{ 
-                            fontSize: '2rem', 
-                            fontWeight: 'bold', 
-                            margin: '0',
-                            color: '#22C55E'
+                            fontSize: '2.2rem', 
+                            fontWeight: '700', 
+                            margin: '0 0 8px 0',
+                            color: '#22C55E',
+                            lineHeight: '1'
                         }}>{stats.totalBooks}</p>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '0.8rem',
+                            color: '#22C55E',
+                            fontWeight: '500'
+                        }}>
+                            <i className="fas fa-arrow-up" style={{ fontSize: '0.7rem' }}></i>
+                            <span>+12% bu oy</span>
+                        </div>
                     </div>
                 </div>
                 
-                <div className="admin-stat-card glassmorphism-card" style={{
-                    padding: '25px',
-                    borderRadius: '15px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '20px',
-                    border: '1px solid rgba(59, 130, 246, 0.2)',
-                    background: 'rgba(59, 130, 246, 0.05)'
-                }}>
+                <div className="admin-stat-card orders-card glassmorphism-card">
                     <div className="stat-icon" style={{
                         width: '60px',
                         height: '60px',
@@ -172,25 +274,16 @@ function AdminDashboard() {
                         <i className="fas fa-shopping-cart"></i>
                     </div>
                     <div className="stat-details">
-                        <h3 style={{ fontSize: '0.9rem', opacity: '0.7', margin: '0 0 5px 0' }}>Jami Buyurtmalar</h3>
-                        <p className="stat-value" style={{ 
-                            fontSize: '2rem', 
-                            fontWeight: 'bold', 
-                            margin: '0',
-                            color: '#3B82F6'
-                        }}>{stats.totalOrders}</p>
+                        <h3>Jami Buyurtmalar</h3>
+                        <p className="stat-value" style={{ color: '#3B82F6' }}>{stats.totalOrders}</p>
+                        <div className="stat-trend positive">
+                            <i className="fas fa-arrow-up"></i>
+                            <span>+8% bu oy</span>
+                        </div>
                     </div>
                 </div>
                 
-                <div className="admin-stat-card glassmorphism-card" style={{
-                    padding: '25px',
-                    borderRadius: '15px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '20px',
-                    border: '1px solid rgba(168, 85, 247, 0.2)',
-                    background: 'rgba(168, 85, 247, 0.05)'
-                }}>
+                <div className="admin-stat-card users-card glassmorphism-card">
                     <div className="stat-icon" style={{
                         width: '60px',
                         height: '60px',
@@ -215,15 +308,7 @@ function AdminDashboard() {
                     </div>
                 </div>
                 
-                <div className="admin-stat-card glassmorphism-card" style={{
-                    padding: '25px',
-                    borderRadius: '15px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '20px',
-                    border: '1px solid rgba(245, 158, 11, 0.2)',
-                    background: 'rgba(245, 158, 11, 0.05)'
-                }}>
+                <div className="admin-stat-card revenue-card glassmorphism-card">
                     <div className="stat-icon" style={{
                         width: '60px',
                         height: '60px',

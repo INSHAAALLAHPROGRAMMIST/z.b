@@ -5,19 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zamon Books – Oʻzbek Kitoblari Onlayn Doʻkoni</title>
     
-    <link rel="icon" type="image/svg+xml" 
-          href="https://res.cloudinary.com/dcn4maral/image/upload/v1752356041/favicon_maovuy.svg">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="O'zbekistondagi eng yaxshi kitoblar onlayn do'koni. Zamonaviy va klassik asarlar, ilmiy kitoblar va boshqalar. Tez yetkazib berish va qulay narxlar.">
+    <meta name="keywords" content="o'zbek kitoblar, onlayn kitob do'koni, kitob sotib olish, o'zbek adabiyoti, klassik kitoblar, zamonaviy kitoblar">
+    <meta name="author" content="Zamon Books">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="uz">
     
-    <link rel="icon" type="image/png" sizes="32x32" 
-          href="https://res.cloudinary.com/dcn4maral/image/upload/c_scale,h_280,f_auto,q_auto/v1752356041/favicon_maovuy.svg">
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Zamon Books – O'zbek Kitoblari Onlayn Do'koni">
+    <meta property="og:description" content="O'zbekistondagi eng yaxshi kitoblar onlayn do'koni. Zamonaviy va klassik asarlar, ilmiy kitoblar va boshqalar.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://zamonbooks.uz">
+    <meta property="og:image" content="https://zamonbooks.uz/icons/android-chrome-512x512.png">
+    <meta property="og:site_name" content="Zamon Books">
+    <meta property="og:locale" content="uz_UZ">
     
-    <link rel="icon" type="image/png" sizes="16x16" 
-          href="https://res.cloudinary.com/dcn4maral/image/upload/c_scale,h_280,f_auto,q_auto/v1752356041/favicon_maovuy.svg">
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Zamon Books – O'zbek Kitoblari Onlayn Do'koni">
+    <meta name="twitter:description" content="O'zbekistondagi eng yaxshi kitoblar onlayn do'koni. Zamonaviy va klassik asarlar, ilmiy kitoblar va boshqalar.">
+    <meta name="twitter:image" content="https://zamonbooks.uz/icons/android-chrome-512x512.png">
     
-    <link rel="apple-touch-icon" sizes="180x180" 
-          href="https://res.cloudinary.com/dcn4maral/image/upload/c_scale,h_280,f_auto,q_auto/v1752356041/favicon_maovuy.svg">
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6a8aff">
+    <meta name="msapplication-TileColor" content="#6a8aff">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Zamon Books">
+    
+    <!-- Favicon links using local files -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-    <link rel="manifest" href="/site.webmanifest"> 
+    <link rel="manifest" href="/manifest.json"> 
     
     <!-- Preload critical fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,6 +58,18 @@
     
     <!-- DNS prefetch for external resources -->
     <link rel="dns-prefetch" href="//res.cloudinary.com">
+    <link rel="dns-prefetch" href="//cloud.appwrite.io">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    
+    <!-- Preconnect for critical resources -->
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+    <link rel="preconnect" href="https://cloud.appwrite.io" crossorigin>
+    
+    <!-- Preload critical JavaScript -->
+    <link rel="modulepreload" href="/src/main.jsx">
+    <link rel="modulepreload" href="/src/App.jsx">
     
     <!-- Critical CSS for above-the-fold content -->
     <style id="critical-css">
@@ -376,6 +415,21 @@
     </head>
 <body>
     <div id="root"></div> 
-    <script type="module" src="/src/main.jsx"></script> 
+    <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script> 
 </body>
 </html>

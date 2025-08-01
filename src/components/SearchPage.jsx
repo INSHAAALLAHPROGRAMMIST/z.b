@@ -192,7 +192,7 @@ function SearchPage() {
                     justifyContent: 'center'
                 }}>
                     {searchResults.map(book => (
-                        <Link to={`/book/${book.$id}`} key={book.$id} className="book-card glassmorphism-card" style={{
+                        <Link to={book.slug ? `/kitob/${book.slug}` : `/book/${book.$id}`} key={book.$id} className="book-card glassmorphism-card" style={{
                             display: 'flex',
                             flexDirection: 'column',
                             padding: '15px',

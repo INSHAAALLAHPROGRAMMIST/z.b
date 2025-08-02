@@ -1,56 +1,41 @@
-// D:\zamon-books-frontend\src\components\BookDetailPage.jsx
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { databases, Query, ID } from '../appwriteConfig';
 import { toastMessages } from '../utils/toastUtils';
 import { useLazyCSS } from '../hooks/useLazyCSS';
 
-// SEO Components - Direct import
 import BookSEO from './SEO/BookSEO';
 
-// Image Components
 import ResponsiveImage from './ResponsiveImage';
 import ImageModal from './ImageModal';
 
-// Enhanced linkify function with line break and formatting support
 const linkifyText = (text) => {
   if (!text) return text;
 
-  // Simplified URL regex - detects common URL patterns
   const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|uz|ru|co|uk|de|fr|it|es|nl|au|ca|jp|cn|in|br|io|ai|me|ly|cc|tv|fm|am|to|gg|tk|ml|ga|cf|gq|tel|app|dev|tech|info|biz|name|pro|mobi|travel|museum|aero|coop|jobs|post|xxx|asia|cat|int|mil|arpa|onion|local|test|example|invalid|localhost)[^\s]*)/gi;
 
-  // First, split by line breaks to preserve paragraphs
-  const paragraphs = text.split(/\n\s*\n/); // Double line breaks = new paragraph
+  const paragraphs = text.split(/\n\s*\n/);
   
   return paragraphs.map((paragraph, paragraphIndex) => {
-    // Split each paragraph by single line breaks
     const lines = paragraph.split('\n');
     
     const processedLines = lines.map((line, lineIndex) => {
-      // Split line by URLs and process each part
       const parts = line.split(urlRegex);
       
       const processedParts = parts.map((part, partIndex) => {
-        // Check if this part is a URL
         if (urlRegex.test(part)) {
-          // Clean up the URL
           let url = part.trim();
           
-          // Add protocol if missing
           if (!url.startsWith('http://') && !url.startsWith('https://')) {
             if (url.startsWith('www.')) {
               url = 'https://' + url;
             } else {
-              // For domains without www, add https
               url = 'https://' + url;
             }
           }
 
-          // Determine link text (show original part)
           let linkText = part;
           
-          // Shorten very long URLs for display
           if (linkText.length > 50) {
             linkText = linkText.substring(0, 47) + '...';
           }
@@ -80,11 +65,9 @@ const linkifyText = (text) => {
           );
         }
         
-        // Return regular text, preserving tabs as spaces
-        return part.replace(/\t/g, '    '); // Convert tabs to 4 spaces
+        return part.replace(/\t/g, '    ');
       });
       
-      // Add line break after each line (except the last one in paragraph)
       if (lineIndex < lines.length - 1) {
         processedParts.push(<br key={`br-${paragraphIndex}-${lineIndex}`} />);
       }
@@ -92,7 +75,6 @@ const linkifyText = (text) => {
       return processedParts;
     });
     
-    // Wrap each paragraph in a div with margin
     return (
       <div key={`paragraph-${paragraphIndex}`} className="description-paragraph">
         {processedLines}
@@ -101,7 +83,6 @@ const linkifyText = (text) => {
   });
 };
 
-// --- Appwrite konsolidan olingan ID'lar ---
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
 const CART_ITEMS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_CART_ITEMS_ID;
@@ -114,11 +95,9 @@ function BookDetailPage() {
     const [cartItems, setCartItems] = useState([]);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
-    // Lazy load component-specific CSS
     useLazyCSS('/src/styles/components/book-detail-clean.css');
     useLazyCSS('/src/styles/components/book-detail-animations.css');
 
-    // Savatdagi elementlarni yuklash
     const fetchCartItems = useCallback(async () => {
         try {
             let currentUserId = localStorage.getItem('currentUserId') || localStorage.getItem('appwriteGuestId');
@@ -250,7 +229,6 @@ function BookDetailPage() {
         }
     }, [cartItems, book, fetchCartItems]);
 
-    // Memoized values - MUST be before any conditional returns
     const bookQuantityInCart = useMemo(() => {
         if (!book) return 0;
         const cartItem = cartItems.find(item => item.bookId === book.$id);
@@ -302,7 +280,6 @@ function BookDetailPage() {
             setLoading(true);
             setError(null);
             
-            // Validate parameters
             if (!bookId && !bookSlug) {
                 setError('Kitob ID yoki slug ko\'rsatilmagan');
                 setLoading(false);
@@ -313,12 +290,9 @@ function BookDetailPage() {
                 let response;
 
                 if (bookId) {
-                    // Clean bookId - remove any extra characters
                     const cleanBookId = bookId.trim();
                     
-                    // Validate bookId format (Appwrite ID should be 20-36 chars, alphanumeric + underscore)
                     if (!/^[a-zA-Z0-9_]{20,36}$/.test(cleanBookId)) {
-                        // If bookId is invalid, try to use it as slug instead
                         const books = await databases.listDocuments(
                             DATABASE_ID,
                             BOOKS_COLLECTION_ID,
@@ -341,10 +315,8 @@ function BookDetailPage() {
                         );
                     }
                 } else if (bookSlug) {
-                    // Clean slug
                     const cleanSlug = bookSlug.trim();
                     
-                    // Validate slug format (should be URL-safe)
                     if (!/^[a-zA-Z0-9\-_]+$/.test(cleanSlug)) {
                         throw new Error(`Noto'g'ri kitob slug formati: "${cleanSlug}"`);
                     }
@@ -376,7 +348,6 @@ function BookDetailPage() {
                     console.error("Kitob ma'lumotlarini yuklashda xato yuz berdi:", err);
                 }
                 
-                // More specific error messages
                 let errorMessage = "Kitob ma'lumotlarini yuklashda xato.";
                 
                 if (err.message.includes('Invalid `documentId`')) {
@@ -399,7 +370,6 @@ function BookDetailPage() {
         fetchBookDetail();
     }, [bookId, bookSlug]);
 
-    // Conditional returns AFTER all hooks
     if (loading) {
         return (
             <div className="book-detail-main">
@@ -452,10 +422,8 @@ function BookDetailPage() {
 
     return (
         <>
-            {/* SEO Components */}
             <BookSEO book={book} />
 
-            {/* Structured Data for SEO */}
             {structuredData && (
                 <script type="application/ld+json">
                     {JSON.stringify(structuredData)}
@@ -480,7 +448,6 @@ function BookDetailPage() {
                         <header className="book-header">
                             <h1 className="book-title" id="book-title">{book.title}</h1>
 
-                            {/* Muallif ma'lumotlari */}
                             {(book.author?.name || book.authorName) && (
                                 <div className="book-author" role="complementary" aria-labelledby="book-title">
                                     <i className="fas fa-feather-alt" aria-hidden="true"></i>
@@ -489,7 +456,6 @@ function BookDetailPage() {
                             )}
                         </header>
 
-                        {/* Janr ma'lumotlari */}
                         {book.genres && book.genres.length > 0 && (
                             <div className="book-genres" role="list" aria-label="Kitob janrlari">
                                 {book.genres.map((genre, index) => (
@@ -504,15 +470,13 @@ function BookDetailPage() {
                             </div>
                         )}
 
-                        {/* Narx va harid bo'limi */}
                         <section className="book-purchase-section" aria-labelledby="purchase-heading">
                             <h2 id="purchase-heading" className="sr-only">Kitob narxi va xarid</h2>
                             <div className="book-price" role="text" aria-label={`Kitob narxi ${parseFloat(book.price).toLocaleString()} so'm`}>
-                                <span className="price-amount">{parseFloat(book.price).toLocaleString()}</span>
-                                <span className="price-currency">so'm</span>
+                                <span className="price-amount">{parseFloat(book.price).toLocaleString()} <span className="price-currency">so'm</span></span>
+                                
                             </div>
 
-                            {/* Savatga qo'shish tugmasi */}
                             {bookQuantityInCart === 0 ? (
                                 <button
                                     className="add-to-cart-btn"
@@ -546,12 +510,11 @@ function BookDetailPage() {
                             )}
                         </section>
 
-                        {/* Kitob tavsifi */}
                         {book.description && (
                             <section className="book-description" aria-labelledby="description-heading">
                                 <h2 id="description-heading" className="description-title">
                                     <i className="fas fa-book-open" aria-hidden="true"></i>
-                                    Kitob haqida
+                                    Tavsif
                                 </h2>
                                 <div className="description-text">
                                     {linkifyText(book.description)}
@@ -562,7 +525,6 @@ function BookDetailPage() {
                 </div>
             </main>
 
-            {/* Image Modal */}
             <ImageModal
                 isOpen={isImageModalOpen}
                 onClose={() => setIsImageModalOpen(false)}

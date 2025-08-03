@@ -250,14 +250,21 @@ async function handleFontRequest(request) {
             return cachedResponse;
         }
         
-        const networkResponse = await fetch(request);
+        const networkResponse = await fetch(request, {
+            mode: 'cors',
+            credentials: 'omit'
+        });
         if (networkResponse.ok) {
             await cache.put(request, networkResponse.clone());
         }
         return networkResponse;
     } catch (error) {
         console.log('[SW] Font request failed:', error);
-        return new Response('', { status: 404 });
+        // Return empty CSS instead of 404 for fonts
+        return new Response('/* Font loading failed */', { 
+            status: 200,
+            headers: { 'Content-Type': 'text/css' }
+        });
     }
 }
 

@@ -3,7 +3,10 @@ import postcssCustomProperties from 'postcss-custom-properties';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
-  const plugins = [react()];
+  const plugins = [react({
+    // Ensure JSX files are treated as JS modules
+    include: "**/*.{jsx,tsx}",
+  })];
   
   // Note: Bundle analyzer requires separate installation
   // Run: npm install rollup-plugin-visualizer --save-dev
@@ -11,6 +14,10 @@ export default defineConfig(({ mode }) => {
   
   return {
     plugins,
+    esbuild: {
+      jsx: 'automatic',
+      jsxImportSource: 'react'
+    },
     css: {
       postcss: {
         plugins: [
@@ -45,6 +52,11 @@ export default defineConfig(({ mode }) => {
             // User chunks
             if (id.includes('src/components') && (id.includes('BookDetail') || id.includes('Cart') || id.includes('Search'))) {
               return 'user';
+            }
+            
+            // Force App.jsx to be treated as a chunk, not an asset
+            if (id.includes('src/App.jsx')) {
+              return 'app';
             }
           },
           // Optimize asset naming

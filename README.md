@@ -912,7 +912,7 @@ Efficiency Gain: 80%+ time savings
 
 ---
 
-[![⭐ Star this repo](https://img.shields.io/github/stars/your-username/zamon-books-frontend?style=social)](https://github.com/your-username/zamon-books-frontend)
+[![⭐ Star this repo](https://img.shields.io/github/stars/INSHAAALLAHPROGRAMMIST/z.b?style=social)](https://github.com/your-username/zamon-books-frontend)
 [![🐛 Report Bug](https://img.shields.io/badge/Bug-Report-red)](https://github.com/your-username/zamon-books-frontend/issues)
 [![💡 Request Feature](https://img.shields.io/badge/Feature-Request-blue)](https://github.com/your-username/zamon-books-frontend/issues)
 [![🤖 AI Powered](https://img.shields.io/badge/AI-Powered-purple)](https://github.com/your-username/zamon-books-frontend)

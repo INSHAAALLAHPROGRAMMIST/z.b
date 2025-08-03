@@ -75,3 +75,8 @@ export const LazyComingSoon = createLazyComponent(
     () => import('../components/ComingSoon'),
     <PageLoader />
 );
+
+export const LazyNotFoundPage = createLazyComponent(
+    () => import('../components/NotFoundPage'),
+    <PageLoader />
+);

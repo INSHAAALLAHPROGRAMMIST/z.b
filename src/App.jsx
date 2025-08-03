@@ -22,7 +22,8 @@ import {
     LazyProfilePage,
     LazyAuthForm,
     LazyAdminLogin,
-    LazyComingSoon
+    LazyComingSoon,
+    LazyNotFoundPage
 } from './pages/LazyPages';
 
 // Lazy load admin components
@@ -98,8 +99,8 @@ function MainLayout({ children }) {
     const updateGlobalCartCount = useCallback(async () => {
         try {
             // Avoid unnecessary account.get() calls - use cached login state
-            let userIdToUse = isLoggedIn ? 
-                (localStorage.getItem('currentUserId') || localStorage.getItem('appwriteGuestId')) : 
+            let userIdToUse = isLoggedIn ?
+                (localStorage.getItem('currentUserId') || localStorage.getItem('appwriteGuestId')) :
                 localStorage.getItem('appwriteGuestId');
 
             if (!userIdToUse) {
@@ -189,23 +190,23 @@ function MainLayout({ children }) {
         };
 
         let webhookInterval;
-        
+
         const initializeApp = async () => {
             await checkLoginStatusAndFetchGenres();
-            
+
             // Webhook security har doim tekshiriladi (silent mode)
             if (mounted) {
                 initWebhookSecurity();
-                
+
                 // Smart monitoring - faqat muhim hollarda
                 webhookInterval = setInterval(() => {
                     // Faqat tab active bo'lsa va user faol bo'lsa
-                    if (document.visibilityState === 'visible' && 
+                    if (document.visibilityState === 'visible' &&
                         Date.now() - (window.lastUserActivity || 0) < 30 * 60 * 1000) {
                         initWebhookSecurity();
                     }
                 }, 30 * 60 * 1000); // 30 daqiqa (kamroq)
-                
+
                 // User activity tracking
                 const updateActivity = () => window.lastUserActivity = Date.now();
                 ['click', 'keydown', 'scroll', 'mousemove'].forEach(event => {
@@ -213,7 +214,7 @@ function MainLayout({ children }) {
                 });
             }
         };
-        
+
         initializeApp();
         updateGlobalCartCount();
 
@@ -493,127 +494,127 @@ function App() {
             <ErrorBoundary>
                 <Routes>
                     <Route path="/" element={<MainLayout><LazyHomePage databases={databases} DATABASE_ID={DATABASE_ID} /></MainLayout>} />
-                {/* Existing ID-based route */}
-                <Route path="/book/:bookId" element={<MainLayout><LazyBookDetailPage /></MainLayout>} />
-                
-                {/* New SEO-friendly slug-based route */}
-                <Route path="/kitob/:bookSlug" element={<MainLayout><LazyBookDetailPage /></MainLayout>} />
-                <Route path="/cart" element={<MainLayout><LazyCartPage /></MainLayout>} />
-                <Route path="/orders" element={
-                    <ProtectedRoute>
-                        <MainLayout><LazyUserOrdersPage /></MainLayout>
-                    </ProtectedRoute>
-                } />
-                <Route path="/auth" element={<MainLayout><LazyAuthForm /></MainLayout>} />
-                <Route path="/profile" element={<MainLayout><LazyProfilePage /></MainLayout>} />
-                {/* YANGI: Tasdiqlashdan keyin yo'naltiriladigan sahifalar */}
-                <Route path="/verification-success" element={<MainLayout><VerificationStatusPage status="success" /></MainLayout>} />
-                <Route path="/verification-failure" element={<MainLayout><VerificationStatusPage status="failure" /></MainLayout>} />
-                <Route path="/search" element={<MainLayout><LazySearchPage /></MainLayout>} />
-                {/* YANGI: Tasdiqlashdan keyin yo'naltiriladigan sahifalar */}
-                <Route path="/authors" element={<MainLayout><LazyComingSoon title="Mualliflar" subtitle="Mualliflar sahifasi ishlab chiqilmoqda" description="Sevimli mualliflaringiz haqida to'liq ma'lumot va ularning barcha asarlari bilan tanishish imkoniyati yaqin orada!" /></MainLayout>} />
-                <Route path="/genres/:genreId" element={<MainLayout><LazyComingSoon title="Janr Sahifasi" subtitle="Janr bo'yicha kitoblar sahifasi ishlab chiqilmoqda" description="Har bir janr bo'yicha eng yaxshi kitoblarni topish va filtrlash imkoniyati yaqin orada!" /></MainLayout>} />
-                <Route path="/news" element={<MainLayout><LazyComingSoon title="Yangiliklar" subtitle="Yangiliklar sahifasi ishlab chiqilmoqda" description="Kitob dunyosidagi eng so'nggi yangiliklar, tadbirlar va chegirmalar haqida ma'lumot yaqin orada!" /></MainLayout>} />
-                <Route path="/contact" element={<MainLayout><LazyComingSoon title="Aloqa" subtitle="Aloqa sahifasi ishlab chiqilmoqda" description="Biz bilan bog'lanish, savollar berish va takliflar yuborish imkoniyati yaqin orada!" /></MainLayout>} />
-                <Route path="/faq" element={<MainLayout><LazyComingSoon title="Ko'p Beriladigan Savollar" subtitle="FAQ sahifasi ishlab chiqilmoqda" description="Eng ko'p beriladigan savollar va ularning javoblari yaqin orada!" /></MainLayout>} />
-                <Route path="/privacy" element={<MainLayout><LazyComingSoon title="Maxfiylik Siyosati" subtitle="Maxfiylik siyosati sahifasi ishlab chiqilmoqda" description="Shaxsiy ma'lumotlaringizning himoyalanishi va ishlatilishi haqida to'liq ma'lumot yaqin orada!" /></MainLayout>} />
-                <Route path="/terms" element={<MainLayout><LazyComingSoon title="Foydalanish Shartlari" subtitle="Foydalanish shartlari sahifasi ishlab chiqilmoqda" description="Saytdan foydalanish qoidalari va shartlari haqida to'liq ma'lumot yaqin orada!" /></MainLayout>} />
+                    {/* Existing ID-based route */}
+                    <Route path="/book/:bookId" element={<MainLayout><LazyBookDetailPage /></MainLayout>} />
 
-                <Route path="/admin-login" element={<MainLayout><LazyAdminLogin /></MainLayout>} />
+                    {/* New SEO-friendly slug-based route */}
+                    <Route path="/kitob/:bookSlug" element={<MainLayout><LazyBookDetailPage /></MainLayout>} />
+                    <Route path="/cart" element={<MainLayout><LazyCartPage /></MainLayout>} />
+                    <Route path="/orders" element={
+                        <ProtectedRoute>
+                            <MainLayout><LazyUserOrdersPage /></MainLayout>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/auth" element={<MainLayout><LazyAuthForm /></MainLayout>} />
+                    <Route path="/profile" element={<MainLayout><LazyProfilePage /></MainLayout>} />
+                    {/* YANGI: Tasdiqlashdan keyin yo'naltiriladigan sahifalar */}
+                    <Route path="/verification-success" element={<MainLayout><VerificationStatusPage status="success" /></MainLayout>} />
+                    <Route path="/verification-failure" element={<MainLayout><VerificationStatusPage status="failure" /></MainLayout>} />
+                    <Route path="/search" element={<MainLayout><LazySearchPage /></MainLayout>} />
+                    {/* YANGI: Tasdiqlashdan keyin yo'naltiriladigan sahifalar */}
+                    <Route path="/authors" element={<MainLayout><LazyComingSoon title="Mualliflar" subtitle="Mualliflar sahifasi ishlab chiqilmoqda" description="Sevimli mualliflaringiz haqida to'liq ma'lumot va ularning barcha asarlari bilan tanishish imkoniyati yaqin orada!" /></MainLayout>} />
+                    <Route path="/genres/:genreId" element={<MainLayout><LazyComingSoon title="Janr Sahifasi" subtitle="Janr bo'yicha kitoblar sahifasi ishlab chiqilmoqda" description="Har bir janr bo'yicha eng yaxshi kitoblarni topish va filtrlash imkoniyati yaqin orada!" /></MainLayout>} />
+                    <Route path="/news" element={<MainLayout><LazyComingSoon title="Yangiliklar" subtitle="Yangiliklar sahifasi ishlab chiqilmoqda" description="Kitob dunyosidagi eng so'nggi yangiliklar, tadbirlar va chegirmalar haqida ma'lumot yaqin orada!" /></MainLayout>} />
+                    <Route path="/contact" element={<MainLayout><LazyComingSoon title="Aloqa" subtitle="Aloqa sahifasi ishlab chiqilmoqda" description="Biz bilan bog'lanish, savollar berish va takliflar yuborish imkoniyati yaqin orada!" /></MainLayout>} />
+                    <Route path="/faq" element={<MainLayout><LazyComingSoon title="Ko'p Beriladigan Savollar" subtitle="FAQ sahifasi ishlab chiqilmoqda" description="Eng ko'p beriladigan savollar va ularning javoblari yaqin orada!" /></MainLayout>} />
+                    <Route path="/privacy" element={<MainLayout><LazyComingSoon title="Maxfiylik Siyosati" subtitle="Maxfiylik siyosati sahifasi ishlab chiqilmoqda" description="Shaxsiy ma'lumotlaringizning himoyalanishi va ishlatilishi haqida to'liq ma'lumot yaqin orada!" /></MainLayout>} />
+                    <Route path="/terms" element={<MainLayout><LazyComingSoon title="Foydalanish Shartlari" subtitle="Foydalanish shartlari sahifasi ishlab chiqilmoqda" description="Saytdan foydalanish qoidalari va shartlari haqida to'liq ma'lumot yaqin orada!" /></MainLayout>} />
 
-                {/* Admin Panel Routes */}
-                <Route
-                    path="/admin-dashboard"
-                    element={
-                        <AdminProtectedRoute>
-                            <AdminLayout>
-                                <LazyAdminDashboard />
-                            </AdminLayout>
-                        </AdminProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin/books"
-                    element={
-                        <AdminProtectedRoute>
-                            <AdminLayout>
-                                <LazyAdminBookManagement />
-                            </AdminLayout>
-                        </AdminProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin/authors"
-                    element={
-                        <AdminProtectedRoute>
-                            <AdminLayout>
-                                <LazyAdminAuthorManagement />
-                            </AdminLayout>
-                        </AdminProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin/genres"
-                    element={
-                        <AdminProtectedRoute>
-                            <AdminLayout>
-                                <LazyAdminGenreManagement />
-                            </AdminLayout>
-                        </AdminProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin/orders"
-                    element={
-                        <AdminProtectedRoute>
-                            <AdminLayout>
-                                <LazyAdminOrderManagement />
-                            </AdminLayout>
-                        </AdminProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin/inventory"
-                    element={
-                        <AdminProtectedRoute>
-                            <AdminLayout>
-                                <LazyAdminInventoryManagement />
-                            </AdminLayout>
-                        </AdminProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin/users"
-                    element={
-                        <AdminProtectedRoute>
-                            <AdminLayout>
-                                <LazyAdminUserManagement />
-                            </AdminLayout>
-                        </AdminProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin/settings"
-                    element={
-                        <AdminProtectedRoute>
-                            <AdminLayout>
-                                <LazyAdminSettings />
-                            </AdminLayout>
-                        </AdminProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin/enhanced-migration"
-                    element={
-                        <AdminProtectedRoute>
-                            <AdminLayout>
-                                <SimpleEnhancedMigration />
-                            </AdminLayout>
-                        </AdminProtectedRoute>
-                    }
-                />
+                    <Route path="/admin-login" element={<MainLayout><LazyAdminLogin /></MainLayout>} />
 
-                    <Route path="*" element={<MainLayout><LazyComingSoon title="404 - Sahifa Topilmadi" subtitle="Siz qidirayotgan sahifa mavjud emas" description="Kechirasiz, siz qidirayotgan sahifa topilmadi yoki o'chirilgan bo'lishi mumkin. Bosh sahifaga qaytib, boshqa sahifalarni ko'rib chiqing." /></MainLayout>} />
+                    {/* Admin Panel Routes */}
+                    <Route
+                        path="/admin-dashboard"
+                        element={
+                            <AdminProtectedRoute>
+                                <AdminLayout>
+                                    <LazyAdminDashboard />
+                                </AdminLayout>
+                            </AdminProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/books"
+                        element={
+                            <AdminProtectedRoute>
+                                <AdminLayout>
+                                    <LazyAdminBookManagement />
+                                </AdminLayout>
+                            </AdminProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/authors"
+                        element={
+                            <AdminProtectedRoute>
+                                <AdminLayout>
+                                    <LazyAdminAuthorManagement />
+                                </AdminLayout>
+                            </AdminProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/genres"
+                        element={
+                            <AdminProtectedRoute>
+                                <AdminLayout>
+                                    <LazyAdminGenreManagement />
+                                </AdminLayout>
+                            </AdminProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/orders"
+                        element={
+                            <AdminProtectedRoute>
+                                <AdminLayout>
+                                    <LazyAdminOrderManagement />
+                                </AdminLayout>
+                            </AdminProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/inventory"
+                        element={
+                            <AdminProtectedRoute>
+                                <AdminLayout>
+                                    <LazyAdminInventoryManagement />
+                                </AdminLayout>
+                            </AdminProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/users"
+                        element={
+                            <AdminProtectedRoute>
+                                <AdminLayout>
+                                    <LazyAdminUserManagement />
+                                </AdminLayout>
+                            </AdminProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/settings"
+                        element={
+                            <AdminProtectedRoute>
+                                <AdminLayout>
+                                    <LazyAdminSettings />
+                                </AdminLayout>
+                            </AdminProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/enhanced-migration"
+                        element={
+                            <AdminProtectedRoute>
+                                <AdminLayout>
+                                    <SimpleEnhancedMigration />
+                                </AdminLayout>
+                            </AdminProtectedRoute>
+                        }
+                    />
+
+                    <Route path="*" element={<MainLayout><LazyNotFoundPage /></MainLayout>} />
                 </Routes>
             </ErrorBoundary>
         </>

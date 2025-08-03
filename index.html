@@ -12,6 +12,14 @@
     <meta name="robots" content="index, follow">
     <meta name="language" content="uz">
     
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://zamonbooks.uz/">
+    
+    <!-- Additional SEO -->
+    <meta name="revisit-after" content="7 days">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="Zamon Books – O'zbek Kitoblari Onlayn Do'koni">
     <meta property="og:description" content="O'zbekistondagi eng yaxshi kitoblar onlayn do'koni. Zamonaviy va klassik asarlar, ilmiy kitoblar va boshqalar.">
@@ -66,6 +74,10 @@
     <link rel="preconnect" href="https://cloud.appwrite.io" crossorigin>
     
     <!-- Critical JavaScript will be loaded by Vite automatically -->
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" as="image" href="/icons/android-chrome-192x192.png">
+    <link rel="preload" as="font" href="https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecg.woff2" type="font/woff2" crossorigin>
     
     <!-- Critical CSS for above-the-fold content -->
     <style id="critical-css">
@@ -342,6 +354,36 @@
             font-weight: 400;
         }
         
+        /* SEO Content */
+        .seo-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            color: var(--text-color);
+            line-height: 1.8;
+        }
+        
+        .seo-content h2 {
+            font-size: 1.8rem;
+            margin: 2rem 0 1rem 0;
+            color: var(--primary-color);
+        }
+        
+        .seo-content p {
+            margin: 1rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .seo-content ul {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        
+        .seo-content li {
+            margin: 0.5rem 0;
+            font-size: 1.1rem;
+        }
+        
         @keyframes gradientShift {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -407,6 +449,38 @@
             background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
         }
     </style>
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BookStore",
+        "name": "Zamon Books",
+        "description": "O'zbekistondagi eng yaxshi kitoblar onlayn do'koni. Zamonaviy va klassik asarlar, ilmiy kitoblar va boshqalar.",
+        "url": "https://zamonbooks.uz",
+        "logo": "https://zamonbooks.uz/icons/android-chrome-512x512.png",
+        "sameAs": [
+            "https://t.me/zamonbooks",
+            "https://instagram.com/zamonbooks"
+        ],
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "UZ",
+            "addressRegion": "Toshkent",
+            "addressLocality": "Toshkent"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+998-90-123-45-67",
+            "contactType": "customer service",
+            "availableLanguage": ["uz", "ru"]
+        },
+        "openingHours": "Mo-Su 00:00-23:59",
+        "priceRange": "$$",
+        "paymentAccepted": ["Cash", "Credit Card", "PayPal", "Click", "Payme"],
+        "currenciesAccepted": "UZS"
+    }
+    </script>
     
     </head>
 <body>

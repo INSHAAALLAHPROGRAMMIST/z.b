@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './styles/variables.css'; // CSS o'zgaruvchilar
 import './index.css'; // Global stillarimiz
+import './styles/components/not-found.css'; // 404 sahifa stillari
 
 import { BrowserRouter } from 'react-router-dom';
 import { initImageProtection } from './utils/imageProtection.js';

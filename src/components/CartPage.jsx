@@ -372,9 +372,9 @@ ${orderDetails}
 
             // Xato turini aniqlash
             if (error.message && error.message.includes('Book ID topilmadi')) {
-                toast.error('Savat ma\'lumotlarida xatolik bor. Sahifani yangilab qaytadan urinib ko\'ring.');
+                toastMessages.error('Savat ma\'lumotlarida xatolik bor. Sahifani yangilab qaytadan urinib ko\'ring.');
             } else if (error.message && error.message.includes('network')) {
-                toast.error('Internet aloqasi bilan muammo. Iltimos, qaytadan urinib ko\'ring.');
+                toastMessages.error('Internet aloqasi bilan muammo. Iltimos, qaytadan urinib ko\'ring.');
             } else {
                 toastMessages.orderError();
             }

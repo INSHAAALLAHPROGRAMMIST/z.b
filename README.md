@@ -882,14 +882,14 @@ Efficiency Gain: 80%+ time savings
 ## 📞 Support va Aloqa
 
 ### 💬 Loyiha bo'yicha savollar:
-- **🐛 Issues**: [GitHub Issues](https://github.com/your-username/zamon-books-frontend/issues)
-- **💡 Feature Requests**: [GitHub Discussions](https://github.com/your-username/zamon-books-frontend/discussions)
-- **📖 Documentation**: [Project Wiki](https://github.com/your-username/zamon-books-frontend/wiki)
+- **🐛 Issues**: [GitHub Issues](https://github.com/INSHAAALLAHPROGRAMMIST/z.b/issues)
+- **💡 Feature Requests**: [GitHub Discussions](https://github.com/INSHAAALLAHPROGRAMMIST/z.b/discussions)
+- **📖 Documentation**: [Project Wiki](https://github.com/INSHAAALLAHPROGRAMMIST/z.b/wiki)
 
 ### 🤝 Hamkorlik:
-- **📧 Email**: developer@zamonbooks.uz
-- **💼 LinkedIn**: [Developer Profile](https://linkedin.com/in/your-profile)
-- **🐦 Twitter**: [@zamonbooks_dev](https://twitter.com/zamonbooks_dev)
+- **📧 Email**: savdoyi@ya.ru
+- **💼 LinkedIn**: [Developer Profile](https://linkedin.com/in/Inshaallahprogrammist)
+- **🐦 Twitter**: [@_savdoyi_](https://twitter.com/_savdoyi_)
 
 ### 🎓 AI Development bo'yicha:
 - **🤖 AI Consulting**: AI-powered development services
@@ -912,9 +912,9 @@ Efficiency Gain: 80%+ time savings
 
 ---
 
-[![⭐ Star this repo](https://img.shields.io/github/stars/your-username/zamon-books-frontend?style=social)](https://github.com/your-username/zamon-books-frontend)
-[![🐛 Report Bug](https://img.shields.io/badge/Bug-Report-red)](https://github.com/your-username/zamon-books-frontend/issues)
-[![💡 Request Feature](https://img.shields.io/badge/Feature-Request-blue)](https://github.com/your-username/zamon-books-frontend/issues)
-[![🤖 AI Powered](https://img.shields.io/badge/AI-Powered-purple)](https://github.com/your-username/zamon-books-frontend)
+[![⭐ Star this repo](https://img.shields.io/github/stars/INSHAAALLAHPROGRAMMIST/z.b?style=social)](https://github.com/INSHAAALLAHPROGRAMMIST/z.b)
+[![🐛 Report Bug](https://img.shields.io/badge/Bug-Report-red)](https://github.com/INSHAAALLAHPROGRAMMIST/z.b/issues)
+[![💡 Request Feature](https://img.shields.io/badge/Feature-Request-blue)](https://github.com/INSHAAALLAHPROGRAMMIST/z.b/issues)
+[![🤖 AI Powered](https://img.shields.io/badge/AI-Powered-purple)](https://github.com/INSHAAALLAHPROGRAMMIST/z.b)
 
 </div>

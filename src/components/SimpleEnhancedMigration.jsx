@@ -122,7 +122,6 @@ function SimpleEnhancedMigration() {
                 } catch (error) {
                     console.error(`❌ ${book.title} yangilashda xato:`, error);
                     console.error('Xato tafsiloti:', error.message);
-                    console.error('Yangilanishi kerak bo\'lgan data:', JSON.stringify(updateData, null, 2));
                     errors++;
                 }
             }

@@ -702,6 +702,13 @@ body.light-mode .book-card,
 body.light-mode .admin-filters {
     background: white;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    color: #1f2937;
+}
+
+body.light-mode .pagination-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
 }
 
 body.light-mode .admin-table {

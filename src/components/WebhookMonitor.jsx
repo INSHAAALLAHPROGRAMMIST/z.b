@@ -583,9 +583,30 @@ const WebhookMonitor = () => {
             </div>
 
             {/* Security Tips */}
-            <div style={{ marginTop: '20px', padding: '15px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '5px' }}>
-                <h4 style={{ margin: '0 0 10px 0' }}>💡 Xavfsizlik Maslahatlari:</h4>
-                <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem' }}>
+            <div style={{ 
+                marginTop: '20px', 
+                padding: '15px', 
+                background: 'var(--glass-bg-light)', 
+                borderRadius: '0.75rem',
+                border: '1px solid var(--glass-border)'
+            }}>
+                <h4 style={{ 
+                    margin: '0 0 10px 0',
+                    color: 'var(--text-color)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                }}>
+                    <i className="fas fa-shield-alt" style={{ color: 'var(--primary-color)' }}></i>
+                    Xavfsizlik Maslahatlari:
+                </h4>
+                <ul style={{ 
+                    margin: 0, 
+                    paddingLeft: '20px', 
+                    fontSize: '0.9rem',
+                    color: 'var(--text-color)',
+                    lineHeight: '1.6'
+                }}>
                     <li>Webhook o'rnatilmaganligini muntazam tekshiring</li>
                     <li>Bot token'ini hech kimga bermang</li>
                     <li>Agar webhook topilsa, darhol o'chiring</li>

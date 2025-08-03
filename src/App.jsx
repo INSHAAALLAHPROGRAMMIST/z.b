@@ -33,8 +33,12 @@ import {
     LazyAdminGenreManagement,
     LazyAdminOrderManagement,
     LazyAdminUserManagement,
-    LazyAdminSettings
+    LazyAdminSettings,
+    LazyAdminInventoryManagement
 } from './components/admin/LazyAdminComponents';
+
+// Direct import for SimpleEnhancedMigration to avoid lazy loading issues
+import SimpleEnhancedMigration from './components/SimpleEnhancedMigration';
 
 // --- Appwrite konsolidan olingan ID'lar ---
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -569,6 +573,16 @@ function App() {
                     }
                 />
                 <Route
+                    path="/admin/inventory"
+                    element={
+                        <AdminProtectedRoute>
+                            <AdminLayout>
+                                <LazyAdminInventoryManagement />
+                            </AdminLayout>
+                        </AdminProtectedRoute>
+                    }
+                />
+                <Route
                     path="/admin/users"
                     element={
                         <AdminProtectedRoute>
@@ -584,6 +598,16 @@ function App() {
                         <AdminProtectedRoute>
                             <AdminLayout>
                                 <LazyAdminSettings />
+                            </AdminLayout>
+                        </AdminProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/enhanced-migration"
+                    element={
+                        <AdminProtectedRoute>
+                            <AdminLayout>
+                                <SimpleEnhancedMigration />
                             </AdminLayout>
                         </AdminProtectedRoute>
                     }

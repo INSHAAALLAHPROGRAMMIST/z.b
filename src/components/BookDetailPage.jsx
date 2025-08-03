@@ -3,6 +3,12 @@ import { useParams } from 'react-router-dom';
 import { databases, Query, ID } from '../appwriteConfig';
 import { toastMessages } from '../utils/toastUtils';
 import { useLazyCSS } from '../hooks/useLazyCSS';
+import PreOrderWaitlist from './PreOrderWaitlist';
+import { STOCK_STATUS } from '../utils/inventoryUtils';
+
+// Direct CSS imports for production reliability
+import '../styles/components/book-detail-clean.css';
+import '../styles/components/book-detail-animations.css';
 
 import BookSEO from './SEO/BookSEO';
 
@@ -95,8 +101,7 @@ function BookDetailPage() {
     const [cartItems, setCartItems] = useState([]);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
-    useLazyCSS('/src/styles/components/book-detail-clean.css');
-    useLazyCSS('/src/styles/components/book-detail-animations.css');
+    // CSS files are now directly imported above for production reliability
 
     const fetchCartItems = useCallback(async () => {
         try {
@@ -168,7 +173,10 @@ function BookDetailPage() {
 
             toastMessages.addedToCart(bookToAdd.title);
             await fetchCartItems();
-            window.dispatchEvent(new CustomEvent('cartUpdated'));
+            // Delay to ensure state is updated
+            setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('cartUpdated'));
+            }, 100);
 
         } catch (err) {
             if (import.meta.env.DEV) {
@@ -220,7 +228,10 @@ function BookDetailPage() {
             }
 
             await fetchCartItems();
-            window.dispatchEvent(new CustomEvent('cartUpdated'));
+            // Delay to ensure state is updated
+            setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('cartUpdated'));
+            }, 100);
         } catch (err) {
             if (import.meta.env.DEV) {
                 console.error("Savat miqdorini yangilashda xato:", err);
@@ -477,36 +488,46 @@ function BookDetailPage() {
                                 
                             </div>
 
-                            {bookQuantityInCart === 0 ? (
-                                <button
-                                    className="add-to-cart-btn"
-                                    onClick={() => addToCart(book)}
-                                    aria-label={`${book.title} kitobini savatga qo'shish`}
-                                >
-                                    <i className="fas fa-shopping-cart" aria-hidden="true"></i>
-                                    <span>Savatga qo'shish</span>
-                                    <i className="fas fa-arrow-right" aria-hidden="true"></i>
-                                </button>
+                            {/* Stock Status Based Actions */}
+                            {!book.stockStatus || book.stockStatus === STOCK_STATUS.IN_STOCK || book.stockStatus === STOCK_STATUS.LOW_STOCK ? (
+                                // Normal cart functionality for available books (default agar stockStatus yo'q bo'lsa)
+                                bookQuantityInCart === 0 ? (
+                                    <button
+                                        className="add-to-cart-btn"
+                                        onClick={() => addToCart(book)}
+                                        aria-label={`${book.title} kitobini savatga qo'shish`}
+                                    >
+                                        <i className="fas fa-shopping-cart" aria-hidden="true"></i>
+                                        <span>Savatga qo'shish</span>
+                                        <i className="fas fa-arrow-right" aria-hidden="true"></i>
+                                    </button>
+                                ) : (
+                                    <div className="quantity-controls">
+                                        <button
+                                            className="quantity-btn quantity-decrease"
+                                            onClick={() => updateBookQuantityInCart(book.$id, bookQuantityInCart - 1)}
+                                            aria-label="Miqdorni kamaytirish"
+                                        >
+                                            <i className="fas fa-minus" aria-hidden="true"></i>
+                                        </button>
+                                        <span className="quantity-display" aria-label={`Hozirgi miqdor: ${bookQuantityInCart}`}>
+                                            {bookQuantityInCart}
+                                        </span>
+                                        <button
+                                            className="quantity-btn quantity-increase"
+                                            onClick={() => updateBookQuantityInCart(book.$id, bookQuantityInCart + 1)}
+                                            aria-label="Miqdorni oshirish"
+                                        >
+                                            <i className="fas fa-plus" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                )
                             ) : (
-                                <div className="quantity-controls">
-                                    <button
-                                        className="quantity-btn quantity-decrease"
-                                        onClick={() => updateBookQuantityInCart(book.$id, bookQuantityInCart - 1)}
-                                        aria-label="Miqdorni kamaytirish"
-                                    >
-                                        <i className="fas fa-minus" aria-hidden="true"></i>
-                                    </button>
-                                    <span className="quantity-display" aria-label={`Hozirgi miqdor: ${bookQuantityInCart}`}>
-                                        {bookQuantityInCart}
-                                    </span>
-                                    <button
-                                        className="quantity-btn quantity-increase"
-                                        onClick={() => updateBookQuantityInCart(book.$id, bookQuantityInCart + 1)}
-                                        aria-label="Miqdorni oshirish"
-                                    >
-                                        <i className="fas fa-plus" aria-hidden="true"></i>
-                                    </button>
-                                </div>
+                                // Pre-order/Waitlist for unavailable books
+                                <PreOrderWaitlist 
+                                    book={book} 
+                                    currentUserId={localStorage.getItem('currentUserId') || localStorage.getItem('appwriteGuestId')}
+                                />
                             )}
                         </section>
 

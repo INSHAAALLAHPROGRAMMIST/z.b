@@ -369,9 +369,9 @@ function AdminAuthorManagement() {
                         <div className="pagination-info">
                             Jami: {totalAuthors} ta muallif, 
                             <select 
+                                className="admin-select items-per-page"
                                 value={itemsPerPage} 
                                 onChange={handleItemsPerPageChange}
-                                className="items-per-page"
                             >
                                 <option value="5">5</option>
                                 <option value="10">10</option>

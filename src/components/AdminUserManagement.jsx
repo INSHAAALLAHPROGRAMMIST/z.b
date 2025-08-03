@@ -328,6 +328,7 @@ function AdminUserManagement() {
                 
                 <div className="filter-group">
                     <select
+                        className="admin-select status-filter"
                         value={filterRole}
                         onChange={handleRoleFilterChange}
                     >
@@ -414,9 +415,9 @@ function AdminUserManagement() {
                         <div className="pagination-info">
                             Jami: {totalUsers} ta foydalanuvchi, 
                             <select 
+                                className="admin-select items-per-page"
                                 value={itemsPerPage} 
                                 onChange={handleItemsPerPageChange}
-                                className="items-per-page"
                             >
                                 <option value="5">5</option>
                                 <option value="10">10</option>
@@ -579,6 +580,7 @@ function AdminUserManagement() {
                                 <div className="form-group">
                                     <label htmlFor="role">Yangi rol</label>
                                     <select
+                                        className="admin-select"
                                         id="role"
                                         name="role"
                                         value={newRole}

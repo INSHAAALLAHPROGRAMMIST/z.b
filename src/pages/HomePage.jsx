@@ -3,6 +3,7 @@ import { databases, ID, Query } from '../appwriteConfig';
 import { Link } from 'react-router-dom';
 import { toastMessages } from '../utils/toastUtils';
 import ResponsiveImage from '../components/ResponsiveImage';
+import { SORT_OPTIONS, sortBooks, getStockStatusColor, getStockStatusText, filterVisibleBooks } from '../utils/inventoryUtils';
 // BookCardSkeleton not needed - simple loading
 // Lazy load SlugUpdater for better initial performance
 const SlugUpdater = React.lazy(() => import('../components/SlugUpdater'));
@@ -22,6 +23,7 @@ const HomePage = () => {
     const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState(null);
     const [cartItems, setCartItems] = useState([]); // Savatdagi kitoblar
+    const [sortBy, setSortBy] = useState('recommended'); // Sorting state
 
     // Simple loading state
     const [initialBooksLoaded, setInitialBooksLoaded] = useState(false);
@@ -112,8 +114,10 @@ const HomePage = () => {
                         console.log('📚 All books loaded:', initialBooksResponse.documents.length);
                         console.log('🏷️ Genres loaded:', genresResponse.documents.length);
                     }
-                    setBooks(initialBooksResponse.documents);
-                    setAllBooks(initialBooksResponse.documents); // Same data
+                    // Filter visible books for regular users
+                    const visibleBooks = filterVisibleBooks(initialBooksResponse.documents, false);
+                    setBooks(visibleBooks);
+                    setAllBooks(visibleBooks);
                     setGenres(genresResponse.documents);
                     setInitialBooksLoaded(true);
                     setLoading(false);
@@ -320,9 +324,24 @@ const HomePage = () => {
 
             {/* Below-the-fold content - loads after initial render */}
             <section className="container below-fold">
-                <h2 className="section-title">Eng So'nggi Kitoblar</h2>
+                <div className="books-section-header">
+                    <h2 className="section-title">Kitoblar</h2>
+                    <div className="sort-controls">
+                        <select 
+                            value={sortBy} 
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="sort-select glassmorphism-button"
+                        >
+                            {SORT_OPTIONS.map(option => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
                 <div className="book-grid">
-                    {books.map((book, index) => {
+                    {sortBooks(books, sortBy).map((book, index) => {
                         // Use slug if available, fallback to ID
                         const bookUrl = book.slug ? `/kitob/${book.slug}` : `/book/${book.$id}`;
 
@@ -339,7 +358,22 @@ const HomePage = () => {
                                     <h3>{book.title}</h3>
                                     {book.author && book.author.name && <p className="author">{book.author.name}</p>}
                                     {book.genres && book.genres.length > 0 && <p className="genre">{book.genres[0].name}</p>}
-                                    <p className="price">{parseFloat(book.price).toFixed(2)} so'm</p>
+                                    
+                                    <div className="price-stock-info">
+                                        <p className="price">{parseFloat(book.price).toFixed(2)} so'm</p>
+                                        {book.stockStatus && (
+                                            <span 
+                                                className="stock-status"
+                                                style={{ 
+                                                    color: getStockStatusColor(book.stockStatus),
+                                                    fontSize: '0.8rem',
+                                                    fontWeight: '600'
+                                                }}
+                                            >
+                                                {getStockStatusText(book.stockStatus, book.stock)}
+                                            </span>
+                                        )}
+                                    </div>
 
                                     {getBookQuantityInCart(book.$id) === 0 ? (
                                         <button

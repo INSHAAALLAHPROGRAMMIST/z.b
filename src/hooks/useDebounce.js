@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 // Debounce hook for search and filtering
 export const useDebounce = (value, delay = 300) => {

@@ -46,15 +46,13 @@
 
     <link rel="manifest" href="/manifest.json"> 
     
-    <!-- Preload critical fonts -->
+    <!-- Load critical fonts immediately -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"></noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
     
-    <!-- Preload Font Awesome -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
+    <!-- Load Font Awesome immediately -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <!-- DNS prefetch for external resources -->
     <link rel="dns-prefetch" href="//res.cloudinary.com">
@@ -67,9 +65,7 @@
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
     <link rel="preconnect" href="https://cloud.appwrite.io" crossorigin>
     
-    <!-- Preload critical JavaScript -->
-    <link rel="modulepreload" href="/src/main.jsx">
-    <link rel="modulepreload" href="/src/App.jsx">
+    <!-- Critical JavaScript will be loaded by Vite automatically -->
     
     <!-- Critical CSS for above-the-fold content -->
     <style id="critical-css">
@@ -416,6 +412,27 @@
 <body>
     <div id="root"></div> 
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Polyfills for older browsers -->
+    <script>
+        // Polyfill for Element.closest()
+        if (!Element.prototype.closest) {
+            Element.prototype.closest = function(s) {
+                var el = this;
+                do {
+                    if (el.matches(s)) return el;
+                    el = el.parentElement || el.parentNode;
+                } while (el !== null && el.nodeType === 1);
+                return null;
+            };
+        }
+        
+        // Polyfill for Element.matches()
+        if (!Element.prototype.matches) {
+            Element.prototype.matches = Element.prototype.msMatchesSelector || 
+                                      Element.prototype.webkitMatchesSelector;
+        }
+    </script>
     
     <!-- Service Worker Registration -->
     <script>

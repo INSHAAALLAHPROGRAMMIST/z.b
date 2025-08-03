@@ -51,15 +51,15 @@ export default defineConfig(({ mode }) => {
           assetFileNames: (assetInfo) => {
             const extType = assetInfo.name.split('.').at(1);
             if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
-              return `images/[name]-[hash][extname]`;
+              return `assets/images/[name]-[hash][extname]`;
             }
             if (/css/i.test(extType)) {
-              return `css/[name]-[hash][extname]`;
+              return `assets/css/[name]-[hash][extname]`;
             }
             return `assets/[name]-[hash][extname]`;
           },
-          chunkFileNames: 'js/[name]-[hash].js',
-          entryFileNames: 'js/[name]-[hash].js'
+          chunkFileNames: 'assets/js/[name]-[hash].js',
+          entryFileNames: 'assets/js/[name]-[hash].js'
         }
       },
       cssCodeSplit: true,

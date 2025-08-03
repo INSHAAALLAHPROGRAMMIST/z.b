@@ -10,4 +10,10 @@ client
 const databases = new Databases(client);
 const account = new Account(client); // Account servisni qo'shish
 
+// Collection IDs
+export const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
+export const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
+export const WAITLIST_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_WAITLIST_ID;
+export const PREORDER_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_PREORDER_ID;
+
 export { client, databases, account, ID, Query };

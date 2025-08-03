@@ -307,6 +307,12 @@ function AdminLayout({ children }) {
                                 {!sidebarCollapsed && <span>Sozlamalar</span>}
                             </Link>
                         </li>
+                        <li className={isActive('/admin/enhanced-migration') ? 'active' : ''}>
+                            <Link to="/admin/enhanced-migration">
+                                <i className="fas fa-rocket"></i>
+                                {!sidebarCollapsed && <span>Enhanced Migration</span>}
+                            </Link>
+                        </li>
                     </ul>
                 </nav>
                 
@@ -350,6 +356,7 @@ function AdminLayout({ children }) {
                             {location.pathname === '/admin/orders' && 'Buyurtmalar'}
                             {location.pathname === '/admin/users' && 'Foydalanuvchilar'}
                             {location.pathname === '/admin/settings' && 'Sozlamalar'}
+                            {location.pathname === '/admin/enhanced-migration' && 'Enhanced Migration'}
                         </h1>
                     </div>
                     <div className="admin-header-right">

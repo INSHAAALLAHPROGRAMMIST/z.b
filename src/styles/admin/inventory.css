@@ -1,0 +1,441 @@
+/* Admin Inventory Management Styles */
+
+.admin-inventory-management {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header */
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    gap: 2rem;
+}
+
+.inventory-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.inventory-title i {
+    color: var(--primary-color);
+    font-size: 1.75rem;
+}
+
+.inventory-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.75rem;
+    padding: 1rem 1.5rem;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 120px;
+}
+
+.stat-card.success {
+    border-color: rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+}
+
+.stat-card.warning {
+    border-color: rgba(245, 158, 11, 0.3);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+}
+
+.stat-card.danger {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.inventory-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Low Stock Alerts */
+.low-stock-alerts {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.low-stock-alerts h3 {
+    color: #f59e0b;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.alert-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+}
+
+.book-title {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.stock-info {
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+/* Filters */
+.inventory-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: center;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.search-box i {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-color);
+    opacity: 0.6;
+}
+
+.status-filter {
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    font-size: 1rem;
+    min-width: 200px;
+}
+
+/* Bulk Update Panel */
+.bulk-update-panel {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.bulk-update-panel h3 {
+    color: #3b82f6;
+    margin-bottom: 1rem;
+}
+
+.bulk-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.bulk-controls input {
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    font-size: 1rem;
+    width: 200px;
+}
+
+/* Inventory Table */
+.inventory-table-container {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.inventory-table th {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.inventory-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+}
+
+.inventory-table tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Book Info */
+.book-info {
+    min-width: 200px;
+}
+
+.book-info .book-title {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+}
+
+.book-info .book-author {
+    font-size: 0.875rem;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+/* Stock Input */
+.stock-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stock-input {
+    width: 80px;
+    padding: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.25rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    text-align: center;
+}
+
+.save-btn, .cancel-btn {
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+.save-btn {
+    background: #10b981;
+    color: white;
+}
+
+.cancel-btn {
+    background: #ef4444;
+    color: white;
+}
+
+.stock-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    transition: background 0.2s ease;
+}
+
+.stock-display:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.stock-number {
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: var(--text-color);
+}
+
+.edit-icon {
+    opacity: 0.5;
+    font-size: 0.75rem;
+}
+
+/* Status Badge */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Min/Max Info */
+.min-max-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.restock-btn {
+    background: #10b981;
+    color: white;
+}
+
+.restock-btn:hover {
+    background: #059669;
+    transform: scale(1.05);
+}
+
+.sold-btn {
+    background: #f59e0b;
+    color: white;
+}
+
+.sold-btn:hover {
+    background: #d97706;
+    transform: scale(1.05);
+}
+
+/* Loading */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 3px solid rgba(var(--primary-color-rgb, 79, 70, 229), 0.2);
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .inventory-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .inventory-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .stat-card {
+        flex: 1;
+        min-width: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-inventory-management {
+        padding: 1rem;
+    }
+    
+    .inventory-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-box {
+        max-width: none;
+    }
+    
+    .bulk-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .bulk-controls input {
+        width: 100%;
+    }
+    
+    .inventory-table-container {
+        overflow-x: auto;
+    }
+    
+    .inventory-table {
+        min-width: 800px;
+    }
+}

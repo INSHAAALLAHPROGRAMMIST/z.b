@@ -255,6 +255,7 @@ function AdminOrderManagement() {
                 
                 <div className="filter-group">
                     <select
+                        className="admin-select status-filter"
                         value={filterStatus}
                         onChange={handleStatusFilterChange}
                     >
@@ -355,9 +356,9 @@ function AdminOrderManagement() {
                         <div className="pagination-info">
                             Jami: {totalOrders} ta buyurtma, 
                             <select 
+                                className="admin-select items-per-page"
                                 value={itemsPerPage} 
                                 onChange={handleItemsPerPageChange}
-                                className="items-per-page"
                             >
                                 <option value="5">5</option>
                                 <option value="10">10</option>
@@ -537,6 +538,7 @@ function AdminOrderManagement() {
                                 <div className="form-group">
                                     <label htmlFor="status">Yangi holat</label>
                                     <select
+                                        className="admin-select"
                                         id="status"
                                         name="status"
                                         value={newStatus}

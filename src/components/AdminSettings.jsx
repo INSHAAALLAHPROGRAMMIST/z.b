@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { databases, ID } from '../appwriteConfig';
 import { uploadToCloudinary } from '../config/cloudinaryConfig';
 import siteConfig from '../config/siteConfig';
+import SystemStatus from './SystemStatus';
 import '../index.css';
 import '../styles/admin.css';
 
@@ -208,6 +209,9 @@ function AdminSettings() {
 
     return (
         <div className="admin-settings" style={{ marginTop: `${siteConfig.layout.contentSpacing}px` }}>
+            {/* System Status */}
+            <SystemStatus />
+            
             <div className="admin-card">
                 <div className="card-header">
                     <h3>Sayt sozlamalari</h3>

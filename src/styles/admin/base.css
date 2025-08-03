@@ -359,6 +359,11 @@ body.light-mode .admin-header {
     color: #1f2937;
 }
 
+body.light-mode .admin-btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
 body.light-mode .admin-sidebar .admin-nav ul li a {
     color: #374151;
 }
@@ -403,6 +408,11 @@ body.light-mode .admin-footer {
     background-color: white;
     color: #6b7280;
     border-top: 1px solid #e5e7eb;
+}
+
+body.light-mode .admin-footer-version {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
 }
 
 body.light-mode .admin-sidebar-header {

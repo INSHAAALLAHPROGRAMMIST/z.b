@@ -111,6 +111,48 @@ export const STORAGE_KEYS = {
   PERFORMANCE_METRICS: 'performanceMetrics'
 };
 
+// Inventory Management
+export const STOCK_STATUS = {
+  IN_STOCK: 'in_stock',
+  LOW_STOCK: 'low_stock', 
+  OUT_OF_STOCK: 'out_of_stock',
+  DISCONTINUED: 'discontinued',
+  PRE_ORDER: 'pre_order',
+  COMING_SOON: 'coming_soon'
+};
+
+export const BOOK_VISIBILITY = {
+  VISIBLE: 'visible',
+  HIDDEN: 'hidden',
+  ADMIN_ONLY: 'admin_only'
+};
+
+export const WAITLIST_STATUS = {
+  WAITING: 'waiting',
+  NOTIFIED: 'notified', 
+  FULFILLED: 'fulfilled',
+  CANCELLED: 'cancelled'
+};
+
+export const SORT_OPTIONS = {
+  RECOMMENDED: 'recommended',
+  NEWEST: 'newest',
+  OLDEST: 'oldest', 
+  PRICE_LOW: 'price_low',
+  PRICE_HIGH: 'price_high',
+  POPULAR: 'popular',
+  ALPHABETICAL: 'alphabetical',
+  RATING: 'rating'
+};
+
+export const INVENTORY_SETTINGS = {
+  LOW_STOCK_THRESHOLD: 5,
+  AUTO_RESTOCK_ALERT: true,
+  ENABLE_WAITLIST: true,
+  MAX_WAITLIST_PER_BOOK: 100,
+  WAITLIST_NOTIFICATION_DELAY: 24 * 60 * 60 * 1000 // 24 hours
+};
+
 // Feature flags
 export const FEATURE_FLAGS = {
   ENABLE_PERFORMANCE_MONITORING: false,
@@ -118,7 +160,10 @@ export const FEATURE_FLAGS = {
   ENABLE_ANALYTICS: false,
   ENABLE_A_B_TESTING: false,
   ENABLE_OFFLINE_MODE: false,
-  ENABLE_PUSH_NOTIFICATIONS: false
+  ENABLE_PUSH_NOTIFICATIONS: false,
+  ENABLE_INVENTORY_MANAGEMENT: true,
+  ENABLE_WAITLIST: true,
+  ENABLE_PRE_ORDER: true
 };
 
 // Environment checks

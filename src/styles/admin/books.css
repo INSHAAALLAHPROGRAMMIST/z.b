@@ -497,6 +497,7 @@ body.light-mode .admin-filters,
 body.light-mode .admin-table-container,
 body.light-mode .mobile-book-card {
     background-color: white;
+    color: #1f2937;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 

@@ -10,6 +10,7 @@ import AdminProtectedRoute from './components/AdminProtectedRoute';
 import ToastContainer from './components/Toast';
 import ErrorBoundary from './components/ErrorBoundary';
 import NetlifyStatus from './components/NetlifyStatus';
+import SmartSearchInput from './components/SmartSearchInput';
 // Performance monitoring disabled to reduce console noise
 // import PerformanceMonitor from './components/PerformanceMonitor';
 
@@ -383,22 +384,11 @@ function MainLayout({ children }) {
                         </ul>
                     </nav>
 
-                    {/* Qidiruv paneli - faqat desktopda ko'rinadi, mobilda dinamik */}
-                    <div className={`search-bar glassmorphism-input ${showSearchInput ? 'active-mobile' : ''}`}>
-                        <i className="fas fa-search"></i>
-                        <input
-                            type="text"
-                            id="search-input"
-                            name="search"
+                    {/* Smart Qidiruv paneli - Netlify Functions bilan */}
+                    <div className={`search-bar ${showSearchInput ? 'active-mobile' : ''}`}>
+                        <SmartSearchInput 
                             placeholder="Kitob qidirish..."
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    const searchTerm = e.target.value.trim();
-                                    if (searchTerm) {
-                                        navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-                                    }
-                                }
-                            }}
+                            showSuggestions={true}
                         />
                     </div>
 

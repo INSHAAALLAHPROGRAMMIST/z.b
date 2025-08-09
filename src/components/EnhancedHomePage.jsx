@@ -5,8 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useNetlifyBooks } from '../hooks/useNetlifyBooks';
 import { toastMessages } from '../utils/toastUtils';
-import ResponsiveImage from './ResponsiveImage';
-import { SORT_OPTIONS, getStockStatusColor, getStockStatusText } from '../utils/inventoryUtils';
+import LazyBookGrid from './LazyBookGrid';
+import { SORT_OPTIONS } from '../utils/inventoryUtils';
 
 const EnhancedHomePage = () => {
   // Netlify Books hook
@@ -187,100 +187,17 @@ const EnhancedHomePage = () => {
             </div>
           )}
 
-          {/* Books Grid */}
+          {/* Lazy Book Grid */}
           {books.length > 0 && (
-            <>
-              <div className="books-grid">
-                {books.map((book) => (
-                  <div key={book.$id} className="book-card glassmorphism-card">
-                    {/* Book Image */}
-                    <div className="book-image-container">
-                      <Link to={`/book/${book.$id}`}>
-                        <ResponsiveImage
-                          src={book.imageUrl}
-                          alt={book.title}
-                          className="book-image"
-                          loading="lazy"
-                        />
-                      </Link>
-                      
-                      {/* Stock Status Badge */}
-                      {book.stockStatus && (
-                        <div 
-                          className="stock-badge"
-                          style={{ 
-                            backgroundColor: getStockStatusColor(book.stockStatus),
-                            color: 'white'
-                          }}
-                        >
-                          {getStockStatusText(book.stockStatus)}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Book Info */}
-                    <div className="book-info">
-                      <h3 className="book-title">
-                        <Link to={`/book/${book.$id}`}>
-                          {book.title}
-                        </Link>
-                      </h3>
-                      
-                      {book.authorName && (
-                        <p className="book-author">{book.authorName}</p>
-                      )}
-                      
-                      <div className="book-price">
-                        {book.price ? `${book.price.toLocaleString()} so'm` : 'Narx ko\'rsatilmagan'}
-                      </div>
-
-                      {/* Quick Actions */}
-                      <div className="book-actions">
-                        <button
-                          onClick={() => addToCart(book)}
-                          className="glassmorphism-button add-to-cart-btn"
-                          disabled={!book.isAvailable || book.stock <= 0}
-                        >
-                          <i className="fas fa-shopping-cart"></i>
-                          Savatga
-                        </button>
-                        
-                        <Link 
-                          to={`/book/${book.$id}`}
-                          className="glassmorphism-button view-btn"
-                        >
-                          <i className="fas fa-eye"></i>
-                          Ko'rish
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Load More Button */}
-              {hasMore && (
-                <div className="load-more-container">
-                  <button
-                    onClick={handleLoadMore}
-                    className="glassmorphism-button load-more-btn"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <i className="fas fa-spinner fa-spin"></i>
-                        Yuklanmoqda...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fas fa-plus"></i>
-                        Ko'proq yuklash ({currentPage}/{totalPages})
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-            </>
+            <LazyBookGrid
+              books={books}
+              loading={loading}
+              hasMore={hasMore}
+              onLoadMore={handleLoadMore}
+              onAddToCart={addToCart}
+              className="homepage-book-grid"
+              itemsPerPage={12}
+            />
           )}
 
           {/* Empty State */}

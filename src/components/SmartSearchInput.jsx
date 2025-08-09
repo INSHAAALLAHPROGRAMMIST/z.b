@@ -41,20 +41,21 @@ const SmartSearchInput = ({
     setSelectedIndex(-1);
     
     // O'zbek tili uchun real-time correction hints
-    if (value.length > 2) {
-      const corrected = correctUzbekText(value);
-      if (corrected !== value.toLowerCase() && corrected.length > 0) {
+    const trimmedValue = value.trim();
+    if (trimmedValue.length > 2) {
+      const corrected = correctUzbekText(trimmedValue);
+      if (corrected !== trimmedValue.toLowerCase() && corrected.length > 0) {
         // Tuzatish taklifi (optional - foydalanuvchiga ko'rsatish mumkin)
-        console.log(`Suggestion: "${corrected}" for "${value}"`);
+        console.log(`Suggestion: "${corrected}" for "${trimmedValue}"`);
       }
     }
   };
 
   // Handle search submit
   const handleSearch = (searchQuery = null) => {
-    const finalQuery = searchQuery || query;
+    const finalQuery = (searchQuery || query).trim();
     
-    if (finalQuery.trim()) {
+    if (finalQuery) {
       // Close suggestions
       setIsFocused(false);
       
@@ -189,13 +190,14 @@ const SmartSearchInput = ({
         >
           {/* O'zbek tili tuzatish taklifi */}
           {(() => {
-            const corrected = correctUzbekText(query);
-            const uzbekSuggestions = generateSearchSuggestions(query);
+            const trimmedQuery = query.trim();
+            const corrected = correctUzbekText(trimmedQuery);
+            const uzbekSuggestions = generateSearchSuggestions(trimmedQuery);
             
             return (
               <>
                 {/* Tuzatish taklifi */}
-                {corrected !== query.toLowerCase() && corrected.length > 2 && (
+                {corrected !== trimmedQuery.toLowerCase() && corrected.length > 2 && (
                   <div 
                     className="suggestion-item correction-suggestion"
                     onClick={() => handleSearch(corrected)}

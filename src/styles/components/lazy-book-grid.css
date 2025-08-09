@@ -1,0 +1,290 @@
+/* Lazy Book Grid Styles */
+/* Hozirgi glassmorphism dizayn bilan mos */
+
+.lazy-book-grid {
+  width: 100%;
+}
+
+/* Books Grid Layout */
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+/* Book Card Enhancements */
+.book-card {
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.book-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Book Image Container */
+.book-image-container {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.book-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.book-card:hover .book-image {
+  transform: scale(1.05);
+}
+
+/* Stock Badge */
+.stock-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Relevance Score (Development only) */
+.relevance-score {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Book Info */
+.book-info {
+  padding: 16px;
+}
+
+.book-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.book-title a {
+  color: var(--text-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.book-title a:hover {
+  color: var(--accent-color);
+}
+
+.book-author {
+  font-size: 14px;
+  color: var(--light-text-color);
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+/* Description Preview (tavsifdan topilgan kitoblar uchun) */
+.book-description-preview {
+  font-size: 13px;
+  color: var(--light-text-color);
+  line-height: 1.5;
+  margin-bottom: 12px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid var(--accent-color);
+}
+
+.book-price {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent-color);
+  margin-bottom: 16px;
+}
+
+/* Book Actions */
+.book-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.book-actions .glassmorphism-button {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 14px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.add-to-cart-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading More Container */
+.loading-more-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px;
+  margin: 24px 0;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-color);
+}
+
+.loading-spinner i {
+  font-size: 24px;
+  color: var(--accent-color);
+}
+
+.loading-spinner p {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Load More Container */
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin: 32px 0;
+}
+
+.load-more-btn {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.load-more-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* End Message */
+.end-message {
+  text-align: center;
+  padding: 24px;
+  color: var(--light-text-color);
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .books-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  
+  .book-image-container {
+    height: 280px;
+  }
+  
+  .book-info {
+    padding: 12px;
+  }
+  
+  .book-title {
+    font-size: 16px;
+  }
+  
+  .book-actions .glassmorphism-button {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  
+  .book-description-preview {
+    font-size: 12px;
+    padding: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .books-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  
+  .book-image-container {
+    height: 240px;
+  }
+  
+  .book-actions {
+    flex-direction: column;
+  }
+  
+  .book-actions .glassmorphism-button {
+    width: 100%;
+  }
+}
+
+/* Light Mode Styles */
+body.light-mode .book-description-preview {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-color);
+}
+
+body.light-mode .relevance-score {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--text-color);
+}
+
+/* Animation for new items */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.book-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Intersection Observer Loading State */
+.book-card.loading {
+  opacity: 0.7;
+  transform: scale(0.98);
+}
+
+.book-card.loaded {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}

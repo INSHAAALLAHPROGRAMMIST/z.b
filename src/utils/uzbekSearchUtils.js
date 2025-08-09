@@ -143,7 +143,11 @@ const BOOK_CORRECTIONS = {
 export function correctUzbekText(text) {
   if (!text || typeof text !== 'string') return text;
   
-  let correctedText = text.toLowerCase().trim();
+  // Boshida va oxiridagi probellarni olib tashlash
+  let correctedText = text.trim().toLowerCase();
+  
+  // Agar bo'sh string bo'lsa, qaytarish
+  if (!correctedText) return correctedText;
   
   // Asosiy so'zlarni tuzatish
   Object.keys(UZBEK_CORRECTIONS).forEach(wrong => {
@@ -170,21 +174,41 @@ export function correctUzbekText(text) {
 export function parseSearchQuery(query) {
   if (!query || typeof query !== 'string') return [];
   
+  // Boshida va oxiridagi probellarni olib tashlash
+  const trimmedQuery = query.trim();
+  if (!trimmedQuery) return [];
+  
   // Tuzatilgan matnni olish
-  const correctedQuery = correctUzbekText(query);
+  const correctedQuery = correctUzbekText(trimmedQuery);
   
   // So'zlarni ajratish (probel, vergul, nuqta bo'yicha)
   const words = correctedQuery
     .split(/[\s,.\-+]+/)
-    .filter(word => word.length > 1)
-    .map(word => word.trim());
+    .filter(word => word && word.length > 1)
+    .map(word => word.trim())
+    .filter(word => word); // Bo'sh stringlarni olib tashlash
   
   return words;
 }
 
 // Multi-field search uchun query yaratish
 export function createSearchQueries(originalQuery) {
-  const correctedQuery = correctUzbekText(originalQuery);
+  // Boshida va oxiridagi probellarni olib tashlash
+  const trimmedQuery = originalQuery ? originalQuery.trim() : '';
+  if (!trimmedQuery) {
+    return {
+      original: originalQuery,
+      corrected: '',
+      words: [],
+      titleSearch: '',
+      authorSearch: '',
+      combinedSearch: '',
+      shortTerms: [],
+      longTerms: []
+    };
+  }
+  
+  const correctedQuery = correctUzbekText(trimmedQuery);
   const words = parseSearchQuery(correctedQuery);
   
   return {
@@ -267,11 +291,15 @@ export function calculateUzbekRelevance(book, searchQueries) {
 
 // Search suggestions uchun
 export function generateSearchSuggestions(query) {
-  const corrected = correctUzbekText(query);
+  // Boshida va oxiridagi probellarni olib tashlash
+  const trimmedQuery = query ? query.trim() : '';
+  if (!trimmedQuery) return [];
+  
+  const corrected = correctUzbekText(trimmedQuery);
   const suggestions = [];
   
   // Agar tuzatish bo'lgan bo'lsa, tuzatilgan variantni taklif qilish
-  if (corrected !== query.toLowerCase()) {
+  if (corrected !== trimmedQuery.toLowerCase()) {
     suggestions.push({
       type: 'correction',
       text: corrected,

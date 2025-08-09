@@ -96,7 +96,9 @@ export const fallbackBooksApi = {
 export const fallbackSearchApi = {
   async search(query, limit = 10) {
     try {
-      if (!query || query.length < 2) {
+      // Probellarni olib tashlash
+      const cleanQuery = query ? query.trim() : '';
+      if (!cleanQuery || cleanQuery.length < 2) {
         return {
           success: false,
           error: 'Query too short',
@@ -104,20 +106,62 @@ export const fallbackSearchApi = {
         };
       }
 
-      const response = await databases.listDocuments(
-        DATABASE_ID,
-        BOOKS_COLLECTION_ID,
-        [
-          Query.search('title', query),
-          Query.limit(limit)
-        ]
+      // Multiple search strategies parallel (tavsif qidiruvi qo'shildi)
+      const [titleResults, authorResults, descriptionResults] = await Promise.all([
+        databases.listDocuments(DATABASE_ID, BOOKS_COLLECTION_ID, [
+          Query.search('title', cleanQuery),
+          Query.limit(Math.ceil(limit * 0.5))
+        ]),
+        databases.listDocuments(DATABASE_ID, BOOKS_COLLECTION_ID, [
+          Query.search('authorName', cleanQuery),
+          Query.limit(Math.ceil(limit * 0.3))
+        ]),
+        databases.listDocuments(DATABASE_ID, BOOKS_COLLECTION_ID, [
+          Query.search('description', cleanQuery),
+          Query.limit(Math.ceil(limit * 0.2))
+        ])
+      ]);
+
+      // Combine and deduplicate
+      const allResults = [
+        ...titleResults.documents,
+        ...authorResults.documents,
+        ...descriptionResults.documents
+      ];
+      
+      const uniqueResults = Array.from(
+        new Map(allResults.map(book => [book.$id, book])).values()
       );
+
+      // Simple relevance scoring
+      const scoredResults = uniqueResults.map(book => {
+        let score = 0;
+        const bookTitle = (book.title || '').toLowerCase();
+        const bookAuthor = (book.authorName || '').toLowerCase();
+        const bookDescription = (book.description || '').toLowerCase();
+        
+        // Title match (highest priority)
+        if (bookTitle.includes(cleanQuery.toLowerCase())) score += 10;
+        
+        // Author match
+        if (bookAuthor.includes(cleanQuery.toLowerCase())) score += 7;
+        
+        // Description match (lowest priority)
+        if (bookDescription.includes(cleanQuery.toLowerCase())) score += 3;
+        
+        return { ...book, relevanceScore: score };
+      });
+
+      // Sort by relevance
+      const sortedResults = scoredResults
+        .sort((a, b) => b.relevanceScore - a.relevanceScore)
+        .slice(0, limit);
 
       return {
         success: true,
-        results: response.documents,
-        total: response.total,
-        query,
+        results: sortedResults,
+        total: uniqueResults.length,
+        query: cleanQuery,
         searchTime: '0ms',
         fallback: true
       };
@@ -135,7 +179,9 @@ export const fallbackSearchApi = {
 
   async getSuggestions(query, limit = 5) {
     try {
-      if (!query || query.length < 2) {
+      // Probellarni olib tashlash
+      const cleanQuery = query ? query.trim() : '';
+      if (!cleanQuery || cleanQuery.length < 2) {
         return {
           success: false,
           suggestions: []
@@ -146,7 +192,7 @@ export const fallbackSearchApi = {
         DATABASE_ID,
         BOOKS_COLLECTION_ID,
         [
-          Query.search('title', query),
+          Query.search('title', cleanQuery),
           Query.limit(limit)
         ]
       );

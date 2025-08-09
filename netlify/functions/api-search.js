@@ -37,7 +37,10 @@ exports.handler = async (event, context) => {
   try {
     const { q: query, limit = 10, suggestions = false } = event.queryStringParameters || {};
 
-    if (!query || query.trim().length < 2) {
+    // Probellarni olib tashlash va uzunlikni tekshirish
+    const cleanQuery = query ? query.trim() : '';
+    
+    if (!cleanQuery || cleanQuery.length < 2) {
       return {
         statusCode: 400,
         headers,
@@ -47,8 +50,6 @@ exports.handler = async (event, context) => {
         })
       };
     }
-
-    const cleanQuery = query.trim();
 
     // Suggestions uchun (dropdown da ko'rsatish)
     if (suggestions === 'true') {
@@ -104,11 +105,19 @@ exports.handler = async (event, context) => {
 // Smart search suggestions (dropdown uchun)
 async function getSearchSuggestions(query, limit) {
   try {
+    // Probellarni olib tashlash va tuzatish
+    const cleanQuery = query ? query.trim() : '';
+    if (!cleanQuery || cleanQuery.length < 2) {
+      return [];
+    }
+    
+    const correctedQuery = correctCommonMistakes(cleanQuery);
+    
     const response = await databases.listDocuments(
       DATABASE_ID,
       BOOKS_COLLECTION_ID,
       [
-        Query.search('title', query),
+        Query.search('title', correctedQuery),
         Query.limit(limit),
         Query.select(['$id', 'title', 'authorName', 'imageUrl', 'price'])
       ]
@@ -139,26 +148,34 @@ async function performSmartSearch(query, limit) {
     // So'zlarni ajratish (kitob nomi + muallif kombinatsiyasi uchun)
     const words = correctedQuery.split(/[\s,.\-+]+/).filter(word => word.length > 1);
     
-    // Multiple search strategies parallel
+    // Multiple search strategies parallel - tavsif qidiruvi qo'shildi
     const searchPromises = [];
     
-    // 1. Title search (eng muhim)
+    // 1. Title search (eng muhim - 40%)
     searchPromises.push(searchByField('title', correctedQuery, Math.ceil(limit * 0.4)));
     
-    // 2. Author search  
-    searchPromises.push(searchByField('authorName', correctedQuery, Math.ceil(limit * 0.3)));
+    // 2. Author search (25%)
+    searchPromises.push(searchByField('authorName', correctedQuery, Math.ceil(limit * 0.25)));
     
-    // 3. Description search
+    // 3. Description search (20%) - tavsifdan qidiruv
     searchPromises.push(searchByField('description', correctedQuery, Math.ceil(limit * 0.2)));
     
     // 4. Individual word searches (kombinatsiya uchun)
     if (words.length > 1) {
       words.forEach(word => {
         if (word.length > 2) {
-          searchPromises.push(searchByField('title', word, 5));
-          searchPromises.push(searchByField('authorName', word, 5));
+          // Title va Author'dan individual words
+          searchPromises.push(searchByField('title', word, 3));
+          searchPromises.push(searchByField('authorName', word, 3));
+          // Description'dan ham individual words (kam prioritet)
+          searchPromises.push(searchByField('description', word, 2));
         }
       });
+    }
+    
+    // 5. Agar bitta so'z bo'lsa, description'dan ham qidirish
+    if (words.length === 1 && words[0].length > 3) {
+      searchPromises.push(searchByField('description', words[0], Math.ceil(limit * 0.15)));
     }
     
     const allSearchResults = await Promise.all(searchPromises);
@@ -200,11 +217,15 @@ async function performSmartSearch(query, limit) {
 // Search by specific field
 async function searchByField(field, query, limit) {
   try {
+    // Probellarni olib tashlash
+    const cleanQuery = query ? query.trim() : '';
+    if (!cleanQuery) return [];
+    
     const response = await databases.listDocuments(
       DATABASE_ID,
       BOOKS_COLLECTION_ID,
       [
-        Query.search(field, query),
+        Query.search(field, cleanQuery),
         Query.limit(limit)
       ]
     );
@@ -218,6 +239,9 @@ async function searchByField(field, query, limit) {
 
 // O'zbek tilidagi umumiy xatolarni tuzatish - kengaytirilgan versiya
 function correctCommonMistakes(query) {
+  // Boshida va oxiridagi probellarni olib tashlash
+  if (!query || typeof query !== 'string') return '';
+  query = query.trim();
   const corrections = {
     // Lotin-Kiril aralashmasi
     'китоб': 'kitob',
@@ -344,18 +368,30 @@ function calculateEnhancedRelevanceScore(book, originalQuery, correctedQuery, wo
     }
   });
   
-  // Description matches
+  // Description matches (pastroq ball - tavsifdan topilgan kitoblar pastda chiqadi)
   queries.forEach(q => {
     if (bookDescription.includes(q)) {
-      score += 5;
+      score += 3; // 5 dan 3 ga kamaytirildi
     }
   });
   
   words.forEach(word => {
     if (word.length > 2 && bookDescription.includes(word.toLowerCase())) {
-      score += 3;
+      score += 2; // 3 dan 2 ga kamaytirildi
     }
   });
+  
+  // Agar faqat description'da topilgan bo'lsa, qo'shimcha pastroq ball
+  const titleMatch = queries.some(q => bookTitle.includes(q)) || 
+                     words.some(word => bookTitle.includes(word.toLowerCase()));
+  const authorMatch = queries.some(q => bookAuthor.includes(q)) || 
+                      words.some(word => bookAuthor.includes(word.toLowerCase()));
+  
+  if (!titleMatch && !authorMatch && 
+      (queries.some(q => bookDescription.includes(q)) || 
+       words.some(word => bookDescription.includes(word.toLowerCase())))) {
+    score -= 5; // Description-only matches uchun penalty
+  }
   
   // Kombinatsiya bonus (kitob nomi + muallif)
   if (words.length >= 2) {

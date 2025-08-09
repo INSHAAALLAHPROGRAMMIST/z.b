@@ -11,6 +11,10 @@ import ToastContainer from './components/Toast';
 import ErrorBoundary from './components/ErrorBoundary';
 import NetlifyStatus from './components/NetlifyStatus';
 import SmartSearchInput from './components/SmartSearchInput';
+import GoogleAnalytics from './components/Analytics/GoogleAnalytics';
+import InstallPrompt from './components/PWA/InstallPrompt';
+import OfflineIndicator from './components/PWA/OfflineIndicator';
+import UpdatePrompt from './components/PWA/UpdatePrompt';
 // Performance monitoring disabled to reduce console noise
 // import PerformanceMonitor from './components/PerformanceMonitor';
 
@@ -489,6 +493,10 @@ function App({ initialData = {} }) {
     return (
         <>
             {/* <PerformanceMonitor /> */}
+            <GoogleAnalytics />
+            <OfflineIndicator />
+            <UpdatePrompt />
+            <InstallPrompt />
             <ToastContainer />
             <NetlifyStatus />
             <ErrorBoundary>

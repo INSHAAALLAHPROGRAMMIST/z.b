@@ -15,26 +15,7 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# SSR routes - specific pages for SEO
-[[redirects]]
-  from = "/"
-  to = "/.netlify/functions/ssr"
-  status = 200
-
-[[redirects]]
-  from = "/book/:id"
-  to = "/.netlify/functions/ssr"
-  status = 200
-
-[[redirects]]
-  from = "/kitob/:slug"
-  to = "/.netlify/functions/ssr"
-  status = 200
-
-[[redirects]]
-  from = "/search"
-  to = "/.netlify/functions/ssr"
-  status = 200
+# SSR temporarily disabled - using client-side rendering
 
 # SEO routes
 [[redirects]]

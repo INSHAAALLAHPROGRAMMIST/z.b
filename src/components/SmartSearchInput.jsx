@@ -5,6 +5,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSmartSearch } from '../hooks/useSmartSearch';
 import { correctUzbekText, generateSearchSuggestions } from '../utils/uzbekSearchUtils';
+import { useAnalytics } from '../hooks/useAnalytics';
+import OptimizedImage from './OptimizedImage';
 import '../styles/components/smart-search.css';
 
 const SmartSearchInput = ({ 
@@ -34,6 +36,9 @@ const SmartSearchInput = ({
     debounceDelay: 300
   });
 
+  // Analytics hook
+  const { trackSearch } = useAnalytics();
+
   // Handle input change with Uzbek text correction
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -56,6 +61,9 @@ const SmartSearchInput = ({
     const finalQuery = (searchQuery || query).trim();
     
     if (finalQuery) {
+      // Track search analytics
+      trackSearch(finalQuery, suggestions.length);
+      
       // Close suggestions
       setIsFocused(false);
       
@@ -229,10 +237,12 @@ const SmartSearchInput = ({
                     {/* Book image */}
                     {suggestion.image && (
                       <div className="suggestion-image">
-                        <img 
+                        <OptimizedImage 
                           src={suggestion.image} 
                           alt={suggestion.title}
-                          loading="lazy"
+                          width={40}
+                          height={60}
+                          lazy={true}
                         />
                       </div>
                     )}

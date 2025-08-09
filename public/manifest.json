@@ -1,46 +1,52 @@
 {
-  "name": "Zamon Books - O'zbek Kitoblar Onlayn Do'koni",
+  "name": "Zamon Books - Zamonaviy Kitoblar Do'koni",
   "short_name": "Zamon Books",
-  "description": "O'zbekistondagi eng yaxshi kitoblar onlayn do'koni. Zamonaviy va klassik asarlar, ilmiy kitoblar va boshqalar.",
+  "description": "O'zbekistondagi eng yaxshi kitoblar do'koni. Klassik va zamonaviy adabiyot, ilmiy kitoblar va boshqalar.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#6a8aff",
+  "theme_color": "#2c3e50",
   "orientation": "portrait-primary",
-  "categories": [
-    "books",
-    "education",
-    "shopping"
-  ],
+  "scope": "/",
   "lang": "uz",
   "dir": "ltr",
+  "categories": ["books", "education", "shopping"],
   "icons": [
     {
-      "src": "/favicon-16x16.png",
-      "sizes": "16x16",
-      "type": "image/png"
+      "src": "https://res.cloudinary.com/dcn4maral/image/upload/v1752356041/favicon_maovuy.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     },
     {
-      "src": "/favicon-32x32.png",
-      "sizes": "32x32",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-96x96.png",
-      "sizes": "96x96",
-      "type": "image/png"
-    },
-    {
-      "src": "/apple-touch-icon.png",
-      "sizes": "180x180",
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/android-chrome-192x192.png",
-      "sizes": "192x192",
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-192x192.png",
@@ -49,30 +55,70 @@
       "purpose": "any"
     },
     {
-      "src": "/icons/android-chrome-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/web-app-manifest-192x192.png",
-      "sizes": "192x192",
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
   "shortcuts": [
     {
-      "name": "Yangi Kitoblar",
-      "short_name": "Yangi",
-      "description": "Eng so'nggi qo'shilgan kitoblar",
-      "url": "/?filter=new"
+      "name": "Kitoblar",
+      "short_name": "Kitoblar",
+      "description": "Barcha kitoblarni ko'rish",
+      "url": "/books",
+      "icons": [
+        {
+          "src": "/icons/books-shortcut.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
-      "name": "Savat",
-      "short_name": "Savat",
-      "description": "Xarid savati",
-      "url": "/cart"
+      "name": "Qidiruv",
+      "short_name": "Qidiruv",
+      "description": "Kitob qidirish",
+      "url": "/search",
+      "icons": [
+        {
+          "src": "/icons/search-shortcut.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Savatcha",
+      "short_name": "Savatcha",
+      "description": "Savatcha ko'rish",
+      "url": "/cart",
+      "icons": [
+        {
+          "src": "/icons/cart-shortcut.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Bosh sahifa - Desktop"
+    },
+    {
+      "src": "/screenshots/mobile-home.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Bosh sahifa - Mobile"
     }
   ]
 }

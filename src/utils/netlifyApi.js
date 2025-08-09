@@ -2,7 +2,7 @@
 // Hozirgi kod bilan mos, dizaynni buzmaydi
 
 // API base URL - development va production uchun
-const API_BASE = process.env.NODE_ENV === 'development' 
+const API_BASE = import.meta.env.DEV 
   ? 'http://localhost:8888/.netlify/functions'
   : '/.netlify/functions';
 
@@ -77,20 +77,8 @@ export const healthApi = {
   }
 };
 
-// Fallback functions - agar Netlify Functions ishlamasa
-export const fallbackToAppwrite = {
-  async getBooks(params = {}) {
-    // Hozirgi Appwrite logic'ni chaqirish
-    console.warn('Falling back to direct Appwrite call');
-    // Bu yerda hozirgi kod ishlatiladi
-    return { success: false, fallback: true };
-  },
-
-  async search(query) {
-    console.warn('Falling back to client-side search');
-    return { success: false, fallback: true };
-  }
-};
+// Import fallback APIs
+import { fallbackBooksApi, fallbackSearchApi } from './fallbackApi';
 
 // Progressive enhancement - Netlify Functions bor yoki yo'qligini tekshirish
 export async function checkNetlifyFunctions() {
@@ -103,6 +91,18 @@ export async function checkNetlifyFunctions() {
   }
 }
 
+// Enhanced search API with fallback
+export const enhancedSearchApi = {
+  async getSuggestions(query, limit = 5) {
+    try {
+      return await searchApi.getSuggestions(query, limit);
+    } catch (error) {
+      console.warn('Netlify Suggestions failed, using fallback');
+      return await fallbackSearchApi.getSuggestions(query, limit);
+    }
+  }
+};
+
 // Smart API caller - Netlify Functions yoki fallback
 export const smartApi = {
   async getBooks(params = {}) {
@@ -110,7 +110,7 @@ export const smartApi = {
       return await booksApi.getBooks(params);
     } catch (error) {
       console.warn('Netlify API failed, using fallback');
-      return await fallbackToAppwrite.getBooks(params);
+      return await fallbackBooksApi.getBooks(params);
     }
   },
 
@@ -119,7 +119,7 @@ export const smartApi = {
       return await searchApi.search(query, limit);
     } catch (error) {
       console.warn('Netlify Search failed, using fallback');
-      return await fallbackToAppwrite.search(query);
+      return await fallbackSearchApi.search(query, limit);
     }
   }
 };

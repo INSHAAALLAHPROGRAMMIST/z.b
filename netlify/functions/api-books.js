@@ -1,6 +1,7 @@
 // Netlify Function - Books API
 // Bu function hozirgi dizaynni buzmaydi, faqat API ni serverless qiladi
 
+// Netlify Functions environment'da require ishlatish kerak
 const { Client, Databases, Query } = require('appwrite');
 
 // Appwrite client setup

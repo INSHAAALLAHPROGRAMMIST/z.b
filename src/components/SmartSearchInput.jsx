@@ -4,6 +4,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSmartSearch } from '../hooks/useSmartSearch';
+import { correctUzbekText, generateSearchSuggestions } from '../utils/uzbekSearchUtils';
 import '../styles/components/smart-search.css';
 
 const SmartSearchInput = ({ 
@@ -33,11 +34,20 @@ const SmartSearchInput = ({
     debounceDelay: 300
   });
 
-  // Handle input change
+  // Handle input change with Uzbek text correction
   const handleInputChange = (e) => {
     const value = e.target.value;
     setQuery(value);
     setSelectedIndex(-1);
+    
+    // O'zbek tili uchun real-time correction hints
+    if (value.length > 2) {
+      const corrected = correctUzbekText(value);
+      if (corrected !== value.toLowerCase() && corrected.length > 0) {
+        // Tuzatish taklifi (optional - foydalanuvchiga ko'rsatish mumkin)
+        console.log(`Suggestion: "${corrected}" for "${value}"`);
+      }
+    }
   };
 
   // Handle search submit
@@ -175,50 +185,82 @@ const SmartSearchInput = ({
       {showSuggestions && isFocused && hasSuggestions && (
         <div 
           ref={suggestionsRef}
-          className="search-suggestions glassmorphism-dropdown"
+          className="search-suggestions"
         >
-          {suggestions.map((suggestion, index) => (
-            <div
-              key={suggestion.id}
-              className={`suggestion-item ${
-                index === selectedIndex ? 'selected' : ''
-              }`}
-              onClick={() => handleSuggestionClick(suggestion)}
-            >
-              {/* Book image */}
-              {suggestion.image && (
-                <div className="suggestion-image">
-                  <img 
-                    src={suggestion.image} 
-                    alt={suggestion.title}
-                    loading="lazy"
-                  />
-                </div>
-              )}
-              
-              {/* Book info */}
-              <div className="suggestion-info">
-                <div className="suggestion-title">
-                  {highlightMatch(suggestion.title, query)}
-                </div>
-                {suggestion.author && (
-                  <div className="suggestion-author">
-                    {suggestion.author}
+          {/* O'zbek tili tuzatish taklifi */}
+          {(() => {
+            const corrected = correctUzbekText(query);
+            const uzbekSuggestions = generateSearchSuggestions(query);
+            
+            return (
+              <>
+                {/* Tuzatish taklifi */}
+                {corrected !== query.toLowerCase() && corrected.length > 2 && (
+                  <div 
+                    className="suggestion-item correction-suggestion"
+                    onClick={() => handleSearch(corrected)}
+                  >
+                    <div className="suggestion-info">
+                      <div className="suggestion-title">
+                        <i className="fas fa-spell-check"></i>
+                        "{corrected}" deb qidirmoqchimisiz?
+                      </div>
+                      <div className="suggestion-author">
+                        Tuzatilgan variant
+                      </div>
+                    </div>
+                    <div className="suggestion-action">
+                      <i className="fas fa-arrow-right"></i>
+                    </div>
                   </div>
                 )}
-                {suggestion.price && (
-                  <div className="suggestion-price">
-                    {suggestion.price.toLocaleString()} so'm
+                
+                {/* Kitob suggestions */}
+                {suggestions.map((suggestion, index) => (
+                  <div
+                    key={suggestion.id}
+                    className={`suggestion-item ${
+                      index === selectedIndex ? 'selected' : ''
+                    }`}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {/* Book image */}
+                    {suggestion.image && (
+                      <div className="suggestion-image">
+                        <img 
+                          src={suggestion.image} 
+                          alt={suggestion.title}
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Book info */}
+                    <div className="suggestion-info">
+                      <div className="suggestion-title">
+                        {highlightMatch(suggestion.title, query)}
+                      </div>
+                      {suggestion.author && (
+                        <div className="suggestion-author">
+                          {highlightMatch(suggestion.author, query)}
+                        </div>
+                      )}
+                      {suggestion.price && (
+                        <div className="suggestion-price">
+                          {suggestion.price.toLocaleString()} so'm
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Search icon */}
+                    <div className="suggestion-action">
+                      <i className="fas fa-search"></i>
+                    </div>
                   </div>
-                )}
-              </div>
-              
-              {/* Search icon */}
-              <div className="suggestion-action">
-                <i className="fas fa-search"></i>
-              </div>
-            </div>
-          ))}
+                ))}
+              </>
+            );
+          })()}
           
           {/* View all results */}
           <div 
@@ -228,6 +270,9 @@ const SmartSearchInput = ({
             <div className="suggestion-info">
               <div className="suggestion-title">
                 "{query}" uchun barcha natijalarni ko'rish
+              </div>
+              <div className="suggestion-author">
+                {suggestions.length} ta taklif topildi
               </div>
             </div>
             <div className="suggestion-action">

@@ -2,7 +2,7 @@
 // Hozirgi qidiruv komponentlari bilan mos
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { searchApi, smartApi } from '../utils/netlifyApi';
+import { enhancedSearchApi, smartApi } from '../utils/netlifyApi';
 import { useDebounce } from './useDebounce';
 
 export const useSmartSearch = (options = {}) => {
@@ -86,7 +86,7 @@ export const useSmartSearch = (options = {}) => {
     try {
       setSuggestionsLoading(true);
 
-      const response = await searchApi.getSuggestions(searchQuery, maxSuggestions);
+      const response = await enhancedSearchApi.getSuggestions(searchQuery, maxSuggestions);
       
       if (response.success) {
         setSuggestions(response.suggestions || []);

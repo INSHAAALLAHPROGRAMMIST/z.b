@@ -2,7 +2,7 @@
 // Hozirgi kod bilan mos, dizaynni buzmaydi
 
 import { useState, useEffect, useCallback } from 'react';
-import { booksApi, smartApi } from '../utils/netlifyApi';
+import { smartApi } from '../utils/netlifyApi';
 
 export const useNetlifyBooks = (initialParams = {}) => {
     const [books, setBooks] = useState([]);

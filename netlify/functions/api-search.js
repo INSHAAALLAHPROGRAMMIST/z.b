@@ -1,6 +1,7 @@
 // Netlify Function - Smart Search API
 // Hozirgi qidiruv funksiyasini yaxshilaydi, dizaynni buzmaydi
 
+// Netlify Functions environment'da require ishlatish kerak
 const { Client, Databases, Query } = require('appwrite');
 
 const client = new Client()
@@ -127,7 +128,7 @@ async function getSearchSuggestions(query, limit) {
   }
 }
 
-// Advanced search with multiple strategies
+// Advanced search with multiple strategies - O'zbek tili uchun optimallashtirilgan
 async function performSmartSearch(query, limit) {
   const startTime = Date.now();
   
@@ -135,23 +136,45 @@ async function performSmartSearch(query, limit) {
     // O'zbek tilidagi umumiy xatolarni tuzatish
     const correctedQuery = correctCommonMistakes(query);
     
+    // So'zlarni ajratish (kitob nomi + muallif kombinatsiyasi uchun)
+    const words = correctedQuery.split(/[\s,.\-+]+/).filter(word => word.length > 1);
+    
     // Multiple search strategies parallel
-    const [titleResults, authorResults, descriptionResults] = await Promise.all([
-      searchByField('title', correctedQuery, Math.ceil(limit * 0.6)),
-      searchByField('authorName', correctedQuery, Math.ceil(limit * 0.3)),
-      searchByField('description', correctedQuery, Math.ceil(limit * 0.1))
-    ]);
-
-    // Combine and deduplicate
-    const allResults = [...titleResults, ...authorResults, ...descriptionResults];
+    const searchPromises = [];
+    
+    // 1. Title search (eng muhim)
+    searchPromises.push(searchByField('title', correctedQuery, Math.ceil(limit * 0.4)));
+    
+    // 2. Author search  
+    searchPromises.push(searchByField('authorName', correctedQuery, Math.ceil(limit * 0.3)));
+    
+    // 3. Description search
+    searchPromises.push(searchByField('description', correctedQuery, Math.ceil(limit * 0.2)));
+    
+    // 4. Individual word searches (kombinatsiya uchun)
+    if (words.length > 1) {
+      words.forEach(word => {
+        if (word.length > 2) {
+          searchPromises.push(searchByField('title', word, 5));
+          searchPromises.push(searchByField('authorName', word, 5));
+        }
+      });
+    }
+    
+    const allSearchResults = await Promise.all(searchPromises);
+    
+    // Combine all results
+    const allResults = allSearchResults.flat();
+    
+    // Deduplicate
     const uniqueResults = Array.from(
       new Map(allResults.map(book => [book.$id, book])).values()
     );
 
-    // Relevance scoring
+    // Enhanced relevance scoring
     const scoredResults = uniqueResults.map(book => ({
       ...book,
-      relevanceScore: calculateRelevanceScore(book, query, correctedQuery)
+      relevanceScore: calculateEnhancedRelevanceScore(book, query, correctedQuery, words)
     }));
 
     // Sort by relevance
@@ -164,7 +187,8 @@ async function performSmartSearch(query, limit) {
     return {
       books: sortedResults,
       total: uniqueResults.length,
-      searchTime: `${searchTime}ms`
+      searchTime: `${searchTime}ms`,
+      correctedQuery: correctedQuery !== query ? correctedQuery : null
     };
 
   } catch (error) {
@@ -192,78 +216,181 @@ async function searchByField(field, query, limit) {
   }
 }
 
-// O'zbek tilidagi umumiy xatolarni tuzatish
+// O'zbek tilidagi umumiy xatolarni tuzatish - kengaytirilgan versiya
 function correctCommonMistakes(query) {
   const corrections = {
     // Lotin-Kiril aralashmasi
+    'китоб': 'kitob',
+    'китаб': 'kitab', 
+    'муаллиф': 'muallif',
+    'жанр': 'janr',
+    'адабиёт': 'adabiyot',
+    'роман': 'roman',
+    'ҳикоя': 'hikoya',
+    'шеър': 'she\'r',
+    
+    // Umumiy xatolar
     'kitob': 'kitab',
-    'muallif': 'muallif',
-    'janr': 'janr',
-    'adabiyot': 'adabiyot',
-    'roman': 'roman',
-    'she\'r': 'she\'r',
     'hikoya': 'hikoya',
+    'she\'r': 'sher',
+    'adabiyot': 'adabiyot',
+    
+    // X/H almashinuvi
+    'xikoya': 'hikoya',
+    'xaqida': 'haqida',
+    'xarid': 'harid',
+    'xalq': 'halq',
+    
+    // G'/Q almashinuvi  
+    'qadim': 'qadim',
+    'g\'adim': 'qadim',
+    'qissa': 'qissa',
+    'g\'issa': 'qissa',
+    
+    // O'/U almashinuvi
+    'o\'zbek': 'o\'zbek',
+    'uzbek': 'o\'zbek',
+    'o\'qish': 'o\'qish',
+    'uqish': 'o\'qish',
     
     // Inglizcha-o'zbekcha
     'book': 'kitab',
     'author': 'muallif',
     'novel': 'roman',
     'story': 'hikoya',
+    'poem': 'she\'r',
+    'literature': 'adabiyot',
+    'genre': 'janr',
     
-    // Umumiy xatolar
-    'x': 'h', // "xikoya" -> "hikoya"
-    'w': 'v', // "waqt" -> "vaqt"
+    // Ruscha-o'zbekcha
+    'книга': 'kitab',
+    'автор': 'muallif', 
+    'роман': 'roman',
+    'рассказ': 'hikoya',
+    'стих': 'she\'r',
+    'литература': 'adabiyot',
+    'жанр': 'janr',
+    
+    // Mashhur mualliflar
+    'abdulla qodiriy': 'Abdulla Qodiriy',
+    'abdulla qadiriy': 'Abdulla Qodiriy',
+    'qodiriy': 'Abdulla Qodiriy',
+    'cholpon': 'Cho\'lpon',
+    'chulpon': 'Cho\'lpon',
+    'fitrat': 'Abdurauf Fitrat',
+    'oybek': 'Oybek',
+    'gafur gulom': 'G\'afur G\'ulom',
+    'hamid olimjon': 'Hamid Olimjon',
+    'erkin vohidov': 'Erkin Vohidov'
   };
 
   let corrected = query.toLowerCase();
   
   Object.keys(corrections).forEach(wrong => {
-    const regex = new RegExp(wrong, 'gi');
+    const regex = new RegExp(`\\b${wrong}\\b`, 'gi');
     corrected = corrected.replace(regex, corrections[wrong]);
   });
 
   return corrected;
 }
 
-// Relevance score calculation
-function calculateRelevanceScore(book, originalQuery, correctedQuery) {
+// Enhanced relevance score calculation - O'zbek tili uchun
+function calculateEnhancedRelevanceScore(book, originalQuery, correctedQuery, words) {
   let score = 0;
+  
+  if (!book) return score;
+  
+  const bookTitle = (book.title || '').toLowerCase();
+  const bookAuthor = (book.authorName || '').toLowerCase();
+  const bookDescription = (book.description || '').toLowerCase();
+  
   const queries = [originalQuery.toLowerCase(), correctedQuery.toLowerCase()];
   
+  // Title matches
   queries.forEach(q => {
-    // Title match (highest priority)
-    if (book.title && book.title.toLowerCase().includes(q)) {
-      score += 10;
+    if (bookTitle.includes(q)) {
+      score += 20;
+      
       // Exact match bonus
-      if (book.title.toLowerCase() === q) {
-        score += 20;
+      if (bookTitle === q) {
+        score += 30;
       }
+      
       // Start match bonus
-      if (book.title.toLowerCase().startsWith(q)) {
-        score += 15;
+      if (bookTitle.startsWith(q)) {
+        score += 25;
       }
     }
-
-    // Author match
-    if (book.authorName && book.authorName.toLowerCase().includes(q)) {
-      score += 7;
+  });
+  
+  // Individual word matches in title
+  words.forEach(word => {
+    if (word.length > 2 && bookTitle.includes(word.toLowerCase())) {
+      score += 12;
     }
-
-    // Description match
-    if (book.description && book.description.toLowerCase().includes(q)) {
+  });
+  
+  // Author matches
+  queries.forEach(q => {
+    if (bookAuthor.includes(q)) {
+      score += 15;
+    }
+  });
+  
+  // Individual word matches in author
+  words.forEach(word => {
+    if (word.length > 2 && bookAuthor.includes(word.toLowerCase())) {
+      score += 10;
+    }
+  });
+  
+  // Description matches
+  queries.forEach(q => {
+    if (bookDescription.includes(q)) {
+      score += 5;
+    }
+  });
+  
+  words.forEach(word => {
+    if (word.length > 2 && bookDescription.includes(word.toLowerCase())) {
       score += 3;
     }
   });
-
+  
+  // Kombinatsiya bonus (kitob nomi + muallif)
+  if (words.length >= 2) {
+    let titleWords = 0;
+    let authorWords = 0;
+    
+    words.forEach(word => {
+      if (bookTitle.includes(word.toLowerCase())) titleWords++;
+      if (bookAuthor.includes(word.toLowerCase())) authorWords++;
+    });
+    
+    if (titleWords > 0 && authorWords > 0) {
+      score += 20; // Kombinatsiya bonus
+    }
+  }
+  
   // Popularity bonus
   if (book.salesCount) {
     score += Math.min(book.salesCount * 0.1, 5);
   }
-
+  
   // Availability bonus
   if (book.isAvailable && book.stock > 0) {
+    score += 3;
+  }
+  
+  // New arrival bonus
+  if (book.isNewArrival) {
     score += 2;
   }
-
+  
+  // Featured bonus
+  if (book.isFeatured) {
+    score += 2;
+  }
+  
   return score;
 }

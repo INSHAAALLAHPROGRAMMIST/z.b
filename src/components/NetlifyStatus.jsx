@@ -40,7 +40,7 @@ const NetlifyStatus = () => {
   };
 
   // Faqat development mode'da ko'rsatish
-  if (process.env.NODE_ENV === 'production') {
+  if (import.meta.env.PROD) {
     return null;
   }
 

@@ -6,13 +6,22 @@
   width: 100%;
 }
 
-/* Search Input Enhancements */
+/* Search Input Enhancements - Hozirgi glassmorphism dizaynni saqlab qolish */
 .smart-search-input {
+  /* Hozirgi glassmorphism-input stillarini inherit qiladi */
   position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
   transition: all 0.3s ease;
+  
+  /* Glassmorphism base styles */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 12px 15px;
 }
 
 .smart-search-input:focus-within {
@@ -70,18 +79,21 @@
   flex-shrink: 0;
 }
 
-/* Suggestions Dropdown */
+/* Suggestions Dropdown - Hozirgi glassmorphism bilan mos */
 .search-suggestions {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
   right: 0;
+  
+  /* Hozirgi glassmorphism-dropdown stillarini inherit qiladi */
   background: rgba(26, 26, 46, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  
   z-index: 1000;
   max-height: 400px;
   overflow-y: auto;
@@ -229,6 +241,43 @@ body.light-mode .suggestion-item.view-all:hover {
 
 body.light-mode .search-highlight {
   background: rgba(106, 138, 255, 0.2);
+}
+
+/* Correction Suggestion Styles */
+.correction-suggestion {
+  background: rgba(106, 138, 255, 0.1);
+  border: 1px solid rgba(106, 138, 255, 0.3);
+  margin-bottom: 4px;
+}
+
+.correction-suggestion:hover {
+  background: rgba(106, 138, 255, 0.2);
+}
+
+.correction-suggestion .suggestion-title {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.correction-suggestion .suggestion-title i {
+  margin-right: 8px;
+  color: var(--accent-color);
+}
+
+.correction-suggestion .suggestion-author {
+  color: var(--light-text-color);
+  font-size: 11px;
+  font-style: italic;
+}
+
+/* Light mode correction suggestion */
+body.light-mode .correction-suggestion {
+  background: rgba(106, 138, 255, 0.05);
+  border: 1px solid rgba(106, 138, 255, 0.2);
+}
+
+body.light-mode .correction-suggestion:hover {
+  background: rgba(106, 138, 255, 0.1);
 }
 
 /* Mobile Responsive */

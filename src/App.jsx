@@ -477,7 +477,15 @@ function MainLayout({ children }) {
 // ===============================================
 // Asosiy App Komponenti (Routingni boshqaradi)
 // ===============================================
-function App() {
+function App({ initialData = {} }) {
+    // SSR initial data'ni state'ga set qilish
+    useEffect(() => {
+        if (initialData && Object.keys(initialData).length > 0) {
+            console.log('SSR Initial data received:', initialData);
+            // Bu yerda initial data'ni global state'ga set qilish mumkin
+        }
+    }, [initialData]);
+
     return (
         <>
             {/* <PerformanceMonitor /> */}

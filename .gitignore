@@ -26,8 +26,13 @@ dist-ssr
 *.sln
 *.sw?
 
-# Analysis and planning documents (temporary)
-LOYIHA_TOLIQ_TAHLILI.md
-LOYIHA_YAXSHILASH_REJASI.md
-LOYIHA_YAXSHILASH_REJASI_BATAFSIL.md
-NETLIFY_SSR_YAXSHILASH_REJASI.md
+# Analysis and planning documents (auto-generated)
+*_TAHLILI.md
+*_REJASI.md
+*_YAXSHILASH*.md
+*_TOLIQ*.md
+google-search-console-setup.md
+scripts/submit-to-google.js
+
+# Local Netlify folder
+.netlify

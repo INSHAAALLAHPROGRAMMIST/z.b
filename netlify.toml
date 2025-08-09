@@ -15,7 +15,39 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Existing SPA fallback - must be last
+# SSR routes - specific pages for SEO
+[[redirects]]
+  from = "/"
+  to = "/.netlify/functions/ssr"
+  status = 200
+
+[[redirects]]
+  from = "/book/:id"
+  to = "/.netlify/functions/ssr"
+  status = 200
+
+[[redirects]]
+  from = "/kitob/:slug"
+  to = "/.netlify/functions/ssr"
+  status = 200
+
+[[redirects]]
+  from = "/search"
+  to = "/.netlify/functions/ssr"
+  status = 200
+
+# SEO routes
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/.netlify/functions/sitemap"
+  status = 200
+
+[[redirects]]
+  from = "/robots.txt"
+  to = "/.netlify/functions/robots"
+  status = 200
+
+# SPA fallback for other routes (admin, cart, etc.)
 [[redirects]]
   from = "/*"
   to = "/index.html"

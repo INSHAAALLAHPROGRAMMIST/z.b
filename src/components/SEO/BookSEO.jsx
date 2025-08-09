@@ -1,115 +1,151 @@
-import React, { memo, useMemo, useEffect } from 'react';
+// Book-specific SEO Component
+// Har bir kitob sahifasi uchun SEO meta tags
 
-const BookSEO = memo(({ book }) => {
-    const seoData = useMemo(() => {
-        if (!book) return null;
-        
-        const title = `"${book.title}" - ${book.author?.name || 'Noma\'lum muallif'} | Zamon Books'dan Sotib Oling`;
-        const description = `${book.author?.name || 'Noma\'lum muallif'} "${book.title}" ${book.genres?.[0]?.name || 'kitob'}i onlayn sotib oling. Narx: ${book.price?.toLocaleString()} so'm. Tez yetkazib berish, arzon narxlar. Zamon Books'da.`;
-        const keywords = `${book.title}, ${book.author?.name}, ${book.genres?.map(g => g.name).join(', ')}, o'zbek kitoblari, onlayn kitob do'koni, kitob sotib olish`;
-        const canonicalUrl = `https://zamonbooks.uz/kitob/${book.slug}`;
-        
-        return { title, description, keywords, canonicalUrl };
-    }, [book?.title, book?.author?.name, book?.price, book?.slug, book?.genres]);
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
 
-    const structuredData = useMemo(() => {
-        if (!book) return null;
-        
-        return {
-            "@context": "https://schema.org",
-            "@type": "Book",
-            "name": book.title,
-            "author": {
-                "@type": "Person",
-                "name": book.author?.name || 'Noma\'lum muallif'
-            },
-            "genre": book.genres?.map(g => g.name) || [],
-            "inLanguage": "uz",
-            "publisher": "Zamon Books",
-            "image": book.imageUrl,
-            "description": book.description || book.title,
-            "offers": {
-                "@type": "Offer",
-                "price": book.price,
-                "priceCurrency": "UZS",
-                "availability": "https://schema.org/InStock",
-                "url": `https://zamonbooks.uz/kitob/${book.slug}`,
-                "seller": {
-                    "@type": "Organization",
-                    "name": "Zamon Books"
-                }
-            }
-        };
-    }, [book]);
+const BookSEO = ({ book, isLoading = false }) => {
+  if (isLoading || !book) {
+    return (
+      <Helmet>
+        <title>Yuklanmoqda... | Zamon Books</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+    );
+  }
 
-    useEffect(() => {
-        if (!seoData || !structuredData) return;
+  const {
+    title,
+    authorName,
+    description,
+    imageUrl,
+    price,
+    isAvailable,
+    stock,
+    publishedYear,
+    genre,
+    $id: bookId,
+    slug
+  } = book;
 
-        // SEO data applied silently
+  // SEO optimized title
+  const seoTitle = `${title}${authorName ? ` - ${authorName}` : ''} | Zamon Books`;
+  
+  // SEO optimized description
+  const seoDescription = description 
+    ? `${description.substring(0, 155)}...`
+    : `${title} kitobi${authorName ? ` ${authorName} tomonidan` : ''}. Zamon Books'dan buyurtma bering.`;
 
-        // Update document title
-        document.title = seoData.title;
-        
-        // Update meta tags
-        const updateMetaTag = (name, content, property = false) => {
-            const selector = property ? `meta[property="${name}"]` : `meta[name="${name}"]`;
-            let meta = document.querySelector(selector);
-            
-            if (!meta) {
-                meta = document.createElement('meta');
-                if (property) {
-                    meta.setAttribute('property', name);
-                } else {
-                    meta.setAttribute('name', name);
-                }
-                document.head.appendChild(meta);
-            }
-            meta.setAttribute('content', content);
-        };
-        
-        // Update link tags
-        const updateLinkTag = (rel, href) => {
-            let link = document.querySelector(`link[rel="${rel}"]`);
-            if (!link) {
-                link = document.createElement('link');
-                link.setAttribute('rel', rel);
-                document.head.appendChild(link);
-            }
-            link.setAttribute('href', href);
-        };
+  // Canonical URL
+  const canonicalUrl = `${import.meta.env.VITE_SITE_URL || 'https://zamonbooks.netlify.app'}/book/${bookId}`;
+  const slugUrl = slug ? `${import.meta.env.VITE_SITE_URL || 'https://zamonbooks.netlify.app'}/kitob/${slug}` : null;
 
-        // Basic meta tags
-        updateMetaTag('description', seoData.description);
-        updateMetaTag('keywords', seoData.keywords);
-        updateLinkTag('canonical', seoData.canonicalUrl);
-        
-        // Open Graph
-        updateMetaTag('og:title', seoData.title, true);
-        updateMetaTag('og:description', seoData.description, true);
-        updateMetaTag('og:image', book.imageUrl, true);
-        updateMetaTag('og:url', seoData.canonicalUrl, true);
-        updateMetaTag('og:type', 'product', true);
-        
-        // Twitter Card
-        updateMetaTag('twitter:card', 'product');
-        updateMetaTag('twitter:title', seoData.title);
-        updateMetaTag('twitter:description', seoData.description);
-        updateMetaTag('twitter:image', book.imageUrl);
-        
-        // JSON-LD Structured Data
-        let script = document.querySelector('script[type="application/ld+json"]');
-        if (!script) {
-            script = document.createElement('script');
-            script.type = 'application/ld+json';
-            document.head.appendChild(script);
-        }
-        script.textContent = JSON.stringify(structuredData);
-        
-    }, [seoData, structuredData, book.imageUrl]);
+  // Structured data for Google (faqat haqiqiy ma'lumotlar)
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Book",
+    "name": title,
+    "author": authorName ? {
+      "@type": "Person",
+      "name": authorName
+    } : undefined,
+    "description": description,
+    "image": imageUrl,
+    "isbn": bookId, // Using book ID as ISBN placeholder
+    "genre": genre,
+    "datePublished": publishedYear ? `${publishedYear}-01-01` : undefined,
+    "publisher": {
+      "@type": "Organization",
+      "name": "Zamon Books"
+    }
+    // offers va aggregateRating olib tashlandi - haqiqiy ma'lumot yo'q
+  };
 
-    if (!seoData || !structuredData) return null;
+  // Breadcrumb structured data
+  const breadcrumbData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Bosh sahifa",
+        "item": import.meta.env.VITE_SITE_URL || 'https://zamonbooks.netlify.app'
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Kitoblar",
+        "item": `${import.meta.env.VITE_SITE_URL || 'https://zamonbooks.netlify.app'}/books`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": title,
+        "item": canonicalUrl
+      }
+    ]
+  };
 
-    return null; // This component only updates document head
-});
+  return (
+    <Helmet>
+      {/* Primary Meta Tags */}
+      <title>{seoTitle}</title>
+      <meta name="title" content={seoTitle} />
+      <meta name="description" content={seoDescription} />
+      <meta name="keywords" content={`${title}, ${authorName || ''}, kitob, o'zbek kitoblari, ${genre || ''}, adabiyot`} />
+      <link rel="canonical" href={canonicalUrl} />
+      
+      {/* Alternate URL for slug */}
+      {slugUrl && <link rel="alternate" href={slugUrl} />}
+      
+      {/* Open Graph / Facebook */}
+      <meta property="og:type" content="book" />
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:title" content={seoTitle} />
+      <meta property="og:description" content={seoDescription} />
+      <meta property="og:image" content={imageUrl || '/default-book-image.jpg'} />
+      <meta property="og:image:width" content="400" />
+      <meta property="og:image:height" content="600" />
+      <meta property="og:site_name" content="Zamon Books" />
+      <meta property="og:locale" content="uz_UZ" />
+      
+      {/* Book-specific Open Graph */}
+      {authorName && <meta property="book:author" content={authorName} />}
+      {publishedYear && <meta property="book:release_date" content={`${publishedYear}-01-01`} />}
+      {genre && <meta property="book:tag" content={genre} />}
+      
+      {/* Twitter */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:url" content={canonicalUrl} />
+      <meta name="twitter:title" content={seoTitle} />
+      <meta name="twitter:description" content={seoDescription} />
+      <meta name="twitter:image" content={imageUrl || '/default-book-image.jpg'} />
+      
+      {/* Additional Meta Tags */}
+      <meta name="author" content={authorName || 'Zamon Books'} />
+      <meta name="publisher" content="Zamon Books" />
+      {/* Narx va mavjudlik meta taglarini olib tashladik */}
+      
+      {/* Robots */}
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      
+      {/* Structured Data */}
+      <script type="application/ld+json">
+        {JSON.stringify(structuredData)}
+      </script>
+      
+      {/* Breadcrumb Structured Data */}
+      <script type="application/ld+json">
+        {JSON.stringify(breadcrumbData)}
+      </script>
+      
+      {/* Preload critical resources */}
+      {imageUrl && (
+        <link rel="preload" as="image" href={imageUrl} />
+      )}
+    </Helmet>
+  );
+};
 
 export default BookSEO;

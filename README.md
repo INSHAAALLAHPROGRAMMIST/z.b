@@ -15,7 +15,7 @@ Modern va responsive kitoblar do'koni - React, Vite, Appwrite va Cloudinary texn
 ### 👤 Foydalanuvchi Paneli
 - **🔍 Keng Qidiruv Tizimi** - Kitob nomi, muallif, janr bo'yicha qidirish
 - **📱 Responsive Dizayn** - Barcha qurilmalarda mukammal ishlaydi
-- **� Saviatcha Funksiyasi** - Real-time savat boshqaruvi
+- **🛒 Savatcha Funksiyasi** - Real-time savat boshqaruvi
 - **👤 Profil Boshqaruvi** - Shaxsiy ma'lumotlar va buyurtmalar tarixi
 - **🌙 Dark/Light Mode** - Ikki xil tema qo'llab-quvvatlash
 - **📦 Pre-order & Waitlist** - Oldindan buyurtma va navbat tizimi
@@ -94,7 +94,7 @@ cp .env.example .env
 
 ## 🔧 Backend Sozlamalari (Batafsil Yo'riqnoma)
 
-### � AAppwrite Backend Sozlash
+### 🔧 Appwrite Backend Sozlash
 
 #### 1. Appwrite Account Yaratish
 1. [Appwrite Console](https://cloud.appwrite.io) ga o'ting

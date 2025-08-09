@@ -25,3 +25,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Analysis and planning documents (temporary)
+LOYIHA_TOLIQ_TAHLILI.md
+LOYIHA_YAXSHILASH_REJASI.md
+LOYIHA_YAXSHILASH_REJASI_BATAFSIL.md
+NETLIFY_SSR_YAXSHILASH_REJASI.md

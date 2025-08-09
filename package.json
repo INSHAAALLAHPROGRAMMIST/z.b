@@ -5,11 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:netlify": "netlify dev",
     "build": "vite build",
     "build:analyze": "vite build --config vite.config.analyze.js",
     "preview": "vite preview",
     "lint": "eslint .",
-    "analyze": "npm run build && echo 'Bundle analysis complete. Check console for details.'"
+    "analyze": "npm run build && echo 'Bundle analysis complete. Check console for details.'",
+    "netlify:functions": "netlify functions:serve",
+    "test:functions": "node scripts/test-functions.js"
   },
   "dependencies": {
     "@cloudinary/react": "^1.14.3",
@@ -29,6 +32,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "netlify-cli": "^17.36.4",
     "postcss-custom-properties": "^14.0.6",
     "rollup-plugin-visualizer": "^5.12.0",
     "terser": "^5.43.1",

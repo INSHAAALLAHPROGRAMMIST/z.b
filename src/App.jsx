@@ -9,6 +9,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import ToastContainer from './components/Toast';
 import ErrorBoundary from './components/ErrorBoundary';
+import NetlifyStatus from './components/NetlifyStatus';
 // Performance monitoring disabled to reduce console noise
 // import PerformanceMonitor from './components/PerformanceMonitor';
 
@@ -491,6 +492,7 @@ function App() {
         <>
             {/* <PerformanceMonitor /> */}
             <ToastContainer />
+            <NetlifyStatus />
             <ErrorBoundary>
                 <Routes>
                     <Route path="/" element={<MainLayout><LazyHomePage databases={databases} DATABASE_ID={DATABASE_ID} /></MainLayout>} />

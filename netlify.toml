@@ -1,15 +1,21 @@
 [build]
   publish = "dist"
   command = "npm run build"
+  functions = "netlify/functions"
 
-# Trailing slash redirects
+[dev]
+  command = "npm run dev"
+  port = 5173
+  targetPort = 5173
+  framework = "vite"
+
+# API routes redirect to functions
 [[redirects]]
-  from = "/*/"
-  to = "/:splat"
-  status = 301
-  force = true
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
 
-# SPA fallback - must be last
+# Existing SPA fallback - must be last
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -73,3 +79,7 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+# Functions configuration
+[functions]
+  node_bundler = "esbuild"

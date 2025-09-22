@@ -306,13 +306,14 @@ Bu loyiha MIT License ostida. Batafsil: [LICENSE](LICENSE) fayli.
 
 ## 📞 Qo'llab-quvvatlash
 
-- 📧 Email: support@zamonbooks.uz
-- 💬 Telegram: [@zamon_books_support](https://t.me/zamon_books_support)
-- 🐛 Issues: [GitHub Issues](https://github.com/your-username/zamon-books-frontend/issues)
+- 📧 Email: Inshaallahprogrammist@ya.ru
+- 💬 Telegram: [@The_Palastine](https://t.me/The_Palastine)
+- 🐛 Issues: [GitHub Issues](https://github.com/Inshaaallahprogrammist/z.b/issues)
 
 ---
 
 ⭐ **Loyiha yoqsa, star bering!** ⭐
+
 
 
 

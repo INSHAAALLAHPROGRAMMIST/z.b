@@ -5,7 +5,7 @@ export const handler = async (event, context) => {
   try {
     const { path } = event;
     const url = new URL(event.rawUrl);
-    
+
     // Basic HTML template with SEO meta tags
     const html = `
 <!DOCTYPE html>
@@ -83,7 +83,7 @@ export const handler = async (event, context) => {
 
   } catch (error) {
     console.error('SSR Error:', error);
-    
+
     // Fallback to redirect
     return {
       statusCode: 302,

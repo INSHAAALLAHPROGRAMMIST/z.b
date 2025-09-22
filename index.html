@@ -75,9 +75,7 @@
     
     <!-- Critical JavaScript will be loaded by Vite automatically -->
     
-    <!-- Preload critical resources -->
-    <link rel="preload" as="image" href="/icons/android-chrome-192x192.png">
-    <link rel="preload" as="font" href="https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecg.woff2" type="font/woff2" crossorigin>
+    <!-- Preload critical resources - removed unused preloads to fix warnings -->
     
     <!-- Critical CSS for above-the-fold content -->
     <style id="critical-css">
@@ -482,19 +480,15 @@
     }
     </script>
     
-    </head>
-<body>
-    <div id="root"></div> 
-    <script type="module" src="/src/main.jsx"></script>
     
-    <!-- Polyfills for older browsers -->
+    <!-- Polyfills for older browsers - MUST be loaded before React -->
     <script>
         // Polyfill for Element.closest()
         if (!Element.prototype.closest) {
             Element.prototype.closest = function(s) {
                 var el = this;
                 do {
-                    if (el.matches(s)) return el;
+                    if (el.matches && el.matches(s)) return el;
                     el = el.parentElement || el.parentNode;
                 } while (el !== null && el.nodeType === 1);
                 return null;
@@ -506,7 +500,34 @@
             Element.prototype.matches = Element.prototype.msMatchesSelector || 
                                       Element.prototype.webkitMatchesSelector;
         }
+        
+        // Additional polyfills for better compatibility
+        if (!Array.prototype.find) {
+            Array.prototype.find = function(predicate) {
+                if (this == null) {
+                    throw new TypeError('Array.prototype.find called on null or undefined');
+                }
+                if (typeof predicate !== 'function') {
+                    throw new TypeError('predicate must be a function');
+                }
+                var list = Object(this);
+                var length = parseInt(list.length) || 0;
+                var thisArg = arguments[1];
+                for (var i = 0; i < length; i++) {
+                    var element = list[i];
+                    if (predicate.call(thisArg, element, i, list)) {
+                        return element;
+                    }
+                }
+                return undefined;
+            };
+        }
     </script>
+    
+    </head>
+<body>
+    <div id="root"></div> 
+    <script type="module" src="/src/main.jsx"></script>
     
     <!-- Service Worker Registration -->
     <script>

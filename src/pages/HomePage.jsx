@@ -3,6 +3,7 @@ import { databases, ID, Query } from '../appwriteConfig';
 import { Link } from 'react-router-dom';
 import { toastMessages } from '../utils/toastUtils';
 import ResponsiveImage from '../components/ResponsiveImage';
+import WishlistButton from '../components/WishlistButton';
 import { SORT_OPTIONS, sortBooks, getStockStatusColor, getStockStatusText, filterVisibleBooks } from '../utils/inventoryUtils';
 // BookCardSkeleton not needed - simple loading
 // Lazy load SlugUpdater for better initial performance
@@ -346,14 +347,35 @@ const HomePage = () => {
                         const bookUrl = book.slug ? `/kitob/${book.slug}` : `/book/${book.$id}`;
 
                         return (
-                            <Link to={bookUrl} key={book.$id} className="book-card glassmorphism-card">
-                                <ResponsiveImage
-                                    src={book.imageUrl}
-                                    alt={book.title}
-                                    className="book-image"
-                                    context="homepage-card"
-                                    loading={index < 8 ? 'eager' : 'lazy'} // First 8 images eager, rest lazy
-                                />
+                            <Link 
+                                to={bookUrl} 
+                                key={book.$id} 
+                                className="book-card glassmorphism-card"
+                                onClick={(e) => {
+                                    console.log('Book card clicked:', bookUrl, book.title);
+                                    // Let React Router handle navigation
+                                }}
+                            >
+                                <div style={{ position: 'relative' }}>
+                                    <ResponsiveImage
+                                        src={book.imageUrl}
+                                        alt={book.title}
+                                        className="book-image"
+                                        context="homepage-card"
+                                        loading={index < 8 ? 'eager' : 'lazy'} // First 8 images eager, rest lazy
+                                    />
+                                    <div style={{ 
+                                        position: 'absolute', 
+                                        top: '8px', 
+                                        right: '8px', 
+                                        zIndex: 10 
+                                    }}>
+                                        <WishlistButton 
+                                            book={book} 
+                                            size="small"
+                                        />
+                                    </div>
+                                </div>
                                 <div className="book-info">
                                     <h3>{book.title}</h3>
                                     {book.author && book.author.name && <p className="author">{book.author.name}</p>}

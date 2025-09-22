@@ -2,19 +2,20 @@
 // Mavjud kodga hech qanday ta'sir qilmaydi
 
 import { useState, useEffect, useCallback } from 'react';
-import { databases, ID, Query } from '../appwriteConfig';
+import { db, COLLECTIONS } from '../firebaseConfig';
+import { collection, addDoc, deleteDoc, getDocs, query, where, doc } from 'firebase/firestore';
 
-const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const WISHLIST_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_WISHLIST_ID || 'wishlist';
+// Firebase collections
+const WISHLIST_COLLECTION = COLLECTIONS.WISHLIST;
 
 export const useWishlist = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Get current user ID
+  // Get current user ID (Firebase Auth)
   const getCurrentUserId = () => {
     return localStorage.getItem('currentUserId') || 
-           localStorage.getItem('appwriteGuestId') || 
+           localStorage.getItem('firebaseGuestId') || 
            'guest';
   };
 
@@ -40,37 +41,43 @@ export const useWishlist = () => {
     }
   }, []);
 
-  // Load wishlist from database
+  // Load wishlist from Firebase
   const loadWishlistFromDatabase = useCallback(async () => {
     try {
       const userId = getCurrentUserId();
-      const response = await databases.listDocuments(
-        DATABASE_ID,
-        WISHLIST_COLLECTION_ID,
-        [Query.equal('userId', userId)]
+      const q = query(
+        collection(db, WISHLIST_COLLECTION),
+        where('userId', '==', userId)
       );
       
-      const dbItems = response.documents.map(doc => ({
-        bookId: doc.bookId,
-        bookTitle: doc.bookTitle,
-        bookAuthor: doc.bookAuthor,
-        bookImage: doc.bookImage,
-        bookPrice: doc.bookPrice,
-        userId: doc.userId,
-        addedAt: doc.addedAt
-      }));
+      const querySnapshot = await getDocs(q);
+      const dbItems = [];
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        dbItems.push({
+          id: doc.id,
+          bookId: data.bookId,
+          bookTitle: data.bookTitle,
+          bookAuthor: data.bookAuthor,
+          bookImage: data.bookImage,
+          bookPrice: data.bookPrice,
+          userId: data.userId,
+          addedAt: data.addedAt
+        });
+      });
       
       setWishlistItems(dbItems);
       // Also save to localStorage as backup
       saveLocalWishlist(dbItems);
       
     } catch (error) {
-      console.error('Failed to load wishlist from database:', error);
+      console.error('Failed to load wishlist from Firebase:', error);
       // Fallback to localStorage
       const localItems = loadLocalWishlist();
       setWishlistItems(localItems);
     }
-  }, [getCurrentUserId, loadLocalWishlist, saveLocalWishlist]);
+  }, [loadLocalWishlist, saveLocalWishlist]);
 
   // Load wishlist on mount
   useEffect(() => {
@@ -83,13 +90,13 @@ export const useWishlist = () => {
       setLoading(true);
       
       // Check if already in wishlist
-      const isAlreadyInWishlist = wishlistItems.some(item => item.bookId === book.$id);
+      const isAlreadyInWishlist = wishlistItems.some(item => item.bookId === (book.id || book.$id));
       if (isAlreadyInWishlist) {
         return { success: false, message: 'Kitob allaqachon sevimlilar ro\'yxatida' };
       }
 
       const wishlistItem = {
-        bookId: book.$id,
+        bookId: book.id || book.$id,
         bookTitle: book.title,
         bookAuthor: book.authorName || book.author?.name || '',
         bookImage: book.imageUrl,
@@ -98,17 +105,12 @@ export const useWishlist = () => {
         addedAt: new Date().toISOString()
       };
 
-      // Save to database
+      // Save to Firebase
       try {
-        await databases.createDocument(
-          DATABASE_ID,
-          WISHLIST_COLLECTION_ID,
-          ID.unique(),
-          wishlistItem
-        );
-        console.log('Wishlist item saved to database');
+        await addDoc(collection(db, WISHLIST_COLLECTION), wishlistItem);
+        console.log('Wishlist item saved to Firebase');
       } catch (dbError) {
-        console.error('Database save failed:', dbError);
+        console.error('Firebase save failed:', dbError);
         // Continue with localStorage as fallback
       }
 
@@ -132,28 +134,23 @@ export const useWishlist = () => {
     try {
       setLoading(true);
 
-      // Remove from database
+      // Remove from Firebase
       try {
         const userId = getCurrentUserId();
-        const response = await databases.listDocuments(
-          DATABASE_ID,
-          WISHLIST_COLLECTION_ID,
-          [
-            Query.equal('bookId', bookId),
-            Query.equal('userId', userId)
-          ]
+        const q = query(
+          collection(db, WISHLIST_COLLECTION),
+          where('bookId', '==', bookId),
+          where('userId', '==', userId)
         );
-
-        if (response.documents.length > 0) {
-          await databases.deleteDocument(
-            DATABASE_ID,
-            WISHLIST_COLLECTION_ID,
-            response.documents[0].$id
-          );
-          console.log('Wishlist item removed from database');
-        }
+        
+        const querySnapshot = await getDocs(q);
+        
+        querySnapshot.forEach(async (document) => {
+          await deleteDoc(doc(db, WISHLIST_COLLECTION, document.id));
+          console.log('Wishlist item removed from Firebase');
+        });
       } catch (dbError) {
-        console.error('Database remove failed:', dbError);
+        console.error('Firebase remove failed:', dbError);
         // Continue with localStorage as fallback
       }
 

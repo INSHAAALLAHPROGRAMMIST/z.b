@@ -1,12 +1,18 @@
 // Fallback API for when Netlify Functions are not available
-// Hozirgi Appwrite logic'ni saqlab qoladi
+// Firebase client-side fallback
 
-import { databases, Query } from '../appwriteConfig';
+import { db } from '../firebaseConfig';
+import { 
+  collection, 
+  getDocs, 
+  query, 
+  where, 
+  orderBy, 
+  limit as firestoreLimit,
+  startAfter
+} from 'firebase/firestore';
 
-const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
-
-// Fallback books API
+// Fallback books API with Firebase
 export const fallbackBooksApi = {
   async getBooks(params = {}) {
     try {
@@ -18,64 +24,80 @@ export const fallbackBooksApi = {
         sortBy = 'recommended'
       } = params;
 
-      // Query building - hozirgi logic
-      const queries = [
-        Query.limit(parseInt(limit)),
-        Query.offset((parseInt(page) - 1) * parseInt(limit))
-      ];
-
-      // Search functionality
-      if (search && search.trim()) {
-        queries.push(Query.search('title', search.trim()));
-      }
+      // Firebase query building
+      let booksRef = collection(db, 'books');
+      let q = booksRef;
 
       // Genre filter
       if (genre && genre !== 'all') {
-        queries.push(Query.equal('genre', genre));
+        q = query(q, where('genre', '==', genre));
       }
 
       // Sorting
       switch (sortBy) {
         case 'newest':
-          queries.push(Query.orderDesc('$createdAt'));
+          q = query(q, orderBy('createdAt', 'desc'));
           break;
         case 'oldest':
-          queries.push(Query.orderAsc('$createdAt'));
+          q = query(q, orderBy('createdAt', 'asc'));
           break;
         case 'price_low':
-          queries.push(Query.orderAsc('price'));
+          q = query(q, orderBy('price', 'asc'));
           break;
         case 'price_high':
-          queries.push(Query.orderDesc('price'));
+          q = query(q, orderBy('price', 'desc'));
           break;
         case 'alphabetical':
-          queries.push(Query.orderAsc('title'));
+          q = query(q, orderBy('title', 'asc'));
           break;
         case 'popular':
-          queries.push(Query.orderDesc('salesCount'));
+          q = query(q, orderBy('salesCount', 'desc'));
           break;
         case 'admin_priority':
-          queries.push(Query.orderDesc('adminPriority'));
+          q = query(q, orderBy('adminPriority', 'desc'));
           break;
         default: // recommended
-          queries.push(Query.orderDesc('demandScore'));
+          q = query(q, orderBy('demandScore', 'desc'));
           break;
       }
 
-      const response = await databases.listDocuments(
-        DATABASE_ID,
-        BOOKS_COLLECTION_ID,
-        queries
-      );
+      // Limit
+      q = query(q, firestoreLimit(parseInt(limit)));
+
+      const querySnapshot = await getDocs(q);
+      const books = [];
+      
+      querySnapshot.forEach((doc) => {
+        const bookData = doc.data();
+        books.push({
+          id: doc.id,
+          ...bookData
+        });
+      });
+
+      // Apply search filter (client-side for now)
+      let filteredBooks = books;
+      if (search && search.trim()) {
+        const searchTerm = search.trim().toLowerCase();
+        filteredBooks = books.filter(book => 
+          book.title?.toLowerCase().includes(searchTerm) ||
+          book.authorName?.toLowerCase().includes(searchTerm) ||
+          book.description?.toLowerCase().includes(searchTerm)
+        );
+      }
+
+      // Get total count (approximate)
+      const totalSnapshot = await getDocs(collection(db, 'books'));
+      const total = totalSnapshot.size;
 
       return {
         success: true,
-        books: response.documents,
-        total: response.total,
+        books: filteredBooks,
+        total: total,
         page: parseInt(page),
         limit: parseInt(limit),
-        totalPages: Math.ceil(response.total / parseInt(limit)),
-        hasMore: response.documents.length === parseInt(limit),
+        totalPages: Math.ceil(total / parseInt(limit)),
+        hasMore: filteredBooks.length === parseInt(limit),
         fallback: true
       };
 
@@ -106,32 +128,31 @@ export const fallbackSearchApi = {
         };
       }
 
-      // Multiple search strategies parallel (tavsif qidiruvi qo'shildi)
-      const [titleResults, authorResults, descriptionResults] = await Promise.all([
-        databases.listDocuments(DATABASE_ID, BOOKS_COLLECTION_ID, [
-          Query.search('title', cleanQuery),
-          Query.limit(Math.ceil(limit * 0.5))
-        ]),
-        databases.listDocuments(DATABASE_ID, BOOKS_COLLECTION_ID, [
-          Query.search('authorName', cleanQuery),
-          Query.limit(Math.ceil(limit * 0.3))
-        ]),
-        databases.listDocuments(DATABASE_ID, BOOKS_COLLECTION_ID, [
-          Query.search('description', cleanQuery),
-          Query.limit(Math.ceil(limit * 0.2))
-        ])
-      ]);
-
-      // Combine and deduplicate
-      const allResults = [
-        ...titleResults.documents,
-        ...authorResults.documents,
-        ...descriptionResults.documents
-      ];
+      // Firebase search (client-side filtering)
+      const booksSnapshot = await getDocs(collection(db, 'books'));
+      const allBooks = [];
       
-      const uniqueResults = Array.from(
-        new Map(allResults.map(book => [book.$id, book])).values()
-      );
+      booksSnapshot.forEach((doc) => {
+        const bookData = doc.data();
+        allBooks.push({
+          id: doc.id,
+          ...bookData
+        });
+      });
+
+      // Client-side search filtering
+      const searchResults = allBooks.filter(book => {
+        const title = (book.title || '').toLowerCase();
+        const author = (book.authorName || '').toLowerCase();
+        const description = (book.description || '').toLowerCase();
+        const searchTerm = cleanQuery.toLowerCase();
+        
+        return title.includes(searchTerm) || 
+               author.includes(searchTerm) || 
+               description.includes(searchTerm);
+      });
+      
+      const uniqueResults = searchResults;
 
       // Simple relevance scoring
       const scoredResults = uniqueResults.map(book => {
@@ -188,17 +209,27 @@ export const fallbackSearchApi = {
         };
       }
 
-      const response = await databases.listDocuments(
-        DATABASE_ID,
-        BOOKS_COLLECTION_ID,
-        [
-          Query.search('title', cleanQuery),
-          Query.limit(limit)
-        ]
+      // Firebase suggestions
+      const booksSnapshot = await getDocs(
+        query(collection(db, 'books'), firestoreLimit(limit * 2))
       );
+      
+      const allBooks = [];
+      booksSnapshot.forEach((doc) => {
+        const bookData = doc.data();
+        allBooks.push({
+          id: doc.id,
+          ...bookData
+        });
+      });
 
-      const suggestions = response.documents.map(book => ({
-        id: book.$id,
+      // Filter and limit suggestions
+      const filteredBooks = allBooks.filter(book => 
+        (book.title || '').toLowerCase().includes(cleanQuery.toLowerCase())
+      ).slice(0, limit);
+
+      const suggestions = filteredBooks.map(book => ({
+        id: book.id,
         title: book.title,
         author: book.authorName,
         image: book.imageUrl,

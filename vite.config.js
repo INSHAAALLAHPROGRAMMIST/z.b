@@ -99,8 +99,13 @@ export default defineConfig(({ mode }) => {
     },
     // Optimize dependencies
     optimizeDeps: {
-      include: ['react', 'react-dom', 'react-router-dom', 'appwrite'],
-      exclude: ['@cloudinary/react'] // Lazy load heavy dependencies
+      include: ['react', 'react-dom', 'react-router-dom', 'firebase/app', 'firebase/firestore', 'firebase/auth'],
+      exclude: ['@cloudinary/react', '@cloudinary/url-gen'] // Lazy load heavy dependencies
+    },
+    
+    // Performance optimizations
+    define: {
+      __DEV__: JSON.stringify(mode === 'development')
     }
   };
 });

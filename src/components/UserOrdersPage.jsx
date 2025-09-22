@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { databases, account, Query } from '../appwriteConfig';
+// Firebase imports
+import firebaseService from '../services/FirebaseService';
+import useFirebaseAuth from '../hooks/useFirebaseAuth';
+import { formatFirebaseDate, formatPrice } from '../utils/firebaseHelpers';
 import { Link } from 'react-router-dom';
 import ResponsiveImage from './ResponsiveImage';
 import '../index.css';
 import '../styles/userOrders.css';
 import '../styles/responsive-images.css';
 
-const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const CART_ITEMS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_CART_ITEMS_ID;
-const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
+// Firebase collections handled by FirebaseService
 
 function UserOrdersPage() {
     const [orders, setOrders] = useState([]);

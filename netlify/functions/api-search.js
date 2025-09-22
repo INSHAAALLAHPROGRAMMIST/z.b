@@ -1,20 +1,23 @@
-// Netlify Function - Smart Search API
-// Hozirgi qidiruv funksiyasini yaxshilaydi, dizaynni buzmaydi
+// Netlify Function - Smart Search API with Firebase
+// Firebase Admin SDK for server-side operations
 
-// Netlify Functions environment'da require ishlatish kerak
-const { Client, Databases, Query } = require('appwrite');
+const admin = require('firebase-admin');
 
-const client = new Client()
-  .setEndpoint(process.env.VITE_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
-  .setProject(process.env.VITE_APPWRITE_PROJECT_ID)
-  .setKey(process.env.APPWRITE_SERVER_API_KEY);
+// Initialize Firebase Admin (only once)
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    }),
+    projectId: process.env.VITE_FIREBASE_PROJECT_ID
+  });
+}
 
-const databases = new Databases(client);
+const db = admin.firestore();
 
-const DATABASE_ID = process.env.VITE_APPWRITE_DATABASE_ID;
-const BOOKS_COLLECTION_ID = process.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
-
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -249,7 +252,6 @@ function correctCommonMistakes(query) {
     'муаллиф': 'muallif',
     'жанр': 'janr',
     'адабиёт': 'adabiyot',
-    'роман': 'roman',
     'ҳикоя': 'hikoya',
     'шеър': 'she\'r',
     
@@ -293,7 +295,6 @@ function correctCommonMistakes(query) {
     'рассказ': 'hikoya',
     'стих': 'she\'r',
     'литература': 'adabiyot',
-    'жанр': 'janr',
     
     // Mashhur mualliflar
     'abdulla qodiriy': 'Abdulla Qodiriy',

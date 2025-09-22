@@ -1,40 +1,45 @@
 <!DOCTYPE html>
 <html lang="uz">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zamon Books – Oʻzbek Kitoblari Onlayn Doʻkoni</title>
-    
+
     <!-- SEO Meta Tags -->
-    <meta name="description" content="O'zbekistondagi eng yaxshi kitoblar onlayn do'koni. Zamonaviy va klassik asarlar, ilmiy kitoblar va boshqalar. Tez yetkazib berish va qulay narxlar.">
-    <meta name="keywords" content="o'zbek kitoblar, onlayn kitob do'koni, kitob sotib olish, o'zbek adabiyoti, klassik kitoblar, zamonaviy kitoblar">
+    <meta name="description"
+        content="O'zbekistondagi eng yaxshi kitoblar onlayn do'koni. Zamonaviy va klassik asarlar, ilmiy kitoblar va boshqalar. Tez yetkazib berish va qulay narxlar.">
+    <meta name="keywords"
+        content="o'zbek kitoblar, onlayn kitob do'koni, kitob sotib olish, o'zbek adabiyoti, klassik kitoblar, zamonaviy kitoblar">
     <meta name="author" content="Zamon Books">
     <meta name="robots" content="index, follow">
     <meta name="language" content="uz">
-    
+
     <!-- Canonical URL -->
     <link rel="canonical" href="https://zamonbooks.uz/">
-    
+
     <!-- Additional SEO -->
     <meta name="revisit-after" content="7 days">
     <meta name="distribution" content="global">
     <meta name="rating" content="general">
-    
+
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="Zamon Books – O'zbek Kitoblari Onlayn Do'koni">
-    <meta property="og:description" content="O'zbekistondagi eng yaxshi kitoblar onlayn do'koni. Zamonaviy va klassik asarlar, ilmiy kitoblar va boshqalar.">
+    <meta property="og:description"
+        content="O'zbekistondagi eng yaxshi kitoblar onlayn do'koni. Zamonaviy va klassik asarlar, ilmiy kitoblar va boshqalar.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://zamonbooks.uz">
     <meta property="og:image" content="https://zamonbooks.uz/icons/android-chrome-512x512.png">
     <meta property="og:site_name" content="Zamon Books">
     <meta property="og:locale" content="uz_UZ">
-    
+
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Zamon Books – O'zbek Kitoblari Onlayn Do'koni">
-    <meta name="twitter:description" content="O'zbekistondagi eng yaxshi kitoblar onlayn do'koni. Zamonaviy va klassik asarlar, ilmiy kitoblar va boshqalar.">
+    <meta name="twitter:description"
+        content="O'zbekistondagi eng yaxshi kitoblar onlayn do'koni. Zamonaviy va klassik asarlar, ilmiy kitoblar va boshqalar.">
     <meta name="twitter:image" content="https://zamonbooks.uz/icons/android-chrome-512x512.png">
-    
+
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#6a8aff">
     <meta name="msapplication-TileColor" content="#6a8aff">
@@ -43,7 +48,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Zamon Books">
-    
+
     <!-- Favicon links using local files -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -52,31 +57,31 @@
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-    <link rel="manifest" href="/manifest.json"> 
-    
+    <link rel="manifest" href="/manifest.json">
+
     <!-- Load critical fonts immediately -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-    
+
     <!-- Load Font Awesome immediately -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
+
     <!-- DNS prefetch for external resources -->
     <link rel="dns-prefetch" href="//res.cloudinary.com">
-    <link rel="dns-prefetch" href="//cloud.appwrite.io">
+    <link rel="dns-prefetch" href="//firebase.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
-    
+
     <!-- Preconnect for critical resources -->
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
-    <link rel="preconnect" href="https://cloud.appwrite.io" crossorigin>
-    
+    <link rel="preconnect" href="https://firebase.googleapis.com" crossorigin>
+
     <!-- Critical JavaScript will be loaded by Vite automatically -->
-    
+
     <!-- Preload critical resources - removed unused preloads to fix warnings -->
-    
+
     <!-- Critical CSS for above-the-fold content -->
     <style id="critical-css">
         :root {
@@ -86,20 +91,22 @@
             --glass-border: rgba(255, 255, 255, 0.2);
             --transition-fast: 0.3s ease;
         }
-        
+
         body.light-mode {
             --primary-color: #4f46e5;
             --text-color: #1f2937;
             --glass-bg-light: rgba(255, 255, 255, 0.7);
             --glass-border: rgba(0, 0, 0, 0.1);
         }
-        
-        *, *::before, *::after {
+
+        *,
+        *::before,
+        *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             line-height: 1.6;
@@ -110,11 +117,11 @@
             flex-direction: column;
             transition: all var(--transition-fast);
         }
-        
+
         body.light-mode {
             background: linear-gradient(145deg, #f8fafc, #e2e8f0);
         }
-        
+
         .glassmorphism-header {
             position: fixed;
             top: 0;
@@ -127,7 +134,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             height: 70px;
         }
-        
+
         .glassmorphism-header .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -137,7 +144,7 @@
             justify-content: space-between;
             height: 100%;
         }
-        
+
         .logo {
             display: flex;
             align-items: center;
@@ -147,13 +154,13 @@
             font-weight: bold;
             flex-shrink: 0;
         }
-        
+
         .header-logo {
             height: 40px;
             width: auto;
             margin-right: 10px;
         }
-        
+
         .glassmorphism-button {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(8px);
@@ -171,61 +178,66 @@
             gap: 8px;
             font-size: 0.95em;
         }
-        
+
         main {
             flex: 1;
         }
-        
+
         .loading-placeholder {
-            background: linear-gradient(90deg, 
-                rgba(255, 255, 255, 0.1) 0%, 
-                rgba(255, 255, 255, 0.2) 50%, 
-                rgba(255, 255, 255, 0.1) 100%);
+            background: linear-gradient(90deg,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    rgba(255, 255, 255, 0.2) 50%,
+                    rgba(255, 255, 255, 0.1) 100%);
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
         }
-        
+
         @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
         }
-        
+
         /* Optimized loading states */
         .loading-shimmer {
-            background: linear-gradient(90deg, 
-                rgba(255, 255, 255, 0.1) 0%, 
-                rgba(255, 255, 255, 0.2) 50%, 
-                rgba(255, 255, 255, 0.1) 100%);
+            background: linear-gradient(90deg,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    rgba(255, 255, 255, 0.2) 50%,
+                    rgba(255, 255, 255, 0.1) 100%);
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
         }
-        
+
         /* Book card optimizations */
         .book-image {
             border-radius: 12px 12px 0 0;
             overflow: hidden;
         }
-        
+
         .book-card {
             will-change: transform;
             contain: layout style paint;
         }
-        
+
         .book-card:hover {
             transform: translateY(-4px);
         }
-        
+
         .below-fold {
             opacity: 0;
             transform: translateY(15px);
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
-        
+
         .below-fold.loaded {
             opacity: 1;
             transform: translateY(0);
         }
-        
+
         /* Floating orbs animation */
         .floating-orb {
             position: absolute;
@@ -234,7 +246,7 @@
             animation: floatingOrbs 20s ease-in-out infinite;
             pointer-events: none;
         }
-        
+
         .floating-orb:nth-child(1) {
             width: 100px;
             height: 100px;
@@ -242,7 +254,7 @@
             left: 10%;
             animation-delay: 0s;
         }
-        
+
         .floating-orb:nth-child(2) {
             width: 150px;
             height: 150px;
@@ -250,7 +262,7 @@
             right: 15%;
             animation-delay: -5s;
         }
-        
+
         .floating-orb:nth-child(3) {
             width: 80px;
             height: 80px;
@@ -258,7 +270,7 @@
             left: 20%;
             animation-delay: -10s;
         }
-        
+
         @media (max-width: 1191px) {
             .hamburger-menu {
                 display: flex;
@@ -272,14 +284,14 @@
                 z-index: 1005;
             }
         }
-        
+
         /* Hero section with animated gradient */
         .hero-banner {
-            background: linear-gradient(-45deg, 
-                rgba(106, 138, 255, 0.15), 
-                rgba(139, 255, 106, 0.15), 
-                rgba(255, 106, 138, 0.15), 
-                rgba(106, 255, 255, 0.15));
+            background: linear-gradient(-45deg,
+                    rgba(106, 138, 255, 0.15),
+                    rgba(139, 255, 106, 0.15),
+                    rgba(255, 106, 138, 0.15),
+                    rgba(106, 255, 255, 0.15));
             background-size: 400% 400%;
             animation: gradientShift 15s ease infinite;
             min-height: 60vh;
@@ -292,7 +304,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .hero-banner::before {
             content: '';
             position: absolute;
@@ -304,7 +316,7 @@
             animation: floatingOrbs 20s ease-in-out infinite;
             z-index: 0;
         }
-        
+
         .hero-banner::after {
             content: '';
             position: absolute;
@@ -316,7 +328,7 @@
             animation: floatingOrbs 25s ease-in-out infinite reverse;
             z-index: 0;
         }
-        
+
         .hero-content {
             max-width: 700px;
             padding: 50px 30px;
@@ -329,7 +341,7 @@
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
-        
+
         .hero-title-small {
             font-size: clamp(2.5rem, 6vw, 4rem);
             font-weight: 700;
@@ -342,7 +354,7 @@
             background-clip: text;
             text-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
         }
-        
+
         .hero-subtitle-small {
             font-size: clamp(1.1rem, 3vw, 1.4rem);
             opacity: 0.95;
@@ -351,7 +363,7 @@
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
             font-weight: 400;
         }
-        
+
         /* SEO Content */
         .seo-content {
             max-width: 1200px;
@@ -360,60 +372,89 @@
             color: var(--text-color);
             line-height: 1.8;
         }
-        
+
         .seo-content h2 {
             font-size: 1.8rem;
             margin: 2rem 0 1rem 0;
             color: var(--primary-color);
         }
-        
+
         .seo-content p {
             margin: 1rem 0;
             font-size: 1.1rem;
         }
-        
+
         .seo-content ul {
             margin: 1rem 0;
             padding-left: 2rem;
         }
-        
+
         .seo-content li {
             margin: 0.5rem 0;
             font-size: 1.1rem;
         }
-        
+
         @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
-        
+
         @keyframes floatingOrbs {
-            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
-            33% { transform: translateY(-20px) rotate(120deg); opacity: 0.9; }
-            66% { transform: translateY(10px) rotate(240deg); opacity: 0.5; }
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.7;
+            }
+
+            33% {
+                transform: translateY(-20px) rotate(120deg);
+                opacity: 0.9;
+            }
+
+            66% {
+                transform: translateY(10px) rotate(240deg);
+                opacity: 0.5;
+            }
         }
-        
+
         @media (max-width: 768px) {
-            .hero-banner { 
+            .hero-banner {
                 min-height: 400px;
                 background-size: 300% 300%;
             }
-            .hero-content { padding: 40px 20px; }
+
+            .hero-content {
+                padding: 40px 20px;
+            }
         }
-        
+
         @media (max-width: 480px) {
-            .hero-banner { min-height: 350px; }
-            .hero-content { padding: 30px 15px; }
+            .hero-banner {
+                min-height: 350px;
+            }
+
+            .hero-content {
+                padding: 30px 15px;
+            }
         }
-        
+
         /* Light mode hero adjustments */
         body.light-mode .hero-content {
             background: rgba(255, 255, 255, 0.9);
             border: 1px solid rgba(0, 0, 0, 0.15);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
         }
-        
+
         body.light-mode .hero-title-small {
             background: linear-gradient(135deg, #2563eb, #7c3aed, #059669);
             background-size: 200% 200%;
@@ -423,31 +464,31 @@
             background-clip: text;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         body.light-mode .hero-subtitle-small {
             color: rgba(55, 65, 81, 0.9);
             text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
         }
-        
+
         body.light-mode .hero-banner {
-            background: linear-gradient(-45deg, 
-                rgba(59, 130, 246, 0.25), 
-                rgba(16, 185, 129, 0.25), 
-                rgba(245, 158, 11, 0.25), 
-                rgba(139, 92, 246, 0.25));
+            background: linear-gradient(-45deg,
+                    rgba(59, 130, 246, 0.25),
+                    rgba(16, 185, 129, 0.25),
+                    rgba(245, 158, 11, 0.25),
+                    rgba(139, 92, 246, 0.25));
             background-size: 400% 400%;
             animation: gradientShift 15s ease infinite;
         }
-        
+
         body.light-mode .hero-banner::before {
             background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
         }
-        
+
         body.light-mode .hero-banner::after {
             background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
         }
     </style>
-    
+
     <!-- Structured Data -->
     <script type="application/ld+json">
     {
@@ -479,56 +520,107 @@
         "currenciesAccepted": "UZS"
     }
     </script>
-    
-    
-    <!-- Polyfills for older browsers - MUST be loaded before React -->
+
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
     <script>
-        // Polyfill for Element.closest()
-        if (!Element.prototype.closest) {
-            Element.prototype.closest = function(s) {
-                var el = this;
-                do {
-                    if (el.matches && el.matches(s)) return el;
-                    el = el.parentElement || el.parentNode;
-                } while (el !== null && el.nodeType === 1);
-                return null;
-            };
-        }
-        
-        // Polyfill for Element.matches()
-        if (!Element.prototype.matches) {
-            Element.prototype.matches = Element.prototype.msMatchesSelector || 
-                                      Element.prototype.webkitMatchesSelector;
-        }
-        
-        // Additional polyfills for better compatibility
-        if (!Array.prototype.find) {
-            Array.prototype.find = function(predicate) {
-                if (this == null) {
-                    throw new TypeError('Array.prototype.find called on null or undefined');
-                }
-                if (typeof predicate !== 'function') {
-                    throw new TypeError('predicate must be a function');
-                }
-                var list = Object(this);
-                var length = parseInt(list.length) || 0;
-                var thisArg = arguments[1];
-                for (var i = 0; i < length; i++) {
-                    var element = list[i];
-                    if (predicate.call(thisArg, element, i, list)) {
-                        return element;
-                    }
-                }
-                return undefined;
-            };
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+
+        // Xato va performance monitoring ga ni yuborish
+        if (window.gtag) {
+            // Performance monitoring
+            window.addEventListener('load', () => {
+                const navigation = performance.getEntriesByType('navigation')[0];
+                const loadTime = navigation.loadEventEnd - navigation.loadEventStart;
+                gtag('event', 'page_load_time', {
+                    custom_parameter: loadTime,
+                    value: Math.round(loadTime)
+                });
+                console.log('Sahifa yuklash vaqti:', loadTime, 'ms');
+            });
         }
     </script>
-    
-    </head>
+
+    <!-- CRITICAL POLYFILLS - Must load FIRST -->
+    <script>
+        // Force polyfills - kuchli versiya
+        (function () {
+            // Element.closest() polyfill - majburiy
+            Element.prototype.closest = Element.prototype.closest || function (selector) {
+                var element = this;
+                while (element && element.nodeType === 1) {
+                    if (element.matches && element.matches(selector)) {
+                        return element;
+                    }
+                    element = element.parentNode;
+                }
+                return null;
+            };
+
+            // Element.matches() polyfill - majburiy
+            Element.prototype.matches = Element.prototype.matches ||
+                Element.prototype.matchesSelector ||
+                Element.prototype.msMatchesSelector ||
+                Element.prototype.mozMatchesSelector ||
+                Element.prototype.webkitMatchesSelector ||
+                function (s) {
+                    var matches = (this.document || this.ownerDocument).querySelectorAll(s);
+                    var i = matches.length;
+                    while (--i >= 0 && matches.item(i) !== this) { }
+                    return i > -1;
+                };
+
+            // Array.prototype.find polyfill
+            if (!Array.prototype.find) {
+                Array.prototype.find = function (predicate) {
+                    if (this == null) {
+                        throw new TypeError('Array.prototype.find called on null or undefined');
+                    }
+                    if (typeof predicate !== 'function') {
+                        throw new TypeError('predicate must be a function');
+                    }
+                    var list = Object(this);
+                    var length = parseInt(list.length) || 0;
+                    var thisArg = arguments[1];
+                    for (var i = 0; i < length; i++) {
+                        var element = list[i];
+                        if (predicate.call(thisArg, element, i, list)) {
+                            return element;
+                        }
+                    }
+                    return undefined;
+                };
+            }
+
+            // Console polyfill for older browsers
+            if (!window.console) {
+                window.console = {
+                    log: function () { },
+                    error: function () { },
+                    warn: function () { },
+                    info: function () { }
+                };
+            }
+
+            // Debug polyfills
+            console.log('🔧 Polyfills loaded:', {
+                closest: !!Element.prototype.closest,
+                matches: !!Element.prototype.matches,
+                find: !!Array.prototype.find
+            });
+        })();
+    </script>
+
+</head>
+
 <body>
-    <div id="root"></div> 
+    <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    
+
     <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
@@ -542,6 +634,7 @@
                     });
             });
         }
-    </script> 
+    </script>
 </body>
+
 </html>

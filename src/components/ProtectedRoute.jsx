@@ -1,7 +1,9 @@
 // D:\zamon-books-frontend\src\components\ProtectedRoute.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { account } from '../appwriteConfig'; // account servisni import qilish
+// import { account } from '../appwriteConfig'; // account servisni import qilish
+import { auth } from '../firebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const ProtectedRoute = ({ children }) => {
     const navigate = useNavigate();

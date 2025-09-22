@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { account, databases, Query } from '../appwriteConfig';
+import { auth } from '../firebaseConfig';
+import { BooksAdmin, AuthorsAdmin, GenresAdmin, UsersAdmin, FirebaseQuery } from '../utils/firebaseAdmin';
+import { AdminAuth } from '../utils/adminAuth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { prepareSearchText } from '../utils/transliteration';
 import { highlightText } from '../utils/highlightText.jsx';
 import { toastMessages } from '../utils/toastUtils';
@@ -33,16 +36,16 @@ function AdminLayout({ children }) {
         // Theme'ni body'ga qo'llash
         document.body.className = theme === 'light' ? 'light-mode' : '';
         
-        const checkUser = async () => {
+        const checkUser = () => {
             try {
-                const currentUser = await account.get();
-                setUser(currentUser);
-                // Admin rolini tekshirish
-                if (!currentUser) {
+                const currentUser = AdminAuth.getCurrentUser();
+                if (currentUser && AdminAuth.isAdmin()) {
+                    setUser(currentUser);
+                } else {
                     navigate('/admin-login');
                 }
             } catch (err) {
-                console.error("Foydalanuvchi sessiyasini tekshirishda xato:", err);
+                console.error("Admin user check error:", err);
                 navigate('/admin-login');
             } finally {
                 setLoading(false);
@@ -65,13 +68,11 @@ function AdminLayout({ children }) {
         };
     }, [mobileMenuOpen]);
 
-    const handleLogout = async () => {
+    const handleLogout = () => {
         try {
-            await account.deleteSession('current');
+            AdminAuth.logout();
             setUser(null);
-            // Admin chiqgandan keyin bosh sahifaga yo'naltirish
             navigate('/');
-            // Sahifani yangilash (header state yangilanishi uchun)
             setTimeout(() => {
                 window.location.reload();
             }, 100);
@@ -138,14 +139,11 @@ function AdminLayout({ children }) {
             
             // Parallel qidiruvlar
             const [booksResponse, authorsResponse, genresResponse, usersResponse] = await Promise.all([
-                // Kitoblar qidirish
-                databases.listDocuments(DATABASE_ID, BOOKS_COLLECTION_ID, [Query.limit(5)]),
-                // Mualliflar qidirish
-                databases.listDocuments(DATABASE_ID, AUTHORS_COLLECTION_ID, [Query.limit(5)]),
-                // Janrlar qidirish
-                databases.listDocuments(DATABASE_ID, GENRES_COLLECTION_ID, [Query.limit(5)]),
-                // Foydalanuvchilar qidirish
-                databases.listDocuments(DATABASE_ID, USERS_COLLECTION_ID, [Query.limit(5)])
+                // Firebase search
+                BooksAdmin.search(searchQuery).then(res => ({ documents: res.documents.slice(0, 5) })),
+                AuthorsAdmin.getAll().then(res => ({ documents: res.documents.slice(0, 5) })),
+                GenresAdmin.getAll().then(res => ({ documents: res.documents.slice(0, 5) })),
+                UsersAdmin.getAll().then(res => ({ documents: res.documents.slice(0, 5) }))
             ]);
             
             // Client-side filtering
@@ -301,6 +299,12 @@ function AdminLayout({ children }) {
                                 {!sidebarCollapsed && <span>Foydalanuvchilar</span>}
                             </Link>
                         </li>
+                        <li className={isActive('/admin/analytics') ? 'active' : ''}>
+                            <Link to="/admin/analytics">
+                                <i className="fas fa-chart-bar"></i>
+                                {!sidebarCollapsed && <span>Analitika</span>}
+                            </Link>
+                        </li>
                         <li className={isActive('/admin/settings') ? 'active' : ''}>
                             <Link to="/admin/settings">
                                 <i className="fas fa-cog"></i>
@@ -355,6 +359,7 @@ function AdminLayout({ children }) {
                             {location.pathname === '/admin/genres' && 'Janrlar'}
                             {location.pathname === '/admin/orders' && 'Buyurtmalar'}
                             {location.pathname === '/admin/users' && 'Foydalanuvchilar'}
+                            {location.pathname === '/admin/analytics' && 'Analitika Dashboard'}
                             {location.pathname === '/admin/settings' && 'Sozlamalar'}
                             {location.pathname === '/admin/enhanced-migration' && 'Enhanced Migration'}
                         </h1>

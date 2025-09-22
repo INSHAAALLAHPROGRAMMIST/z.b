@@ -1,5 +1,6 @@
-// Email Validation Utilities
-import { account } from '../appwriteConfig';
+// Email Validation Utilities - Firebase
+import { auth } from '../firebaseConfig';
+import { fetchSignInMethodsForEmail } from 'firebase/auth';
 
 /**
  * Email format tekshirish
@@ -12,19 +13,19 @@ export const isValidEmail = (email) => {
 };
 
 /**
- * Email unique ekanligini tekshirish (register paytida)
- * Bu funksiya faqat ma'lumot uchun - Appwrite avtomatik tekshiradi
+ * Email unique ekanligini tekshirish (Firebase)
  * @param {string} email - Email address
  * @returns {Object} Tekshirish natijasi
  */
 export const checkEmailAvailability = async (email) => {
     try {
-        // Bu faqat ma'lumot uchun - haqiqiy tekshirish register paytida bo'ladi
-        console.log('Email tekshirilmoqda:', email);
+        const signInMethods = await fetchSignInMethodsForEmail(auth, email);
         
         return {
-            available: true, // Appwrite register paytida tekshiradi
-            message: 'Email tekshiriladi register paytida'
+            available: signInMethods.length === 0,
+            message: signInMethods.length === 0 
+                ? 'Email mavjud' 
+                : 'Bu email allaqachon ro\'yxatdan o\'tgan'
         };
     } catch (error) {
         console.error('Email tekshirishda xato:', error);

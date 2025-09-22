@@ -1,9 +1,7 @@
-// Admin Protected Route - faqat adminlar kirishi mumkin
+// Admin Protected Route - Firebase bilan
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { account, databases, Query } from '../appwriteConfig';
-
-// Database import'lari olib tashlandi - faqat Auth ishlatamiz
+import { AdminAuth } from '../utils/adminAuth';
 
 const AdminProtectedRoute = ({ children }) => {
     const navigate = useNavigate();
@@ -11,29 +9,20 @@ const AdminProtectedRoute = ({ children }) => {
     const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
-        const checkAdminAccess = async () => {
+        const checkAdminAccess = () => {
             try {
-                // Avval login tekshirish
-                const authUser = await account.get();
+                // Test admin auth
+                const currentUser = AdminAuth.getCurrentUser();
                 
-                // Faqat Auth labels'dan admin tekshirish (xavfsiz usul)
-                const finalAdminStatus = authUser.labels?.includes('admin') || false;
-                
-                console.log('Admin tekshirish:', {
-                    authLabels: authUser.labels,
-                    isAdmin: finalAdminStatus
-                });
-                
-                if (finalAdminStatus) {
+                if (currentUser && AdminAuth.isAdmin()) {
                     setIsAdmin(true);
                 } else {
-                    console.error('Admin huquqlari yo\'q');
-                    navigate('/', { replace: true });
+                    console.log('❌ Admin access denied, redirecting to login');
+                    navigate('/admin-login');
                 }
-                
             } catch (error) {
-                console.error('Admin tekshirishda xato:', error);
-                navigate('/auth', { replace: true });
+                console.error('Admin check error:', error);
+                navigate('/admin-login');
             } finally {
                 setLoading(false);
             }
@@ -44,17 +33,17 @@ const AdminProtectedRoute = ({ children }) => {
 
     if (loading) {
         return (
-            <div className="container" style={{ 
-                padding: '50px', 
-                textAlign: 'center',
-                minHeight: '50vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                height: '100vh',
+                background: 'linear-gradient(145deg, #0f172a, #1e293b)',
+                color: '#f3f4f6'
             }}>
                 <div>
-                    <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '20px' }}></i>
-                    <p>Admin huquqlari tekshirilmoqda...</p>
+                    <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '1rem' }}></i>
+                    <p>Admin huquqlar tekshirilmoqda...</p>
                 </div>
             </div>
         );
@@ -62,16 +51,16 @@ const AdminProtectedRoute = ({ children }) => {
 
     if (!isAdmin) {
         return (
-            <div className="container" style={{ 
-                padding: '50px', 
-                textAlign: 'center',
-                minHeight: '50vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                height: '100vh',
+                background: 'linear-gradient(145deg, #0f172a, #1e293b)',
+                color: '#f3f4f6'
             }}>
-                <div>
-                    <i className="fas fa-exclamation-triangle" style={{ fontSize: '3rem', color: '#ff5252', marginBottom: '20px' }}></i>
+                <div style={{ textAlign: 'center' }}>
+                    <i className="fas fa-exclamation-triangle" style={{ fontSize: '3rem', color: '#ff5252', marginBottom: '1rem' }}></i>
                     <h2>Ruxsat yo'q</h2>
                     <p>Bu sahifaga kirish uchun admin huquqlari kerak.</p>
                 </div>

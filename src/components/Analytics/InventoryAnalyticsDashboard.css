@@ -1,0 +1,821 @@
+/* Inventory Analytics Dashboard Styles */
+
+.inventory-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Inventory Overview Cards */
+.inventory-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.overview-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #e2e8f0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.overview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.overview-card.total-books {
+  border-left-color: #8b5cf6;
+}
+
+.overview-card.available-books {
+  border-left-color: #10b981;
+}
+
+.overview-card.out-of-stock {
+  border-left-color: #ef4444;
+}
+
+.overview-card.low-stock {
+  border-left-color: #f59e0b;
+}
+
+.overview-card.inventory-value {
+  border-left-color: #059669;
+}
+
+.overview-card.health-score {
+  border-left-color: #3b82f6;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-icon {
+  font-size: 24px;
+  opacity: 0.7;
+}
+
+.card-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.card-value.critical {
+  color: #dc2626;
+}
+
+.card-value.good {
+  color: #059669;
+}
+
+.card-value.fair {
+  color: #f59e0b;
+}
+
+.card-value.poor {
+  color: #dc2626;
+}
+
+.card-subtitle {
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* View Controls */
+.view-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 20px 24px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.control-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.button-group {
+  display: flex;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.button-group button {
+  padding: 8px 16px;
+  border: none;
+  background: white;
+  color: #64748b;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.button-group button:hover {
+  background-color: #f8fafc;
+}
+
+.button-group button.active {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.button-group button:not(:last-child) {
+  border-right: 1px solid #d1d5db;
+}
+
+.alert-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.alert-button {
+  background-color: #f59e0b;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.alert-button:hover:not(:disabled) {
+  background-color: #d97706;
+}
+
+.alert-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Overview Content */
+.overview-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* Stock Levels Chart */
+.stock-levels-chart {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.chart-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.legend-item.high .legend-color {
+  background-color: #10b981;
+}
+
+.legend-item.medium .legend-color {
+  background-color: #3b82f6;
+}
+
+.legend-item.low .legend-color {
+  background-color: #f59e0b;
+}
+
+.legend-item.out .legend-color {
+  background-color: #ef4444;
+}
+
+.stock-bars {
+  display: flex;
+  align-items: end;
+  justify-content: space-around;
+  height: 200px;
+  padding: 20px 0;
+}
+
+.stock-bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 80px;
+}
+
+.bar-container {
+  height: 150px;
+  width: 40px;
+  display: flex;
+  align-items: end;
+  margin-bottom: 8px;
+}
+
+.stock-bar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  transition: all 0.3s ease;
+}
+
+.stock-bar.high {
+  background: linear-gradient(to top, #10b981, #34d399);
+}
+
+.stock-bar.medium {
+  background: linear-gradient(to top, #3b82f6, #60a5fa);
+}
+
+.stock-bar.low {
+  background: linear-gradient(to top, #f59e0b, #fbbf24);
+}
+
+.stock-bar.out {
+  background: linear-gradient(to top, #ef4444, #f87171);
+}
+
+.bar-label {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.bar-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Genre Distribution */
+.genre-distribution {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.section-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.genre-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.genre-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+.genre-info {
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.genre-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.genre-count {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.genre-bar {
+  flex: 1;
+  height: 8px;
+  background-color: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.genre-fill {
+  height: 100%;
+  background: linear-gradient(to right, #3b82f6, #60a5fa);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.no-genre-data {
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+  padding: 40px;
+}
+
+/* Low Stock Content */
+.lowstock-content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.lowstock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.header-info h3 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sort-controls label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.sort-controls select {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+}
+
+.sort-order-btn {
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.sort-order-btn:hover {
+  background-color: #f8fafc;
+}
+
+.lowstock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lowstock-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.lowstock-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lowstock-item.critical {
+  border-color: #fecaca;
+  background-color: #fef2f2;
+}
+
+.lowstock-item.warning {
+  border-color: #fed7aa;
+  background-color: #fffbeb;
+}
+
+.lowstock-item.out-of-stock {
+  border-color: #fca5a5;
+  background-color: #fef2f2;
+}
+
+.book-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.book-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-author {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.stock-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.current-stock,
+.threshold-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.stock-label,
+.threshold-label {
+  color: #64748b;
+}
+
+.stock-value {
+  font-weight: 600;
+}
+
+.stock-value.zero {
+  color: #dc2626;
+}
+
+.stock-value.critical {
+  color: #ea580c;
+}
+
+.stock-value.low {
+  color: #d97706;
+}
+
+.threshold-value {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.book-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: #059669;
+  min-width: 100px;
+  text-align: right;
+}
+
+.urgency-indicator {
+  min-width: 80px;
+  text-align: center;
+}
+
+.urgency-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.urgency-badge.out {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+
+.urgency-badge.critical {
+  background-color: #fed7aa;
+  color: #9a3412;
+}
+
+.urgency-badge.warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.no-lowstock-data {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.no-data-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.no-lowstock-data h4 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #059669;
+}
+
+.no-lowstock-data p {
+  margin: 0;
+  color: #64748b;
+}
+
+/* Distribution Content */
+.distribution-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.distribution-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.distribution-chart,
+.health-metrics {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Pie Chart (simplified representation) */
+.pie-chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.pie-chart {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #10b981 0deg 90deg,
+    #3b82f6 90deg 180deg,
+    #f59e0b 180deg 270deg,
+    #ef4444 270deg 360deg
+  );
+  position: relative;
+}
+
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legend-dot.high {
+  background-color: #10b981;
+}
+
+.legend-dot.medium {
+  background-color: #3b82f6;
+}
+
+.legend-dot.low {
+  background-color: #f59e0b;
+}
+
+.legend-dot.out {
+  background-color: #ef4444;
+}
+
+/* Health Metrics */
+.health-score-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.health-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 8px solid;
+  position: relative;
+}
+
+.health-circle.good {
+  border-color: #10b981;
+  background-color: #f0fdf4;
+}
+
+.health-circle.fair {
+  border-color: #f59e0b;
+  background-color: #fffbeb;
+}
+
+.health-circle.poor {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.health-percentage {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.health-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.health-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.health-item:last-child {
+  border-bottom: none;
+}
+
+.health-label {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.health-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .inventory-overview {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .overview-content,
+  .distribution-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .view-controls {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .lowstock-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 768px) {
+  .inventory-overview {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .overview-card {
+    padding: 16px;
+  }
+
+  .card-value {
+    font-size: 24px;
+  }
+
+  .lowstock-item {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .stock-info {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .book-price {
+    text-align: left;
+  }
+
+  .chart-legend {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stock-bars {
+    height: 150px;
+  }
+
+  .bar-container {
+    height: 100px;
+    width: 30px;
+  }
+}

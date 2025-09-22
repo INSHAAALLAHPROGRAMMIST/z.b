@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { databases, Query } from '../appwriteConfig';
+import { BooksAdmin, FirebaseQuery } from '../utils/firebaseAdmin';
 import { toastMessages, toast } from '../utils/toastUtils';
 import { 
     STOCK_STATUS, 

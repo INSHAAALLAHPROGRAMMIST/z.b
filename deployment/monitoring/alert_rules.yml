@@ -1,0 +1,155 @@
+# Alert rules for Enhanced Admin Dashboard
+groups:
+  - name: admin_dashboard_alerts
+    rules:
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for more than 5 minutes on {{ $labels.instance }}"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 85% for more than 5 minutes on {{ $labels.instance }}"
+
+      # Disk space low
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk space is running low"
+          description: "Disk space is below 10% on {{ $labels.instance }}"
+
+      # Service down
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service is down"
+          description: "{{ $labels.job }} service is down on {{ $labels.instance }}"
+
+      # High HTTP error rate
+      - alert: HighHTTPErrorRate
+        expr: rate(nginx_http_requests_total{status=~"5.."}[5m]) / rate(nginx_http_requests_total[5m]) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP error rate"
+          description: "HTTP 5xx error rate is above 5% for more than 5 minutes"
+
+      # High response time
+      - alert: HighResponseTime
+        expr: nginx_http_request_duration_seconds{quantile="0.95"} > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time"
+          description: "95th percentile response time is above 2 seconds for more than 5 minutes"
+
+      # Redis connection issues
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis service is not responding"
+
+      # High Redis memory usage
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis memory usage is high"
+          description: "Redis memory usage is above 90%"
+
+      # Application specific alerts
+      - alert: HighLoginFailureRate
+        expr: rate(admin_login_failures_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High login failure rate"
+          description: "Login failure rate is above 10 per minute, possible brute force attack"
+
+      # Database connection issues
+      - alert: DatabaseConnectionHigh
+        expr: admin_database_connections_active > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database connection count"
+          description: "Active database connections are above 80"
+
+      # Message queue issues
+      - alert: MessageQueueBacklog
+        expr: admin_message_queue_size > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Message queue backlog is high"
+          description: "Message queue has more than 1000 pending messages"
+
+      # Security alerts
+      - alert: SuspiciousActivity
+        expr: rate(admin_security_events_total{type="suspicious"}[5m]) > 5
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Suspicious activity detected"
+          description: "More than 5 suspicious security events per minute detected"
+
+  - name: business_metrics_alerts
+    rules:
+      # Low order processing rate
+      - alert: LowOrderProcessingRate
+        expr: rate(admin_orders_processed_total[1h]) < 10
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low order processing rate"
+          description: "Order processing rate is below 10 per hour for more than 30 minutes"
+
+      # High inventory alerts
+      - alert: LowStockItems
+        expr: admin_inventory_low_stock_items > 50
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Many items are low in stock"
+          description: "More than 50 items are low in stock"
+
+      # Customer service response time
+      - alert: HighCustomerServiceResponseTime
+        expr: admin_customer_service_avg_response_time_seconds > 3600
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High customer service response time"
+          description: "Average customer service response time is above 1 hour"

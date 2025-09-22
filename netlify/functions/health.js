@@ -1,7 +1,7 @@
 // Simple health check function
 // Bu function serverless functions ishlayotganini tekshirish uchun
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',

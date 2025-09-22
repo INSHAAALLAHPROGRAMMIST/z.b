@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { databases, Query } from '../appwriteConfig';
 import LazyImage from './LazyImage';
 import { prepareSearchText } from '../utils/transliteration';
 import { highlightText } from '../utils/highlightText.jsx';
 import { toastMessages } from '../utils/toastUtils';
+
+// Firebase imports
+import firebaseService from '../services/FirebaseService';
+import useFirebaseCart from '../hooks/useFirebaseCart';
+import { formatPrice } from '../utils/firebaseHelpers';
+
 import '../index.css';
 
-// --- Appwrite konsolidan olingan ID'lar ---
-const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
+// Firebase Collections
 
 function SearchPage() {
     const [searchResults, setSearchResults] = useState([]);
@@ -18,130 +21,87 @@ function SearchPage() {
     const location = useLocation();
     const searchQuery = new URLSearchParams(location.search).get('q');
 
-    useEffect(() => {
-        const fetchSearchResults = async () => {
-            if (!searchQuery) {
-                setSearchResults([]);
-                setLoading(false);
-                return;
+    // Firebase cart hook
+    const { addToCart, getBookQuantity, updateQuantity, cartItems } = useFirebaseCart();
+
+    // Handle add to cart
+    const handleAddToCart = useCallback(async (book) => {
+        try {
+            await addToCart(book.id, 1);
+            toastMessages.addedToCart(book.title);
+        } catch (err) {
+            console.error('Add to cart error:', err);
+            toastMessages.cartError();
+        }
+    }, [addToCart]);
+
+    // Handle quantity update
+    const handleQuantityUpdate = useCallback(async (bookId, newQuantity) => {
+        try {
+            const cartItem = cartItems.find(item => item.bookId === bookId);
+            if (cartItem) {
+                await updateQuantity(cartItem.id, newQuantity);
             }
+        } catch (err) {
+            console.error('Quantity update error:', err);
+            toastMessages.cartError();
+        }
+    }, [cartItems, updateQuantity]);
 
-            setLoading(true);
-            setError(null);
+    // Search function using Firebase service
+    const performSearch = useCallback(async (query) => {
+        if (!query || query.trim().length < 2) {
+            setSearchResults([]);
+            setLoading(false);
+            return;
+        }
 
-            try {
-                // Appwrite'da fulltext index yo'q bo'lgani uchun oddiy usulda qidiramiz
-                const allBooksResponse = await databases.listDocuments(
-                    DATABASE_ID,
-                    BOOKS_COLLECTION_ID,
-                    [
-                        Query.limit(100) // Ko'proq kitoblarni olish
-                    ]
-                );
-                
-                // Qidiruv so'rovini lotin va kiril alifbolarida tayyorlash
-                const [searchTermLower, searchTermAlternate, searchTermXToH, searchTermHToX] = prepareSearchText(searchQuery);
-                
-                console.log(`Qidiruv so'rovi: "${searchTermLower}" va uning variantlari: 
-                    - Transliteratsiya: "${searchTermAlternate}"
-                    - X→H: "${searchTermXToH}"
-                    - H→X: "${searchTermHToX}"`);
-                
-                // Client-side filtering - kitob nomi, muallif, janr va tavsif bo'yicha qidirish
-                const filteredBooks = allBooksResponse.documents.filter(book => {
-                    // Kitob nomi bo'yicha qidirish
-                    if (book.title) {
-                        const titleLower = book.title.toLowerCase();
-                        if (titleLower.includes(searchTermLower) || 
-                            titleLower.includes(searchTermAlternate) ||
-                            titleLower.includes(searchTermXToH) ||
-                            titleLower.includes(searchTermHToX)) {
-                            return true;
-                        }
-                    }
-                    
-                    // Muallif ismi bo'yicha qidirish
-                    if (book.author && book.author.name) {
-                        const authorNameLower = book.author.name.toLowerCase();
-                        if (authorNameLower.includes(searchTermLower) || 
-                            authorNameLower.includes(searchTermAlternate) ||
-                            authorNameLower.includes(searchTermXToH) ||
-                            authorNameLower.includes(searchTermHToX)) {
-                            return true;
-                        }
-                    }
-                    
-                    // Muallif ismi (authorName maydonidan) bo'yicha qidirish
-                    if (book.authorName) {
-                        const authorNameLower = book.authorName.toLowerCase();
-                        if (authorNameLower.includes(searchTermLower) || 
-                            authorNameLower.includes(searchTermAlternate) ||
-                            authorNameLower.includes(searchTermXToH) ||
-                            authorNameLower.includes(searchTermHToX)) {
-                            return true;
-                        }
-                    }
-                    
-                    // Janr nomi bo'yicha qidirish
-                    if (book.genres && book.genres.length > 0) {
-                        for (const genre of book.genres) {
-                            if (genre.name) {
-                                const genreNameLower = genre.name.toLowerCase();
-                                if (genreNameLower.includes(searchTermLower) || 
-                                    genreNameLower.includes(searchTermAlternate) ||
-                                    genreNameLower.includes(searchTermXToH) ||
-                                    genreNameLower.includes(searchTermHToX)) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Janr nomi (genreName maydonidan) bo'yicha qidirish
-                    if (book.genreName) {
-                        const genreNameLower = book.genreName.toLowerCase();
-                        if (genreNameLower.includes(searchTermLower) || 
-                            genreNameLower.includes(searchTermAlternate) ||
-                            genreNameLower.includes(searchTermXToH) ||
-                            genreNameLower.includes(searchTermHToX)) {
-                            return true;
-                        }
-                    }
-                    
-                    // Tavsif bo'yicha qidirish
-                    if (book.description) {
-                        const descriptionLower = book.description.toLowerCase();
-                        if (descriptionLower.includes(searchTermLower) || 
-                            descriptionLower.includes(searchTermAlternate) ||
-                            descriptionLower.includes(searchTermXToH) ||
-                            descriptionLower.includes(searchTermHToX)) {
-                            return true;
-                        }
-                    }
-                    
-                    return false;
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Use Firebase service for search
+            const result = await firebaseService.searchBooks(query.trim(), {
+                limitCount: 50
+            });
+            
+            // Additional client-side filtering with transliteration
+            const [searchTermLower, searchTermAlternate, searchTermXToH, searchTermHToX] = prepareSearchText(query);
+            
+            const enhancedResults = result.documents.filter(book => {
+                // Enhanced search with transliteration support
+                const searchFields = [
+                    book.title,
+                    book.authorName,
+                    book.description
+                ].filter(Boolean);
+
+                return searchFields.some(field => {
+                    const fieldLower = field.toLowerCase();
+                    return fieldLower.includes(searchTermLower) || 
+                           fieldLower.includes(searchTermAlternate) ||
+                           fieldLower.includes(searchTermXToH) ||
+                           fieldLower.includes(searchTermHToX);
                 });
-                
-                // Natijalarni saqlash
-                const response = {
-                    documents: filteredBooks,
-                    total: filteredBooks.length
-                };
-
-                setSearchResults(response.documents);
-                setLoading(false);
-                
-                // Log qo'shish
-                console.log(`Qidiruv natijasi: ${response.documents.length} ta kitob topildi`);
-            } catch (err) {
-                console.error("Qidiruv natijalarini yuklashda xato:", err);
-                setError(err.message || "Qidiruv natijalarini yuklashda noma'lum xato yuz berdi.");
-                setLoading(false);
+            });
+            
+            setSearchResults(enhancedResults);
+            
+            if (import.meta.env.DEV) {
+                console.log(`🔍 Search results for "${query}": ${enhancedResults.length} books found`);
             }
-        };
+        } catch (err) {
+            console.error('Search error:', err);
+            setError(err.message || 'Qidiruv natijalarini yuklashda xato yuz berdi.');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-        fetchSearchResults();
-    }, [searchQuery]);
+    // Perform search when query changes
+    useEffect(() => {
+        performSearch(searchQuery);
+    }, [searchQuery, performSearch]);
 
     if (loading) {
         return <div className="container" style={{ textAlign: 'center', padding: '50px', minHeight: 'calc(100vh - 200px)' }}>Yuklanmoqda...</div>;
@@ -192,7 +152,7 @@ function SearchPage() {
                     justifyContent: 'center'
                 }}>
                     {searchResults.map(book => (
-                        <Link to={book.slug ? `/kitob/${book.slug}` : `/book/${book.$id}`} key={book.$id} className="book-card glassmorphism-card" style={{
+                        <Link to={book.slug ? `/kitob/${book.slug}` : `/book/${book.id}`} key={book.id} className="book-card glassmorphism-card" style={{
                             display: 'flex',
                             flexDirection: 'column',
                             padding: '15px',
@@ -226,11 +186,6 @@ function SearchPage() {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis'
                                     }}>{highlightText(book.title, searchQuery)}</h3>
-                                    {book.author?.name && <p className="author" style={{ 
-                                        fontSize: '0.9rem',
-                                        marginBottom: '5px',
-                                        opacity: '0.8'
-                                    }}>{highlightText(book.author.name, searchQuery)}</p>}
                                     {book.authorName && <p className="author" style={{ 
                                         fontSize: '0.9rem',
                                         marginBottom: '5px',
@@ -244,28 +199,102 @@ function SearchPage() {
                                         fontWeight: 'bold',
                                         marginBottom: '10px',
                                         marginTop: '10px'
-                                    }}>{parseFloat(book.price).toLocaleString()} so'm</p>
-                                    <button
-                                        className="add-to-cart glassmorphism-button"
-                                        style={{
-                                            width: '100%',
-                                            padding: '8px 0',
-                                            fontSize: '0.9rem',
+                                    }}>{formatPrice(book.price)}</p>
+                                    
+                                    {/* Stock status */}
+                                    {book.stockStatus && book.stockStatus !== 'available' && (
+                                        <div style={{
+                                            fontSize: '0.8rem',
+                                            marginBottom: '8px',
+                                            fontWeight: '600',
+                                            color: book.stockStatus === 'out_of_stock' ? '#ef4444' : '#f59e0b'
+                                        }}>
+                                            {book.stockStatus === 'out_of_stock' ? 'Tugagan' : 
+                                             book.stockStatus === 'low_stock' ? 'Kam qoldi' : ''}
+                                        </div>
+                                    )}
+
+                                    {getBookQuantity(book.id) === 0 ? (
+                                        <button
+                                            className="add-to-cart glassmorphism-button"
+                                            style={{
+                                                width: '100%',
+                                                padding: '8px 0',
+                                                fontSize: '0.9rem',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '5px'
+                                            }}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                handleAddToCart(book);
+                                            }}
+                                            disabled={book.stockStatus === 'out_of_stock'}
+                                        >
+                                            <i className="fas fa-shopping-cart"></i> 
+                                            <span className="cart-button-text">
+                                                {book.stockStatus === 'out_of_stock' ? 'Tugagan' : 'Savatga'}
+                                            </span>
+                                        </button>
+                                    ) : (
+                                        <div className="quantity-controls" style={{
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            gap: '5px'
-                                        }}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            toastMessages.addedToCart(book.title);
-                                            window.dispatchEvent(new CustomEvent('cartUpdated'));
-                                        }}
-                                    >
-                                        <i className="fas fa-shopping-cart"></i> 
-                                        <span className="cart-button-text">Savatga</span>
-                                    </button>
+                                            gap: '8px',
+                                            width: '100%'
+                                        }}>
+                                            <button
+                                                className="glassmorphism-button"
+                                                style={{
+                                                    width: '30px',
+                                                    height: '30px',
+                                                    padding: '0',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    fontSize: '0.9rem'
+                                                }}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    handleQuantityUpdate(book.id, getBookQuantity(book.id) - 1);
+                                                }}
+                                            >
+                                                -
+                                            </button>
+                                            <span style={{
+                                                fontSize: '1rem',
+                                                fontWeight: 'bold',
+                                                minWidth: '25px',
+                                                textAlign: 'center'
+                                            }}>
+                                                {getBookQuantity(book.id)}
+                                            </span>
+                                            <button
+                                                className="glassmorphism-button"
+                                                style={{
+                                                    width: '30px',
+                                                    height: '30px',
+                                                    padding: '0',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    fontSize: '0.9rem'
+                                                }}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    handleQuantityUpdate(book.id, getBookQuantity(book.id) + 1);
+                                                }}
+                                                disabled={book.stockStatus === 'out_of_stock'}
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </Link>

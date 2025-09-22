@@ -1,0 +1,63 @@
+# Prometheus configuration for Enhanced Admin Dashboard monitoring
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alert_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter for system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Nginx Exporter for web server metrics
+  - job_name: 'nginx-exporter'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+    scrape_interval: 30s
+
+  # Redis Exporter (if using Redis exporter)
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+
+  # Admin Dashboard application metrics (if implemented)
+  - job_name: 'admin-dashboard'
+    static_configs:
+      - targets: ['admin-dashboard:80']
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # Custom application metrics
+  - job_name: 'admin-app-metrics'
+    static_configs:
+      - targets: ['admin-dashboard:80']
+    metrics_path: /api/metrics
+    scrape_interval: 60s
+    scrape_timeout: 30s
+
+# Remote write configuration (for long-term storage)
+# remote_write:
+#   - url: "https://prometheus-remote-write-endpoint.com/api/v1/write"
+#     basic_auth:
+#       username: "username"
+#       password: "password"

@@ -1,360 +1,284 @@
 import React, { useState, useEffect } from 'react';
-import { databases, ID, Query, DATABASE_ID, BOOKS_COLLECTION_ID, WAITLIST_COLLECTION_ID, PREORDER_COLLECTION_ID } from '../appwriteConfig';
-import { toast } from '../utils/toastUtils';
+// Firebase imports
+import firebaseService from '../services/FirebaseService';
+import { getCurrentUserId } from '../utils/firebaseHelpers';
+import { toastMessages } from '../utils/toastUtils';
 import { 
+    STOCK_STATUS, 
+    getStockStatusColor, 
+    getStockStatusText, 
     canPreOrder, 
-    canJoinWaitlist, 
-    formatRestockDate
+    canJoinWaitlist 
 } from '../utils/inventoryUtils';
 
-// Collections will be imported from appwriteConfig
-
-function PreOrderWaitlist({ book, currentUserId }) {
+function PreOrderWaitlist({ book, onSuccess }) {
     const [loading, setLoading] = useState(false);
-    const [userStatus, setUserStatus] = useState({
-        inWaitlist: false,
-        hasPreOrder: false,
-        waitlistPosition: 0
-    });
-    
-    // If collections are not configured, show fallback
-    if (!WAITLIST_COLLECTION_ID || !PREORDER_COLLECTION_ID) {
-        return (
-            <div className="pre-order-waitlist">
-                <div className="status-message info">
-                    <i className="fas fa-info-circle"></i>
-                    Pre-order/Waitlist tizimi hali sozlanmagan
-                </div>
-                <p style={{ color: 'var(--text-color)', opacity: 0.8, fontSize: '0.9rem', textAlign: 'center' }}>
-                    Admin tomonidan tez orada yoqiladi
-                </p>
-            </div>
-        );
-    }
+    const [userPreOrder, setUserPreOrder] = useState(null);
+    const [userWaitlist, setUserWaitlist] = useState(null);
+    const [preOrderCount, setPreOrderCount] = useState(0);
+    const [waitlistCount, setWaitlistCount] = useState(0);
 
+    const userId = getCurrentUserId();
+
+    // Load user's existing pre-order and waitlist status
     useEffect(() => {
-        checkUserStatus();
-    }, [book.$id, currentUserId]);
+        if (!book || !userId) return;
 
-    const checkUserStatus = async () => {
-        if (!currentUserId) return;
-        
-        // Check if collections exist
-        if (!WAITLIST_COLLECTION_ID || !PREORDER_COLLECTION_ID) {
-            console.warn('Waitlist/PreOrder collections not configured yet');
-            return;
-        }
+        const loadUserStatus = async () => {
+            try {
+                // Check pre-orders
+                const preOrders = await firebaseService.getPreOrders({ 
+                    bookId: book.id, 
+                    userId 
+                });
+                if (preOrders.documents.length > 0) {
+                    setUserPreOrder(preOrders.documents[0]);
+                }
 
-        try {
-            // Check waitlist status
-            const waitlistQuery = await databases.listDocuments(
-                DATABASE_ID,
-                WAITLIST_COLLECTION_ID,
-                [
-                    Query.equal('bookId', book.$id),
-                    Query.equal('userId', currentUserId),
-                    Query.equal('status', 'waiting')
-                ]
-            );
+                // Check waitlist
+                const waitlist = await firebaseService.getWaitlist({ 
+                    bookId: book.id, 
+                    userId 
+                });
+                if (waitlist.documents.length > 0) {
+                    setUserWaitlist(waitlist.documents[0]);
+                }
 
-            // Check pre-order status
-            const preOrderQuery = await databases.listDocuments(
-                DATABASE_ID,
-                PREORDER_COLLECTION_ID,
-                [
-                    Query.equal('bookId', book.$id),
-                    Query.equal('userId', currentUserId)
-                ]
-            );
+                // Get counts
+                const allPreOrders = await firebaseService.getPreOrders({ bookId: book.id });
+                const allWaitlist = await firebaseService.getWaitlist({ bookId: book.id });
+                
+                setPreOrderCount(allPreOrders.documents.length);
+                setWaitlistCount(allWaitlist.documents.length);
 
-            // Get waitlist position
-            const allWaitlist = await databases.listDocuments(
-                DATABASE_ID,
-                WAITLIST_COLLECTION_ID,
-                [
-                    Query.equal('bookId', book.$id),
-                    Query.equal('status', 'waiting'),
-                    Query.orderAsc('$createdAt')
-                ]
-            );
+            } catch (error) {
+                console.error('Error loading user status:', error);
+            }
+        };
 
-            const userWaitlistEntry = allWaitlist.documents.find(
-                entry => entry.userId === currentUserId
-            );
+        loadUserStatus();
+    }, [book, userId]);
 
-            setUserStatus({
-                inWaitlist: waitlistQuery.documents.length > 0,
-                hasPreOrder: preOrderQuery.documents.length > 0,
-                waitlistPosition: userWaitlistEntry ? 
-                    allWaitlist.documents.indexOf(userWaitlistEntry) + 1 : 0
-            });
-
-        } catch (error) {
-            console.error('User status tekshirishda xato:', error);
-        }
-    };
-
+    // Handle pre-order
     const handlePreOrder = async () => {
-        if (!currentUserId) {
-            toast.warning('Oldindan buyurtma berish uchun tizimga kiring');
-            return;
-        }
-        
-        if (!PREORDER_COLLECTION_ID) {
-            toast.error('Pre-order tizimi hali sozlanmagan');
-            return;
-        }
+        if (!book || !userId || loading) return;
 
-        setLoading(true);
         try {
-            // Create pre-order entry
-            await databases.createDocument(
-                DATABASE_ID,
-                PREORDER_COLLECTION_ID,
-                ID.unique(),
-                {
-                    bookId: book.$id,
-                    userId: currentUserId,
+            setLoading(true);
+
+            if (userPreOrder) {
+                // Cancel pre-order
+                await firebaseService.cancelPreOrder(userPreOrder.id);
+                setUserPreOrder(null);
+                setPreOrderCount(prev => prev - 1);
+                toastMessages.success('Oldindan buyurtma bekor qilindi');
+            } else {
+                // Create pre-order
+                const preOrderData = {
+                    bookId: book.id,
+                    userId,
                     bookTitle: book.title,
                     bookPrice: book.price,
-                    status: 'pending',
-                    createdAt: new Date().toISOString(),
-                    estimatedDelivery: book.expectedRestockDate || book.estimatedDelivery
-                }
-            );
+                    quantity: 1,
+                    customerName: 'Foydalanuvchi', // This should come from user profile
+                    customerEmail: '', // This should come from user profile
+                    customerPhone: '', // This should come from user profile
+                    estimatedAvailability: 'Tez orada'
+                };
 
-            // Update book pre-order count
-            await databases.updateDocument(
-                DATABASE_ID,
-                BOOKS_COLLECTION_ID,
-                book.$id,
-                {
-                    preOrderCount: (book.preOrderCount || 0) + 1
-                }
-            );
-
-            toast.success('Oldindan buyurtma muvaffaqiyatli berildi!');
-            checkUserStatus();
-
-        } catch (error) {
-            console.error('Pre-order xatosi:', error);
-            toast.error('Oldindan buyurtma berishda xato yuz berdi');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleJoinWaitlist = async () => {
-        if (!currentUserId) {
-            toast.warning('Navbatga qo\'shilish uchun tizimga kiring');
-            return;
-        }
-        
-        if (!WAITLIST_COLLECTION_ID) {
-            toast.error('Waitlist tizimi hali sozlanmagan');
-            return;
-        }
-
-        setLoading(true);
-        try {
-            // Create waitlist entry
-            await databases.createDocument(
-                DATABASE_ID,
-                WAITLIST_COLLECTION_ID,
-                ID.unique(),
-                {
-                    bookId: book.$id,
-                    userId: currentUserId,
-                    bookTitle: book.title,
-                    status: 'waiting',
-                    createdAt: new Date().toISOString(),
-                    notificationSent: false
-                }
-            );
-
-            // Update book waitlist count
-            await databases.updateDocument(
-                DATABASE_ID,
-                BOOKS_COLLECTION_ID,
-                book.$id,
-                {
-                    waitlistCount: (book.waitlistCount || 0) + 1
-                }
-            );
-
-            toast.success('Navbatga muvaffaqiyatli qo\'shildingiz!');
-            checkUserStatus();
-
-        } catch (error) {
-            console.error('Waitlist xatosi:', error);
-            toast.error('Navbatga qo\'shilishda xato yuz berdi');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleLeaveWaitlist = async () => {
-        setLoading(true);
-        try {
-            // Find and delete waitlist entry
-            const waitlistQuery = await databases.listDocuments(
-                DATABASE_ID,
-                WAITLIST_COLLECTION_ID,
-                [
-                    Query.equal('bookId', book.$id),
-                    Query.equal('userId', currentUserId),
-                    Query.equal('status', 'waiting')
-                ]
-            );
-
-            if (waitlistQuery.documents.length > 0) {
-                await databases.deleteDocument(
-                    DATABASE_ID,
-                    WAITLIST_COLLECTION_ID,
-                    waitlistQuery.documents[0].$id
-                );
-
-                // Update book waitlist count
-                await databases.updateDocument(
-                    DATABASE_ID,
-                    BOOKS_COLLECTION_ID,
-                    book.$id,
-                    {
-                        waitlistCount: Math.max(0, (book.waitlistCount || 0) - 1)
-                    }
-                );
-
-                toast.success('Navbatdan chiqarildingiz');
-                checkUserStatus();
+                const newPreOrder = await firebaseService.createPreOrder(preOrderData);
+                setUserPreOrder(newPreOrder);
+                setPreOrderCount(prev => prev + 1);
+                toastMessages.success('Oldindan buyurtma berildi!');
+                
+                if (onSuccess) onSuccess();
             }
-
         } catch (error) {
-            console.error('Waitlist`dan chiqish xatosi:', error);
-            toast.error('Navbatdan chiqishda xato yuz berdi');
+            console.error('Pre-order error:', error);
+            toastMessages.error('Xato yuz berdi. Qayta urinib ko\'ring.');
         } finally {
             setLoading(false);
         }
     };
 
-    // Pre-order button
-    if (canPreOrder(book) && !userStatus.hasPreOrder) {
-        return (
-            <div className="pre-order-waitlist">
-                <button
-                    className="pre-order-btn"
-                    onClick={handlePreOrder}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <>
-                            <i className="fas fa-spinner fa-spin"></i>
-                            Yuklanmoqda...
-                        </>
-                    ) : (
-                        <>
-                            <i className="fas fa-calendar-plus"></i>
-                            Oldindan buyurtma berish
-                        </>
-                    )}
-                </button>
-                
-                {book.expectedRestockDate && (
-                    <div className="restock-info">
-                        <i className="fas fa-clock"></i>
-                        Kutilayotgan sana: {formatRestockDate(book.expectedRestockDate)}
-                    </div>
-                )}
-                
-                {book.preOrderCount > 0 && (
-                    <div className="pre-order-count">
-                        {book.preOrderCount} kishi oldindan buyurtma bergan
-                    </div>
-                )}
-            </div>
-        );
-    }
+    // Handle waitlist
+    const handleWaitlist = async () => {
+        if (!book || !userId || loading) return;
 
-    // Already pre-ordered
-    if (userStatus.hasPreOrder) {
-        return (
-            <div className="pre-order-waitlist">
-                <div className="status-message success">
-                    <i className="fas fa-check-circle"></i>
-                    Siz allaqachon oldindan buyurtma bergansiz
+        try {
+            setLoading(true);
+
+            if (userWaitlist) {
+                // Remove from waitlist
+                await firebaseService.removeFromWaitlist(userWaitlist.id);
+                setUserWaitlist(null);
+                setWaitlistCount(prev => prev - 1);
+                toastMessages.success('Navbatdan chiqarildi');
+            } else {
+                // Add to waitlist
+                const waitlistData = {
+                    bookId: book.id,
+                    userId,
+                    bookTitle: book.title,
+                    userEmail: '' // This should come from user profile
+                };
+
+                const newWaitlist = await firebaseService.addToWaitlist(waitlistData);
+                setUserWaitlist(newWaitlist);
+                setWaitlistCount(prev => prev + 1);
+                toastMessages.success('Navbatga qo\'shildi!');
+                
+                if (onSuccess) onSuccess();
+            }
+        } catch (error) {
+            console.error('Waitlist error:', error);
+            toastMessages.error('Xato yuz berdi. Qayta urinib ko\'ring.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (!book) return null;
+
+    const showPreOrder = canPreOrder(book);
+    const showWaitlist = canJoinWaitlist(book);
+
+    if (!showPreOrder && !showWaitlist) return null;
+
+    return (
+        <div className="pre-order-waitlist" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            marginTop: '15px',
+            padding: '15px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+        }}>
+            <div className="stock-status" style={{
+                color: getStockStatusColor(book.stockStatus),
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                marginBottom: '10px'
+            }}>
+                <i className="fas fa-info-circle" style={{ marginRight: '5px' }}></i>
+                {getStockStatusText(book.stockStatus, book.stock)}
+            </div>
+
+            {showPreOrder && (
+                <div className="pre-order-section">
+                    <button
+                        onClick={handlePreOrder}
+                        disabled={loading}
+                        className="glassmorphism-button"
+                        style={{
+                            width: '100%',
+                            padding: '12px',
+                            backgroundColor: userPreOrder 
+                                ? 'rgba(255, 59, 59, 0.2)' 
+                                : 'rgba(52, 211, 153, 0.2)',
+                            border: userPreOrder 
+                                ? '1px solid rgba(255, 59, 59, 0.3)' 
+                                : '1px solid rgba(52, 211, 153, 0.3)',
+                            color: userPreOrder ? '#ff6b6b' : '#34d399'
+                        }}
+                    >
+                        {loading ? (
+                            <>
+                                <i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>
+                                Yuklanmoqda...
+                            </>
+                        ) : userPreOrder ? (
+                            <>
+                                <i className="fas fa-times" style={{ marginRight: '8px' }}></i>
+                                Oldindan buyurtmani bekor qilish
+                            </>
+                        ) : (
+                            <>
+                                <i className="fas fa-clock" style={{ marginRight: '8px' }}></i>
+                                Oldindan buyurtma berish
+                            </>
+                        )}
+                    </button>
+                    
+                    {preOrderCount > 0 && (
+                        <p style={{ 
+                            fontSize: '0.8rem', 
+                            opacity: 0.7, 
+                            marginTop: '5px',
+                            textAlign: 'center'
+                        }}>
+                            {preOrderCount} kishi oldindan buyurtma bergan
+                        </p>
+                    )}
                 </div>
-                {book.expectedRestockDate && (
-                    <div className="restock-info">
-                        <i className="fas fa-clock"></i>
-                        Kutilayotgan sana: {formatRestockDate(book.expectedRestockDate)}
-                    </div>
+            )}
+
+            {showWaitlist && (
+                <div className="waitlist-section">
+                    <button
+                        onClick={handleWaitlist}
+                        disabled={loading}
+                        className="glassmorphism-button"
+                        style={{
+                            width: '100%',
+                            padding: '12px',
+                            backgroundColor: userWaitlist 
+                                ? 'rgba(255, 59, 59, 0.2)' 
+                                : 'rgba(106, 138, 255, 0.2)',
+                            border: userWaitlist 
+                                ? '1px solid rgba(255, 59, 59, 0.3)' 
+                                : '1px solid rgba(106, 138, 255, 0.3)',
+                            color: userWaitlist ? '#ff6b6b' : '#6a8aff'
+                        }}
+                    >
+                        {loading ? (
+                            <>
+                                <i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>
+                                Yuklanmoqda...
+                            </>
+                        ) : userWaitlist ? (
+                            <>
+                                <i className="fas fa-times" style={{ marginRight: '8px' }}></i>
+                                Navbatdan chiqish
+                            </>
+                        ) : (
+                            <>
+                                <i className="fas fa-bell" style={{ marginRight: '8px' }}></i>
+                                Mavjud bo'lganda xabar berish
+                            </>
+                        )}
+                    </button>
+                    
+                    {waitlistCount > 0 && (
+                        <p style={{ 
+                            fontSize: '0.8rem', 
+                            opacity: 0.7, 
+                            marginTop: '5px',
+                            textAlign: 'center'
+                        }}>
+                            {waitlistCount} kishi navbatda kutmoqda
+                        </p>
+                    )}
+                </div>
+            )}
+
+            <div className="info-text" style={{
+                fontSize: '0.8rem',
+                opacity: 0.6,
+                textAlign: 'center',
+                marginTop: '10px'
+            }}>
+                {showPreOrder && (
+                    <p>Oldindan buyurtma - kitob mavjud bo'lganda birinchi bo'lib xabar olasiz</p>
+                )}
+                {showWaitlist && (
+                    <p>Navbat - kitob mavjud bo'lganda email orqali xabar beramiz</p>
                 )}
             </div>
-        );
-    }
-
-    // Waitlist button
-    if (canJoinWaitlist(book) && !userStatus.inWaitlist) {
-        return (
-            <div className="pre-order-waitlist">
-                <button
-                    className="waitlist-btn"
-                    onClick={handleJoinWaitlist}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <>
-                            <i className="fas fa-spinner fa-spin"></i>
-                            Yuklanmoqda...
-                        </>
-                    ) : (
-                        <>
-                            <i className="fas fa-bell"></i>
-                            Navbatga qo'shilish
-                        </>
-                    )}
-                </button>
-                
-                <div className="waitlist-info">
-                    <p>Kitob mavjud bo'lganda sizga xabar beramiz</p>
-                    {book.waitlistCount > 0 && (
-                        <span>{book.waitlistCount} kishi navbatda</span>
-                    )}
-                </div>
-            </div>
-        );
-    }
-
-    // Already in waitlist
-    if (userStatus.inWaitlist) {
-        return (
-            <div className="pre-order-waitlist">
-                <div className="status-message info">
-                    <i className="fas fa-bell"></i>
-                    Siz navbatdasiz (#{userStatus.waitlistPosition})
-                </div>
-                
-                <button
-                    className="leave-waitlist-btn"
-                    onClick={handleLeaveWaitlist}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <>
-                            <i className="fas fa-spinner fa-spin"></i>
-                            Yuklanmoqda...
-                        </>
-                    ) : (
-                        <>
-                            <i className="fas fa-times"></i>
-                            Navbatdan chiqish
-                        </>
-                    )}
-                </button>
-            </div>
-        );
-    }
-
-    return null;
+        </div>
+    );
 }
 
 export default PreOrderWaitlist;

@@ -1,33 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { account } from '../appwriteConfig';
-import { loginAndSync } from '../utils/userSync';
+import { AdminAuth } from '../utils/adminAuth';
 import '../index.css';
 import '../styles/admin.css';
 import '../styles/admin/login.css';
 
 function AdminLogin() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('admin@zamonbooks.uz');
+    const [password, setPassword] = useState('admin123');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Check if user is already logged in
-        const checkUser = async () => {
-            try {
-                const currentUser = await account.get();
-                if (currentUser) {
-                    navigate('/admin-dashboard');
-                }
-            } catch (err) {
-                // User is not logged in, stay on login page
-                console.log("Foydalanuvchi tizimga kirmagan");
-            }
-        };
-
-        checkUser();
+        // Check if admin is already logged in
+        const currentUser = AdminAuth.getCurrentUser();
+        if (currentUser && AdminAuth.isAdmin()) {
+            navigate('/admin-dashboard');
+        }
     }, [navigate]);
 
     const handleSubmit = async (e) => {
@@ -36,22 +26,13 @@ function AdminLogin() {
         setError(null);
 
         try {
-            // Login va sync
-            const loginResult = await loginAndSync(email, password);
-
-            // Admin role tekshirish
-            if (loginResult.dbUser.role === 'admin' || loginResult.dbUser.role === 'editor') {
-                console.log('Admin login muvaffaqiyatli:', loginResult.dbUser);
-                navigate('/admin-dashboard');
-            } else {
-                setError("Sizda admin huquqlari yo'q. Iltimos, administrator bilan bog'laning.");
-                // Logout qilish
-                await account.deleteSession('current');
-            }
-
+            // Test admin login
+            const user = await AdminAuth.login(email, password);
+            console.log('Admin login successful:', user);
+            navigate('/admin-dashboard');
         } catch (err) {
             console.error("Tizimga kirishda xato:", err);
-            setError("Email yoki parol noto'g'ri. Iltimos, qayta urinib ko'ring.");
+            setError('Login failed: ' + err.message);
         } finally {
             setLoading(false);
         }

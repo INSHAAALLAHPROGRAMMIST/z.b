@@ -1,98 +1,159 @@
+# Netlify Configuration for Zamon Books
+# Production deployment settings and optimizations
+
 [build]
+  # Build command
+  command = "npm run build:production"
+  
+  # Publish directory
   publish = "dist"
-  command = "npm run build"
+  
+  # Functions directory
   functions = "netlify/functions"
+  
+  # Environment variables for build
+  environment = { NODE_VERSION = "18" }
 
-[dev]
-  command = "npm run dev"
-  port = 5173
-  targetPort = 5173
-  framework = "vite"
+# Production build settings
+[build.environment]
+  NODE_ENV = "production"
+  VITE_NODE_ENV = "production"
 
-# API routes redirect to functions
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+# Branch-specific deploy settings
+[context.production]
+  command = "npm run build:production"
+  environment = { NODE_ENV = "production" }
 
-# SSR temporarily disabled - using client-side rendering
+[context.deploy-preview]
+  command = "npm run build"
+  environment = { NODE_ENV = "staging" }
 
-# SEO routes
-[[redirects]]
-  from = "/sitemap.xml"
-  to = "/.netlify/functions/sitemap"
-  status = 200
+[context.branch-deploy]
+  command = "npm run build"
+  environment = { NODE_ENV = "development" }
 
-[[redirects]]
-  from = "/robots.txt"
-  to = "/.netlify/functions/robots"
-  status = 200
-
-# SPA fallback for other routes (admin, cart, etc.)
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-[[headers]]
-  for = "*.js"
-  [headers.values]
-    Content-Type = "application/javascript; charset=utf-8"
-
-[[headers]]
-  for = "*.jsx"
-  [headers.values]
-    Content-Type = "application/javascript; charset=utf-8"
-
-[[headers]]
-  for = "/assets/**/*.jsx"
-  [headers.values]
-    Content-Type = "application/javascript; charset=utf-8"
-
-[[headers]]
-  for = "*.mjs"
-  [headers.values]
-    Content-Type = "application/javascript; charset=utf-8"
-
-[[headers]]
-  for = "*.css"
-  [headers.values]
-    Content-Type = "text/css; charset=utf-8"
-
-# Performance headers
+# Headers for security and performance
 [[headers]]
   for = "/*"
   [headers.values]
+    # Security headers
     X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    
+    # Performance headers
+    Cache-Control = "public, max-age=31536000, immutable"
 
-# Cache headers for static assets
+# Static assets caching
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Service Worker caching
 [[headers]]
-  for = "*.png"
+  for = "/sw.js"
   [headers.values]
-    Cache-Control = "public, max-age=31536000"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
+# API routes caching
 [[headers]]
-  for = "*.jpg"
+  for = "/.netlify/functions/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000"
+    Cache-Control = "no-cache, no-store, must-revalidate"
 
+# HTML files
 [[headers]]
-  for = "*.webp"
+  for = "/*.html"
   [headers.values]
-    Cache-Control = "public, max-age=31536000"
+    Cache-Control = "public, max-age=3600"
 
-[build.environment]
-  NODE_VERSION = "22"
+# Redirects for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Role = ["admin"], Country = ["US"]}
 
-# Functions configuration
-[functions]
-  node_bundler = "esbuild"
+# API redirects to functions
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Legacy redirects
+[[redirects]]
+  from = "/book/:id"
+  to = "/kitob/:id"
+  status = 301
+
+# Error pages
+[[redirects]]
+  from = "/404"
+  to = "/404.html"
+  status = 404
+
+# Edge functions for performance
+[[edge_functions]]
+  function = "geolocation"
+  path = "/api/location"
+
+# Form handling
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.images]
+  compress = true
+
+# Plugin configurations
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  
+  [plugins.inputs.thresholds]
+    performance = 0.8
+    accessibility = 0.9
+    best-practices = 0.9
+    seo = 0.9
+
+[[plugins]]
+  package = "netlify-plugin-submit-sitemap"
+  
+  [plugins.inputs]
+    baseUrl = "https://zamonbooks.netlify.app"
+    sitemapPath = "/sitemap.xml"
+    providers = [
+      "google",
+      "bing"
+    ]
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Environment-specific settings
+[dev]
+  command = "npm run dev"
+  port = 5173
+  publish = "dist"
+  autoLaunch = false
+
+# Split testing
+[split_testing]
+  [split_testing.test_1]
+    path = "/"
+    branches = [
+      { branch = "main", percentage = 90 },
+      { branch = "feature/new-ui", percentage = 10 }
+    ]

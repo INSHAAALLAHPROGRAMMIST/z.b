@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { databases, Query, ID } from '../appwriteConfig';
+import { GenresAdmin, FirebaseQuery } from '../utils/firebaseAdmin';
 import { prepareSearchText } from '../utils/transliteration';
 import { highlightText } from '../utils/highlightText.jsx';
 import { toastMessages, toast } from '../utils/toastUtils';
@@ -19,10 +19,6 @@ import '../styles/admin/genres.css';
 import '../styles/admin/pagination.css';
 import '../styles/admin/modal.css';
 import '../styles/admin/forms.css';
-
-// Appwrite konsolidan olingan ID'lar
-const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const GENRES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_GENRES_ID;
 
 function AdminGenreManagement() {
     const [genres, setGenres] = useState([]);

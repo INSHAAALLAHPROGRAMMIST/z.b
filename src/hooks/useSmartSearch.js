@@ -1,9 +1,10 @@
-// Smart Search Hook with Netlify Functions
-// Hozirgi qidiruv komponentlari bilan mos
+// Smart Search Hook with Firebase
+// Firebase Firestore bilan integratsiya qilingan
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { enhancedSearchApi, smartApi } from '../utils/netlifyApi';
 import { useDebounce } from './useDebounce';
+import firebaseService from '../services/FirebaseService';
+import { prepareSearchText } from '../utils/transliteration';
 
 export const useSmartSearch = (options = {}) => {
   const {
@@ -29,7 +30,7 @@ export const useSmartSearch = (options = {}) => {
   const searchAbortController = useRef(null);
   const suggestionsAbortController = useRef(null);
 
-  // Search function
+  // Search function using Firebase
   const performSearch = useCallback(async (searchQuery, options = {}) => {
     if (!searchQuery || searchQuery.length < minQueryLength) {
       setResults([]);
@@ -37,68 +38,72 @@ export const useSmartSearch = (options = {}) => {
       return;
     }
 
-    // Cancel previous search
-    if (searchAbortController.current) {
-      searchAbortController.current.abort();
-    }
-    searchAbortController.current = new AbortController();
-
     try {
       setLoading(true);
       setError(null);
 
       const startTime = Date.now();
       
-      // Use smart API with fallback
-      const response = await smartApi.search(searchQuery, options.limit || 10);
+      // Use Firebase service for search
+      const response = await firebaseService.searchBooks(searchQuery, {
+        limitCount: options.limit || 20
+      });
       
-      if (response.success) {
-        setResults(response.results || []);
-        setSearchTime(response.searchTime || `${Date.now() - startTime}ms`);
-      } else {
-        throw new Error(response.message || 'Search failed');
-      }
+      // Format results for compatibility
+      const formattedResults = response.documents.map(book => ({
+        id: book.id,
+        title: book.title,
+        author: book.authorName,
+        price: book.price,
+        image: book.imageUrl,
+        slug: book.slug,
+        description: book.description,
+        stockStatus: book.stockStatus
+      }));
+      
+      setResults(formattedResults);
+      setSearchTime(`${Date.now() - startTime}ms`);
 
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error('Search Error:', err);
-        setError(err.message);
-        setResults([]);
-      }
+      console.error('Firebase search error:', err);
+      setError(err.message || 'Qidiruv xatosi yuz berdi');
+      setResults([]);
     } finally {
       setLoading(false);
     }
   }, [minQueryLength]);
 
-  // Get suggestions function
+  // Get suggestions function using Firebase
   const getSuggestions = useCallback(async (searchQuery) => {
     if (!enableSuggestions || !searchQuery || searchQuery.length < minQueryLength) {
       setSuggestions([]);
       return;
     }
 
-    // Cancel previous suggestions request
-    if (suggestionsAbortController.current) {
-      suggestionsAbortController.current.abort();
-    }
-    suggestionsAbortController.current = new AbortController();
-
     try {
       setSuggestionsLoading(true);
 
-      const response = await enhancedSearchApi.getSuggestions(searchQuery, maxSuggestions);
+      // Use Firebase service for suggestions
+      const response = await firebaseService.searchBooks(searchQuery, {
+        limitCount: maxSuggestions
+      });
       
-      if (response.success) {
-        setSuggestions(response.suggestions || []);
-      } else {
-        setSuggestions([]);
-      }
+      // Format suggestions for compatibility
+      const formattedSuggestions = response.documents.map(book => ({
+        id: book.id,
+        title: book.title,
+        author: book.authorName,
+        price: book.price,
+        image: book.imageUrl,
+        slug: book.slug,
+        stockStatus: book.stockStatus
+      }));
+      
+      setSuggestions(formattedSuggestions);
 
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error('Suggestions Error:', err);
-        setSuggestions([]);
-      }
+      console.error('Firebase suggestions error:', err);
+      setSuggestions([]);
     } finally {
       setSuggestionsLoading(false);
     }
@@ -120,14 +125,6 @@ export const useSmartSearch = (options = {}) => {
     setSuggestions([]);
     setError(null);
     setSearchTime(null);
-    
-    // Cancel ongoing requests
-    if (searchAbortController.current) {
-      searchAbortController.current.abort();
-    }
-    if (suggestionsAbortController.current) {
-      suggestionsAbortController.current.abort();
-    }
   }, []);
 
   // Search with current query
@@ -147,12 +144,7 @@ export const useSmartSearch = (options = {}) => {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (searchAbortController.current) {
-        searchAbortController.current.abort();
-      }
-      if (suggestionsAbortController.current) {
-        suggestionsAbortController.current.abort();
-      }
+      // Firebase operations don't need manual cancellation
     };
   }, []);
 

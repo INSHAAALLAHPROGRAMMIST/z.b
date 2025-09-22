@@ -1,23 +1,25 @@
 // Dynamic Sitemap Generator
 // SEO uchun avtomatik sitemap yaratadi
 
-const { Client, Databases, Query } = require('appwrite');
+const admin = require('firebase-admin');
 
-// Appwrite client setup
-const client = new Client()
-  .setEndpoint(process.env.VITE_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
-  .setProject(process.env.VITE_APPWRITE_PROJECT_ID)
-  .setKey(process.env.APPWRITE_SERVER_API_KEY);
+// Initialize Firebase Admin (only once)
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    }),
+    projectId: process.env.VITE_FIREBASE_PROJECT_ID
+  });
+}
 
-const databases = new Databases(client);
-
-const DATABASE_ID = process.env.VITE_APPWRITE_DATABASE_ID;
-const BOOKS_COLLECTION_ID = process.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
-const GENRES_COLLECTION_ID = process.env.VITE_APPWRITE_COLLECTION_GENRES_ID;
+const db = admin.firestore();
 
 const SITE_URL = process.env.VITE_SITE_URL || 'https://your-domain.netlify.app';
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   const headers = {
     'Content-Type': 'application/xml; charset=utf-8',
     'Cache-Control': 'public, max-age=3600, stale-while-revalidate=7200' // 1 soat cache

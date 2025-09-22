@@ -30,10 +30,10 @@ export const checkUnusedImports = () => {
 // Environment variables validation
 export const validateEnvVars = () => {
   const requiredVars = [
-    'VITE_APPWRITE_ENDPOINT',
-    'VITE_APPWRITE_PROJECT_ID',
-    'VITE_APPWRITE_DATABASE_ID',
-    'VITE_APPWRITE_COLLECTION_BOOKS_ID'
+    'VITE_FIREBASE_API_KEY',
+    'VITE_FIREBASE_PROJECT_ID',
+    'VITE_FIREBASE_AUTH_DOMAIN',
+    'VITE_FIREBASE_APP_ID'
   ];
 
   const missing = requiredVars.filter(varName => !import.meta.env[varName]);

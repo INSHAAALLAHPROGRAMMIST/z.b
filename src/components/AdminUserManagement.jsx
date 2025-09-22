@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { databases, Query, ID } from '../appwriteConfig';
 import { prepareSearchText } from '../utils/transliteration';
 import { highlightText } from '../utils/highlightText.jsx';
 import { toastMessages, toast } from '../utils/toastUtils';
@@ -10,10 +9,9 @@ import '../styles/admin/pagination.css';
 import '../styles/admin/modal.css';
 import '../styles/admin/forms.css';
 
-// Appwrite konsolidan olingan ID'lar
-const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const USERS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_USERS_ID;
-const ORDERS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_CART_ITEMS_ID;
+// Firebase imports
+import firebaseService from '../services/FirebaseService';
+import { formatFirebaseDate } from '../utils/firebaseHelpers';
 
 function AdminUserManagement() {
     const [users, setUsers] = useState([]);

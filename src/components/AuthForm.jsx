@@ -2,11 +2,49 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { migrateGuestCartToUser } from '../utils/cartMigration';
-import { loginAndSync, registerAndSync, logoutUser } from '../utils/userSync';
-import { isValidEmail, parseRegisterError, parseLoginError } from '../utils/emailValidation';
-import { validateTelegramUsername, createTelegramLinkProps } from '../utils/telegramUtils';
-import { account } from '../appwriteConfig';
+// import { migrateGuestCartToUser } from '../utils/cartMigration';
+// import { loginAndSync, registerAndSync, logoutUser } from '../utils/userSync';
+// import { isValidEmail, parseRegisterError, parseLoginError } from '../utils/emailValidation';
+
+// Simple email validation
+const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
+// Simple error parsing
+const parseLoginError = (error) => {
+    if (error.code === 'auth/user-not-found') return 'Foydalanuvchi topilmadi';
+    if (error.code === 'auth/wrong-password') return 'Parol noto\'g\'ri';
+    if (error.code === 'auth/invalid-email') return 'Email format noto\'g\'ri';
+    return error.message || 'Login xatosi';
+};
+
+const parseRegisterError = (error) => {
+    if (error.code === 'auth/email-already-in-use') return 'Bu email allaqachon ishlatilgan';
+    if (error.code === 'auth/weak-password') return 'Parol juda zaif';
+    if (error.code === 'auth/invalid-email') return 'Email format noto\'g\'ri';
+    return error.message || 'Ro\'yxatdan o\'tish xatosi';
+};
+// import { validateTelegramUsername, createTelegramLinkProps } from '../utils/telegramUtils';
+
+// Simple telegram validation
+const validateTelegramUsername = (username) => {
+    if (!username || username.length < 3) {
+        return { valid: false, message: 'Telegram username kamida 3 ta belgidan iborat bo\'lishi kerak' };
+    }
+    return { valid: true };
+};
+
+const createTelegramLinkProps = (username, style = {}) => {
+    return {
+        href: `https://t.me/${username.replace('@', '')}`,
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        style
+    };
+};
+import { auth } from '../firebaseConfig';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 
 const AuthForm = ({ onSuccess }) => {
     const [isLogin, setIsLogin] = useState(true);
@@ -28,15 +66,10 @@ const AuthForm = ({ onSuccess }) => {
 
     // Component yuklanganda joriy user'ni tekshirish
     React.useEffect(() => {
-        const checkCurrentUser = async () => {
-            try {
-                const user = await account.get();
-                setCurrentUser(user);
-            } catch (error) {
-                setCurrentUser(null);
-            }
-        };
-        checkCurrentUser();
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setCurrentUser(user);
+        });
+        return () => unsubscribe();
     }, []);
 
     const handleSubmit = async (e) => {
@@ -54,13 +87,11 @@ const AuthForm = ({ onSuccess }) => {
             let userId;
 
             if (isLogin) {
-                let loginResult;
                 try {
-                    // Tizimga kirish va sync
-                    loginResult = await loginAndSync(email, password);
-                    userId = loginResult.authUser.$id;
-
-                    console.log('Login muvaffaqiyatli:', loginResult.dbUser);
+                    // Firebase login
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    userId = userCredential.user.uid;
+                    console.log('Login muvaffaqiyatli:', userCredential.user);
                 } catch (loginError) {
                     setError(parseLoginError(loginError));
                     return;
@@ -103,25 +134,21 @@ const AuthForm = ({ onSuccess }) => {
                     return;
                 }
 
-                // Email unique tekshirish (Appwrite avtomatik tekshiradi, lekin aniq xabar uchun)
-                let registerResult;
                 try {
-                    // Ro'yxatdan o'tish va sync
-                    registerResult = await registerAndSync(email, password, name, {
-                        phone: phone,
-                        telegram_username: telegramUsername,
-                        address: address
-                    });
-                    userId = registerResult.authUser.$id;
-                    console.log('Register muvaffaqiyatli:', registerResult.dbUser);
+                    // Firebase register
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    userId = userCredential.user.uid;
+                    
+                    // User profile ma'lumotlarini saqlash (keyinroq Firestore'ga)
+                    console.log('Register muvaffaqiyatli:', userCredential.user);
                 } catch (registerError) {
                     setError(parseRegisterError(registerError));
                     return;
                 }
             }
 
-            // Mehmon savatini foydalanuvchi savatiga ko'chirish
-            await migrateGuestCartToUser(userId);
+            // Mehmon savatini foydalanuvchi savatiga ko'chirish (keyinroq)
+            // await migrateGuestCartToUser(userId);
             // Agar muvaffaqiyatli bo'lsa, onSuccess callbackini chaqiramiz
             if (onSuccess) {
                 onSuccess();
@@ -147,7 +174,7 @@ const AuthForm = ({ onSuccess }) => {
 
     const handleLogout = async () => {
         try {
-            await logoutUser();
+            await signOut(auth);
             setCurrentUser(null);
             window.location.reload(); // Sahifani yangilash
         } catch (error) {
@@ -187,7 +214,7 @@ const AuthForm = ({ onSuccess }) => {
                             marginBottom: '10px'
                         }}></i>
                         <p style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
-                            {currentUser.name || currentUser.email}
+                            {currentUser.displayName || currentUser.email}
                         </p>
                         <p style={{ fontSize: '0.9rem', opacity: '0.8' }}>
                             {currentUser.email}

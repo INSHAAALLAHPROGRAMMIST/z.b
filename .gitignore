@@ -1,5 +1,9 @@
-#environment variables
+# Environment variables (keep example files)
 *.env
+!.env.example
+!.env.netlify
+!.env.production
+!.env.production.complete
 
 # Logs
 logs

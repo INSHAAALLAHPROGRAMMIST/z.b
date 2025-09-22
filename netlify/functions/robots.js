@@ -3,7 +3,7 @@
 
 const SITE_URL = process.env.VITE_SITE_URL || 'https://your-domain.netlify.app';
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   const headers = {
     'Content-Type': 'text/plain; charset=utf-8',
     'Cache-Control': 'public, max-age=86400' // 1 kun cache

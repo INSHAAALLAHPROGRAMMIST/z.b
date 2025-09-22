@@ -8,6 +8,7 @@ import AdminGenreManagement from './AdminGenreManagement';
 import AdminOrderManagement from './AdminOrderManagement';
 import AdminUserManagement from './AdminUserManagement';
 import AdminSettings from './AdminSettings';
+import AnalyticsDashboard from './AnalyticsDashboard';
 
 function AdminRoutes() {
     return (
@@ -20,6 +21,7 @@ function AdminRoutes() {
                 <Route path="genres" element={<AdminGenreManagement />} />
                 <Route path="orders" element={<AdminOrderManagement />} />
                 <Route path="users" element={<AdminUserManagement />} />
+                <Route path="analytics" element={<AnalyticsDashboard />} />
                 <Route path="settings" element={<AdminSettings />} />
             </Route>
         </Routes>

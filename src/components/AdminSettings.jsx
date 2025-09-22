@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { databases, ID } from '../appwriteConfig';
+import { firebaseAdmin } from '../utils/firebaseAdmin';
 import { uploadToCloudinary } from '../config/cloudinaryConfig';
 import siteConfig from '../config/siteConfig';
 import SystemStatus from './SystemStatus';
@@ -29,7 +29,14 @@ function AdminSettings() {
         primaryColor: '#6a8aff',
         accentColor: '#8bff6a',
         shippingCost: 15000,
-        freeShippingThreshold: 200000
+        freeShippingThreshold: 200000,
+        // Notification settings
+        telegramBotToken: '',
+        telegramChatId: '',
+        enableTelegramNotifications: true,
+        notifyOnNewOrder: true,
+        notifyOnStatusChange: true,
+        notifyOnLowStock: true
     });
     
     const [loading, setLoading] = useState(true);
@@ -71,7 +78,14 @@ function AdminSettings() {
                         primaryColor: settingsData.primaryColor || '#6a8aff',
                         accentColor: settingsData.accentColor || '#8bff6a',
                         shippingCost: settingsData.shippingCost || 15000,
-                        freeShippingThreshold: settingsData.freeShippingThreshold || 200000
+                        freeShippingThreshold: settingsData.freeShippingThreshold || 200000,
+                        // Notification settings
+                        telegramBotToken: settingsData.telegramBotToken || '',
+                        telegramChatId: settingsData.telegramChatId || '',
+                        enableTelegramNotifications: settingsData.enableTelegramNotifications !== undefined ? settingsData.enableTelegramNotifications : true,
+                        notifyOnNewOrder: settingsData.notifyOnNewOrder !== undefined ? settingsData.notifyOnNewOrder : true,
+                        notifyOnStatusChange: settingsData.notifyOnStatusChange !== undefined ? settingsData.notifyOnStatusChange : true,
+                        notifyOnLowStock: settingsData.notifyOnLowStock !== undefined ? settingsData.notifyOnLowStock : true
                     });
                 }
                 
@@ -154,7 +168,14 @@ function AdminSettings() {
                 primaryColor: settings.primaryColor,
                 accentColor: settings.accentColor,
                 shippingCost: settings.shippingCost,
-                freeShippingThreshold: settings.freeShippingThreshold
+                freeShippingThreshold: settings.freeShippingThreshold,
+                // Notification settings
+                telegramBotToken: settings.telegramBotToken,
+                telegramChatId: settings.telegramChatId,
+                enableTelegramNotifications: settings.enableTelegramNotifications,
+                notifyOnNewOrder: settings.notifyOnNewOrder,
+                notifyOnStatusChange: settings.notifyOnStatusChange,
+                notifyOnLowStock: settings.notifyOnLowStock
             };
             
             if (settingsId) {
@@ -478,6 +499,108 @@ function AdminSettings() {
                                     />
                                 </div>
                             </div>
+                        </div>
+                        
+                        <div className="settings-section">
+                            <h4>Telegram bildirishnoma sozlamalari</h4>
+                            
+                            <div className="form-group">
+                                <label htmlFor="telegramBotToken">Telegram Bot Token</label>
+                                <input
+                                    type="password"
+                                    id="telegramBotToken"
+                                    name="telegramBotToken"
+                                    value={settings.telegramBotToken}
+                                    onChange={handleInputChange}
+                                    placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
+                                />
+                                <small className="form-help">
+                                    @BotFather'dan olingan bot token'ini kiriting
+                                </small>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label htmlFor="telegramChatId">Telegram Chat ID</label>
+                                <input
+                                    type="text"
+                                    id="telegramChatId"
+                                    name="telegramChatId"
+                                    value={settings.telegramChatId}
+                                    onChange={handleInputChange}
+                                    placeholder="-1001234567890"
+                                />
+                                <small className="form-help">
+                                    Admin guruh yoki kanal ID'sini kiriting
+                                </small>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label className="checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        name="enableTelegramNotifications"
+                                        checked={settings.enableTelegramNotifications}
+                                        onChange={(e) => setSettings({
+                                            ...settings,
+                                            enableTelegramNotifications: e.target.checked
+                                        })}
+                                    />
+                                    <span className="checkmark"></span>
+                                    Telegram bildirishnomalarini yoqish
+                                </label>
+                            </div>
+                            
+                            {settings.enableTelegramNotifications && (
+                                <div className="notification-sub-settings">
+                                    <div className="form-group">
+                                        <label className="checkbox-label">
+                                            <input
+                                                type="checkbox"
+                                                name="notifyOnNewOrder"
+                                                checked={settings.notifyOnNewOrder}
+                                                onChange={(e) => setSettings({
+                                                    ...settings,
+                                                    notifyOnNewOrder: e.target.checked
+                                                })}
+                                            />
+                                            <span className="checkmark"></span>
+                                            Yangi buyurtma haqida xabar berish
+                                        </label>
+                                    </div>
+                                    
+                                    <div className="form-group">
+                                        <label className="checkbox-label">
+                                            <input
+                                                type="checkbox"
+                                                name="notifyOnStatusChange"
+                                                checked={settings.notifyOnStatusChange}
+                                                onChange={(e) => setSettings({
+                                                    ...settings,
+                                                    notifyOnStatusChange: e.target.checked
+                                                })}
+                                            />
+                                            <span className="checkmark"></span>
+                                            Holat o'zgarishi haqida xabar berish
+                                        </label>
+                                    </div>
+                                    
+                                    <div className="form-group">
+                                        <label className="checkbox-label">
+                                            <input
+                                                type="checkbox"
+                                                name="notifyOnLowStock"
+                                                checked={settings.notifyOnLowStock}
+                                                onChange={(e) => setSettings({
+                                                    ...settings,
+                                                    notifyOnLowStock: e.target.checked
+                                                })}
+                                            />
+                                            <span className="checkmark"></span>
+                                            Stok tugashi haqida xabar berish
+                                        </label>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                         
                         <div className="form-actions">

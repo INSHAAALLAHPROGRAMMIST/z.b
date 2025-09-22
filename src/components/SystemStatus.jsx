@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { databases } from '../appwriteConfig';
-import { DATABASE_ID, BOOKS_COLLECTION_ID, WAITLIST_COLLECTION_ID, PREORDER_COLLECTION_ID } from '../appwriteConfig';
+// Firebase imports
+import firebaseService from '../services/FirebaseService';
 
 function SystemStatus() {
     const [status, setStatus] = useState({

@@ -2,14 +2,14 @@
 
 ## 📋 Umumiy Ma'lumot
 
-Zamon Books loyihasida admin panel xavfsiz va professional tarzda sozlangan. Admin huquqlari faqat Appwrite Console orqali beriladi.
+Zamon Books loyihasida admin panel xavfsiz va professional tarzda sozlangan. Admin huquqlari Firebase Firestore orqali boshqariladi.
 
 ## 🚀 Admin Qilish Jarayoni
 
-### 1. Appwrite Console ga Kirish
-1. [Appwrite Console](https://cloud.appwrite.io) ga kiring
+### 1. Firebase Console ga Kirish
+1. [Firebase Console](https://console.firebase.google.com) ga kiring
 2. O'z loyihangizni tanlang
-3. **Authentication** bo'limiga o'ting
+3. **Firestore Database** bo'limiga o'ting
 
 ### 2. Foydalanuvchini Admin Qilish
 1. **Users** tab'ini oching

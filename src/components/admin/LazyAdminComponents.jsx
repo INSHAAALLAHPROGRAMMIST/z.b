@@ -70,4 +70,9 @@ export const LazyAdminInventoryManagement = createLazyComponent(
     <AdminLoader />
 );
 
+export const LazyNotificationCenter = createLazyComponent(
+    () => import('./NotificationCenter'),
+    <AdminLoader />
+);
+
 // EnhancedMigrationPage is imported directly in App.jsx to avoid lazy loading issues

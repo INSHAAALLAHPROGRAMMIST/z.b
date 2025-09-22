@@ -46,6 +46,11 @@ export const LazyCartPage = createLazyComponent(
     <PageLoader />
 );
 
+export const LazyWishlistPage = createLazyComponent(
+    () => import('./WishlistPage'),
+    <PageLoader />
+);
+
 export const LazyBookDetailPage = createLazyComponent(
     () => import('../components/BookDetailPage'),
     <PageLoader />

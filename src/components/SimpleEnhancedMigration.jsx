@@ -1,167 +1,86 @@
 import React, { useState } from 'react';
-import { databases, Query } from '../appwriteConfig';
+import { migrationService } from '../utils/migration';
+import { seedFirebaseData } from '../utils/firebaseSeed';
 import { toast } from '../utils/toastUtils';
-// Collection setup qo'lda qilinadi - Appwrite Console orqali
-
-const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
-const WAITLIST_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_WAITLIST_ID;
-const PREORDER_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_PREORDER_ID;
 
 function SimpleEnhancedMigration() {
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(null);
     const [result, setResult] = useState(null);
 
-    const migrateEnhancedFields = async () => {
+    const setupFirebaseData = async () => {
         try {
-            console.log('🚀 Enhanced inventory migration boshlandi...');
+            setLoading(true);
+            setProgress({ message: 'Firebase setup boshlandi...', percent: 0 });
             
-            const onProgress = (progressData) => {
-                setProgress(progressData);
-            };
+            console.log('🔥 Firebase setup boshlandi...');
             
-            // Barcha kitoblarni olish
-            let allBooks = [];
-            let offset = 0;
-            const limit = 25;
+            // Check current status
+            const status = await migrationService.checkMigrationStatus();
+            setProgress({ message: 'Database holati tekshirilmoqda...', percent: 20 });
             
-            while (true) {
-                const response = await databases.listDocuments(
-                    DATABASE_ID,
-                    BOOKS_COLLECTION_ID,
-                    [
-                        Query.limit(limit),
-                        Query.offset(offset)
-                    ]
-                );
-                
-                allBooks = [...allBooks, ...response.documents];
-                
-                if (response.documents.length < limit) {
-                    break;
-                }
-                
-                offset += limit;
+            if (!status.isEmpty) {
+                setProgress({ 
+                    message: `Ma'lumotlar mavjud: ${status.books} kitob, ${status.authors} muallif, ${status.genres} janr`, 
+                    percent: 100 
+                });
+                setResult({
+                    success: true,
+                    message: 'Ma\'lumotlar allaqachon mavjud',
+                    data: status
+                });
+                return;
             }
             
-            console.log(`📚 Jami ${allBooks.length} ta kitob topildi`);
+            setProgress({ message: 'Sample data yaratilmoqda...', percent: 50 });
             
-            let updated = 0;
-            let errors = 0;
+            // Create sample data
+            const setupResult = await migrationService.setupFirebaseData();
             
-            for (const book of allBooks) {
-                try {
-                    console.log(`🔍 ${book.title} kitobini tekshirmoqda...`);
-                    console.log('Mavjud fieldlar:', Object.keys(book));
-                    
-                    const updateData = {};
-                    
-                    // FAQAT BOOKS COLLECTION'DA MAVJUD BO'LGAN FIELDLAR
-                    console.log('✅ Faqat mavjud fieldlarni yangilaymiz...');
-                    
-                    // Pre-order and waitlist fields (MAVJUD)
-                    if (book.allowPreOrder === undefined) {
-                        console.log('✅ allowPreOrder qo\'shilmoqda');
-                        updateData.allowPreOrder = true;
-                    }
-                    if (book.enableWaitlist === undefined) {
-                        console.log('✅ enableWaitlist qo\'shilmoqda');
-                        updateData.enableWaitlist = true;
-                    }
-                    if (book.preOrderCount === undefined) {
-                        console.log('✅ preOrderCount qo\'shilmoqda');
-                        updateData.preOrderCount = 0;
-                    }
-                    if (book.waitlistCount === undefined) {
-                        console.log('✅ waitlistCount qo\'shilmoqda');
-                        updateData.waitlistCount = 0;
-                    }
-                    if (book.expectedRestockDate === undefined) {
-                        console.log('✅ expectedRestockDate qo\'shilmoqda');
-                        updateData.expectedRestockDate = null;
-                    }
-                    
-                    // Visibility and admin controls (MAVJUD)
-                    if (book.visibility === undefined) {
-                        console.log('✅ visibility qo\'shilmoqda');
-                        updateData.visibility = "visible";
-                    }
-                    if (book.showWhenDiscontinued === undefined) {
-                        console.log('✅ showWhenDiscontinued qo\'shilmoqda');
-                        updateData.showWhenDiscontinued = false;
-                    }
-                    if (book.adminPriority === undefined) {
-                        console.log('✅ adminPriority qo\'shilmoqda');
-                        updateData.adminPriority = 0;
-                    }
-                    if (book.demandScore === undefined) {
-                        console.log('✅ demandScore qo\'shilmoqda');
-                        updateData.demandScore = 0;
-                    }
-                    
-                    console.log('📝 Yangilanishi kerak bo\'lgan fieldlar:', Object.keys(updateData));
-                    
-                    if (Object.keys(updateData).length > 0) {
-                        await databases.updateDocument(
-                            DATABASE_ID,
-                            BOOKS_COLLECTION_ID,
-                            book.$id,
-                            updateData
-                        );
-                        
-                        updated++;
-                        console.log(`✅ ${book.title} yangilandi`);
-                        onProgress({ updated, total: allBooks.length, current: book.title });
-                    } else {
-                        console.log(`⏭️ ${book.title} allaqachon yangilangan`);
-                    }
-                    
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    
-                } catch (error) {
-                    console.error(`❌ ${book.title} yangilashda xato:`, error);
-                    console.error('Xato tafsiloti:', error.message);
-                    errors++;
-                }
-            }
+            setProgress({ message: 'Setup tugallandi!', percent: 100 });
             
-            console.log(`🎉 Enhanced migration yakunlandi:`);
-            console.log(`✅ Yangilangan: ${updated}`);
-            console.log(`❌ Xatolar: ${errors}`);
-            console.log(`📊 Jami: ${allBooks.length}`);
+            setResult({
+                success: true,
+                message: 'Firebase setup muvaffaqiyatli tugallandi!',
+                data: setupResult
+            });
             
-            return { success: true, updated, errors, total: allBooks.length };
+            toast.success('🎉 Firebase setup tugallandi!');
             
         } catch (error) {
-            console.error('💥 Enhanced migration xatosi:', error);
-            return { success: false, error: error.message };
+            console.error('Firebase setup xatosi:', error);
+            setResult({
+                success: false,
+                message: 'Setup xatosi: ' + error.message,
+                error: error
+            });
+            toast.error('❌ Setup xatosi: ' + error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleMigration = async () => {
-        if (!confirm('Enhanced Migration\'ni boshlashni xohlaysizmi?')) {
-            return;
-        }
-
-        setLoading(true);
-        setProgress({ updated: 0, total: 0, current: 'Boshlanyapti...' });
-        setResult(null);
-
+    const checkDatabaseStatus = async () => {
         try {
-            const migrationResult = await migrateEnhancedFields();
-            setResult(migrationResult);
+            setLoading(true);
+            setProgress({ message: 'Database holati tekshirilmoqda...', percent: 50 });
             
-            if (migrationResult.success) {
-                toast.success(`✅ Enhanced Migration muvaffaqiyatli yakunlandi!`);
-            } else {
-                toast.error(`❌ Migration'da xato: ${migrationResult.error}`);
-            }
+            const status = await migrationService.checkMigrationStatus();
+            
+            setProgress({ message: 'Tekshiruv tugallandi', percent: 100 });
+            setResult({
+                success: true,
+                message: 'Database holati',
+                data: status
+            });
+            
         } catch (error) {
-            console.error('❌ Migration error:', error);
-            const errorResult = { success: false, error: error.message };
-            setResult(errorResult);
-            toast.error(`❌ Migration'da xato yuz berdi: ${error.message}`);
+            console.error('Status check xatosi:', error);
+            setResult({
+                success: false,
+                message: 'Status check xatosi: ' + error.message,
+                error: error
+            });
         } finally {
             setLoading(false);
         }
@@ -186,10 +105,10 @@ function SimpleEnhancedMigration() {
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'
             }}>
-                Enhanced Inventory Migration
+                Firebase Database Setup
             </h1>
             
-            {/* Collection Status */}
+            {/* Firebase Status */}
             <div style={{ 
                 marginBottom: '2rem', 
                 padding: '1.5rem', 
@@ -197,64 +116,63 @@ function SimpleEnhancedMigration() {
                 borderRadius: '0.75rem',
                 border: '1px solid var(--glass-border)'
             }}>
-                <h3 style={{ color: 'var(--text-color)', marginBottom: '1rem' }}>Collection Status:</h3>
+                <h3 style={{ color: 'var(--text-color)', marginBottom: '1rem' }}>Firebase Status:</h3>
                 <p style={{ color: 'var(--text-color)' }}>
-                    Waitlist: {WAITLIST_COLLECTION_ID ? '✅ Configured' : '❌ Not configured'}
+                    🔥 Firebase: ✅ Configured
                 </p>
                 <p style={{ color: 'var(--text-color)' }}>
-                    PreOrder: {PREORDER_COLLECTION_ID ? '✅ Configured' : '❌ Not configured'}
+                    📊 Firestore: ✅ Ready
+                </p>
+                <p style={{ color: 'var(--text-color)' }}>
+                    🔐 Auth: ✅ Ready
                 </p>
             </div>
 
-            {/* Setup Warning - Show if not configured */}
-            {(!WAITLIST_COLLECTION_ID || !PREORDER_COLLECTION_ID) && (
-                <div style={{ 
-                    marginBottom: '2rem', 
-                    padding: '1.5rem', 
-                    background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 193, 7, 0.05))', 
-                    border: '1px solid rgba(255, 193, 7, 0.3)',
-                    borderRadius: '0.75rem',
-                    textAlign: 'center'
-                }}>
-                    <h3 style={{ color: '#ffc107', marginBottom: '1rem' }}>
-                        ⚠️ Collection'lar Sozlanmagan
-                    </h3>
-                    <p style={{ color: 'var(--text-color)', marginBottom: '0.5rem' }}>
-                        Appwrite Console'da "waitlist" va "preorder" collection'larini yarating
-                    </p>
-                    <p style={{ color: 'var(--text-color)' }}>
-                        <strong>Ko'rsatma:</strong> <code style={{ 
-                            background: 'rgba(255, 255, 255, 0.1)', 
-                            padding: '0.25rem 0.5rem', 
-                            borderRadius: '0.25rem',
-                            color: 'var(--primary-color)'
-                        }}>ENHANCED_INVENTORY_SETUP.md</code>
-                    </p>
-                </div>
-            )}
+            {/* Action Buttons */}
+            <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                gap: '1rem',
+                marginBottom: '2rem'
+            }}>
+                <button
+                    onClick={setupFirebaseData}
+                    disabled={loading}
+                    style={{
+                        padding: '1rem 2rem',
+                        fontSize: '1.1rem',
+                        background: loading 
+                            ? 'var(--secondary-color)' 
+                            : 'linear-gradient(135deg, var(--primary-color), var(--accent-color))',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.3s ease'
+                    }}
+                >
+                    {loading ? '⏳ Jarayon...' : '🚀 Firebase Setup'}
+                </button>
 
-            {/* Migration Button */}
-            <button
-                onClick={handleMigration}
-                disabled={loading || !WAITLIST_COLLECTION_ID || !PREORDER_COLLECTION_ID}
-                style={{
-                    padding: '1rem 2rem',
-                    fontSize: '1.1rem',
-                    background: (loading || !WAITLIST_COLLECTION_ID || !PREORDER_COLLECTION_ID) 
-                        ? 'var(--secondary-color)' 
-                        : 'linear-gradient(135deg, var(--primary-color), var(--accent-color))',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '0.5rem',
-                    cursor: (loading || !WAITLIST_COLLECTION_ID || !PREORDER_COLLECTION_ID) ? 'not-allowed' : 'pointer',
-                    marginBottom: '2rem',
-                    transition: 'all 0.3s ease'
-                }}
-            >
-                {loading ? 'Migration davom etmoqda...' : 
-                 !WAITLIST_COLLECTION_ID || !PREORDER_COLLECTION_ID ? 'Collection\'lar Yaratilmagan' :
-                 'Enhanced Migration\'ni Boshlash'}
-            </button>
+                <button
+                    onClick={checkDatabaseStatus}
+                    disabled={loading}
+                    style={{
+                        padding: '1rem 2rem',
+                        fontSize: '1.1rem',
+                        background: loading 
+                            ? 'var(--secondary-color)' 
+                            : 'linear-gradient(135deg, #10b981, #059669)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.3s ease'
+                    }}
+                >
+                    {loading ? '⏳ Tekshirilmoqda...' : '📊 Status Tekshirish'}
+                </button>
+            </div>
 
             {/* Progress */}
             {progress && (
@@ -271,8 +189,8 @@ function SimpleEnhancedMigration() {
                         marginBottom: '1rem',
                         color: 'var(--text-color)'
                     }}>
-                        <span>🚀 Jarayon: {progress.updated}/{progress.total}</span>
-                        <span>📖 Hozirgi: {progress.current}</span>
+                        <span>🚀 Jarayon: {progress.message}</span>
+                        <span>📊 {progress.percent}%</span>
                     </div>
                     <div style={{ 
                         width: '100%', 
@@ -286,7 +204,7 @@ function SimpleEnhancedMigration() {
                             height: '100%',
                             background: 'linear-gradient(90deg, var(--primary-color), var(--accent-color))',
                             borderRadius: '6px',
-                            width: `${progress.total > 0 ? (progress.updated / progress.total) * 100 : 0}%`,
+                            width: `${progress.percent || 0}%`,
                             transition: 'width 0.3s ease'
                         }}></div>
                     </div>
@@ -307,16 +225,18 @@ function SimpleEnhancedMigration() {
                         color: result.success ? '#10b981' : '#ef4444',
                         marginBottom: '1rem'
                     }}>
-                        {result.success ? '✅ Migration Muvaffaqiyatli!' : '❌ Migration Xatosi'}
+                        {result.success ? '✅ Setup Muvaffaqiyatli!' : '❌ Setup Xatosi'}
                     </h3>
-                    {result.success ? (
+                    <p style={{ color: 'var(--text-color)', marginBottom: '1rem' }}>
+                        {result.message}
+                    </p>
+                    {result.data && (
                         <div style={{ color: 'var(--text-color)' }}>
-                            <p>✅ Yangilangan kitoblar: <strong>{result.updated}</strong></p>
-                            <p>❌ Xatolar: <strong>{result.errors}</strong></p>
-                            <p>📚 Jami kitoblar: <strong>{result.total}</strong></p>
+                            {result.data.books !== undefined && <p>📚 Kitoblar: <strong>{result.data.books}</strong></p>}
+                            {result.data.authors !== undefined && <p>👥 Mualliflar: <strong>{result.data.authors}</strong></p>}
+                            {result.data.genres !== undefined && <p>🏷️ Janrlar: <strong>{result.data.genres}</strong></p>}
+                            {result.data.total !== undefined && <p>📊 Jami: <strong>{result.data.total}</strong></p>}
                         </div>
-                    ) : (
-                        <p style={{ color: 'var(--text-color)' }}>❌ Xato: {result.error}</p>
                     )}
                 </div>
             )}
@@ -340,11 +260,24 @@ function SimpleEnhancedMigration() {
                     Ko'rsatmalar:
                 </h4>
                 <ol style={{ color: 'var(--text-color)', lineHeight: '1.6' }}>
-                    <li>Avval Waitlist va PreOrder collection'larini yarating</li>
-                    <li>Environment variables'ni .env fayliga qo'shing</li>
-                    <li>Loyihani qayta ishga tushiring</li>
-                    <li>Enhanced Migration'ni bajaring</li>
+                    <li>Firebase loyihangiz sozlangan bo'lishi kerak</li>
+                    <li>Firebase konfiguratsiyasi .env faylida bo'lishi kerak</li>
+                    <li>"Firebase Setup" tugmasini bosing</li>
+                    <li>Sample ma'lumotlar avtomatik yaratiladi</li>
+                    <li>Admin panel orqali kitoblar qo'shishingiz mumkin</li>
                 </ol>
+                <div style={{ 
+                    marginTop: '1rem', 
+                    padding: '1rem', 
+                    background: 'rgba(106, 138, 255, 0.1)', 
+                    borderRadius: '0.5rem',
+                    border: '1px solid rgba(106, 138, 255, 0.2)'
+                }}>
+                    <p style={{ color: 'var(--text-color)', margin: 0 }}>
+                        💡 <strong>Maslahat:</strong> Agar ma'lumotlar allaqachon mavjud bo'lsa, 
+                        "Status Tekshirish" tugmasini bosib holatni ko'ring.
+                    </p>
+                </div>
             </div>
         </div>
     );

@@ -1,6 +1,8 @@
 // D:\\zamon-books-frontend\\src\\App.jsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { databases, ID, Query, account } from './appwriteConfig';
+import { auth } from './firebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
+import firebaseService from './services/FirebaseService';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 
 // Core components (always needed)
@@ -23,6 +25,7 @@ import {
     LazyHomePage,
     LazySearchPage,
     LazyCartPage,
+    LazyWishlistPage,
     LazyBookDetailPage,
     LazyUserOrdersPage,
     LazyProfilePage,
@@ -47,13 +50,12 @@ import {
 // Direct import for SimpleEnhancedMigration to avoid lazy loading issues
 import SimpleEnhancedMigration from './components/SimpleEnhancedMigration';
 
-// --- Appwrite konsolidan olingan ID'lar ---
-const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
-const AUTHORS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_AUTHORS_ID;
-const GENRES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_GENRES_ID;
-const CART_ITEMS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_CART_ITEMS_ID;
-// USERS_COLLECTION_ID olib tashlandi - Auth ishlatamiz
+// Firebase collections (vaqtincha comment)
+// const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
+// const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
+// const AUTHORS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_AUTHORS_ID;
+// const GENRES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_GENRES_ID;
+// const CART_ITEMS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_CART_ITEMS_ID;
 
 
 
@@ -104,27 +106,23 @@ function MainLayout({ children }) {
 
     const updateGlobalCartCount = useCallback(async () => {
         try {
-            // Avoid unnecessary account.get() calls - use cached login state
-            let userIdToUse = isLoggedIn ?
-                (localStorage.getItem('currentUserId') || localStorage.getItem('appwriteGuestId')) :
-                localStorage.getItem('appwriteGuestId');
+            // Firebase auth state'dan user ID olish
+            const currentUser = auth.currentUser;
+            let userIdToUse = currentUser ? 
+                currentUser.uid : 
+                localStorage.getItem('firebaseGuestId');
 
             if (!userIdToUse) {
-                userIdToUse = ID.unique();
-                localStorage.setItem('appwriteGuestId', userIdToUse);
+                userIdToUse = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('firebaseGuestId', userIdToUse);
             }
 
-            const response = await databases.listDocuments(
-                DATABASE_ID,
-                CART_ITEMS_COLLECTION_ID,
-                [
-                    Query.equal('userId', userIdToUse),
-                    Query.limit(100) // Limit for better performance
-                ]
-            );
-            const totalQuantity = response.documents.reduce((sum, item) => sum + item.quantity, 0);
-            setCartCount(totalQuantity);
+            // Firebase'dan cart items olish
+            const result = await firebaseService.getCartItems(userIdToUse);
+            const totalCount = result.documents.reduce((sum, item) => sum + item.quantity, 0);
+            setCartCount(totalCount);
         } catch (err) {
+            console.error('Cart count update error:', err);
             setCartCount(0);
         }
     }, []);
@@ -154,41 +152,53 @@ function MainLayout({ children }) {
 
         const checkLoginStatusAndFetchGenres = async () => {
             try {
-                const user = await account.get();
-                if (mounted) {
-                    setIsLoggedIn(true);
-                    setIsAdmin(user.labels?.includes('admin') || false);
-                    // Cache user ID to avoid future account.get() calls
-                    localStorage.setItem('currentUserId', user.$id);
-                }
+                // Firebase auth state listener
+                const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                    if (mounted) {
+                        if (user) {
+                            setIsLoggedIn(true);
+                            localStorage.setItem('currentUserId', user.uid);
+                            
+                            // Check admin status from Firestore
+                            try {
+                                const userProfile = await firebaseService.getUserById(user.uid);
+                                if (userProfile) {
+                                    setIsAdmin(userProfile.isAdmin || false);
+                                } else {
+                                    setIsAdmin(false);
+                                }
+                            } catch (error) {
+                                console.error('Admin check error:', error);
+                                setIsAdmin(false);
+                            }
+                        } else {
+                            setIsLoggedIn(false);
+                            setIsAdmin(false);
+                            localStorage.removeItem('currentUserId');
+                        }
+                    }
+                });
+
+                // Return unsubscribe function for cleanup
+                return unsubscribe;
             } catch (error) {
-                // Silent fail for 401 - user is not logged in, which is normal
-                // Don't log 401 errors to console as they're expected
-                if (mounted && error.code !== 401) {
-                    console.error('Auth check error:', error);
-                }
                 if (mounted) {
+                    console.error('Auth setup error:', error);
                     setIsLoggedIn(false);
                     setIsAdmin(false);
-                    localStorage.removeItem('currentUserId');
                 }
             }
 
             try {
-                const genresResponse = await databases.listDocuments(
-                    DATABASE_ID,
-                    GENRES_COLLECTION_ID,
-                    [
-                        Query.limit(6), // Further reduced for faster header load
-                        Query.orderAsc('name'),
-                    ]
-                );
+                // Firebase genres loading
+                const genresResult = await firebaseService.getGenres();
                 if (mounted) {
-                    setGenres(genresResponse.documents);
+                    setGenres(genresResult.documents);
                     setGenresLoading(false);
                 }
             } catch (err) {
                 if (mounted) {
+                    console.error('Genres loading error:', err);
                     setGenresError(err.message || "Janrlarni yuklashda noma'lum xato.");
                     setGenresLoading(false);
                 }
@@ -356,6 +366,9 @@ function MainLayout({ children }) {
 
                             {/* Foydalanuvchi amallari - Mobil menyu ichida */}
                             <li className="mobile-user-actions">
+                                <Link to="/wishlist" className="glassmorphism-button" aria-label="Sevimlilar" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <i className="fas fa-heart"></i> Sevimlilar
+                                </Link>
                                 <Link to="/cart" className="glassmorphism-button" aria-label="Savat" onClick={() => setIsMobileMenuOpen(false)}>
                                     <i className="fas fa-shopping-cart"></i> Savat
                                     <span className="cart-count">{cartCount}</span>
@@ -398,6 +411,9 @@ function MainLayout({ children }) {
 
                     {/* Foydalanuvchi amallari - DESKTOP UCHUN */}
                     <div className="user-actions desktop-only">
+                        <Link to="/wishlist" className="glassmorphism-button" aria-label="Sevimlilar">
+                            <i className="fas fa-heart"></i>
+                        </Link>
                         <Link to="/cart" className="glassmorphism-button" aria-label="Savat" onClick={() => setIsMobileMenuOpen(false)}>
                             <i className="fas fa-shopping-cart"></i>
                             <span className="cart-count">{cartCount}</span>
@@ -501,13 +517,14 @@ function App({ initialData = {} }) {
             <NetlifyStatus />
             <ErrorBoundary>
                 <Routes>
-                    <Route path="/" element={<MainLayout><LazyHomePage databases={databases} DATABASE_ID={DATABASE_ID} /></MainLayout>} />
+                    <Route path="/" element={<MainLayout><LazyHomePage /></MainLayout>} />
                     {/* Existing ID-based route */}
                     <Route path="/book/:bookId" element={<MainLayout><LazyBookDetailPage /></MainLayout>} />
 
                     {/* New SEO-friendly slug-based route */}
                     <Route path="/kitob/:bookSlug" element={<MainLayout><LazyBookDetailPage /></MainLayout>} />
                     <Route path="/cart" element={<MainLayout><LazyCartPage /></MainLayout>} />
+                    <Route path="/wishlist" element={<MainLayout><LazyWishlistPage /></MainLayout>} />
                     <Route path="/orders" element={
                         <ProtectedRoute>
                             <MainLayout><LazyUserOrdersPage /></MainLayout>

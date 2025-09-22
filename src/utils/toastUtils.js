@@ -22,6 +22,17 @@ export const toastMessages = {
     // Auth actions
     loginRequired: () => toast.warning("Buyurtma berish uchun tizimga kirishingiz kerak!"),
     emptyCart: () => toast.warning("Savatingiz bo'sh!"),
+    loginSuccess: () => toast.success("Tizimga muvaffaqiyatli kirdingiz!"),
+    loginError: (message) => toast.error(message || "Tizimga kirishda xato yuz berdi"),
+    registerSuccess: () => toast.success("Ro'yxatdan o'tish muvaffaqiyatli! Email tasdiqlash xabari yuborildi."),
+    registerError: (message) => toast.error(message || "Ro'yxatdan o'tishda xato yuz berdi"),
+    logoutSuccess: () => toast.success("Tizimdan muvaffaqiyatli chiqdingiz!"),
+    passwordResetSent: () => toast.success("Parol tiklash xabari emailingizga yuborildi!"),
+    passwordResetError: (message) => toast.error(message || "Parol tiklashda xato yuz berdi"),
+    passwordUpdateSuccess: () => toast.success("Parol muvaffaqiyatli yangilandi!"),
+    passwordUpdateError: (message) => toast.error(message || "Parol yangilashda xato yuz berdi"),
+    profileUpdateSuccess: () => toast.success("Profil muvaffaqiyatli yangilandi!"),
+    profileUpdateError: () => toast.error("Profil yangilashda xato yuz berdi"),
     
     // Profile actions
     profileUpdated: () => toast.success("Ma'lumotlar muvaffaqiyatli yangilandi!"),

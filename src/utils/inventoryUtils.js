@@ -1,4 +1,6 @@
-// Inventory Management Utilities
+// Inventory Management Utilities - Firebase
+import { db, COLLECTIONS } from '../firebaseConfig';
+import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 export const STOCK_STATUS = {
     IN_STOCK: 'in_stock',
@@ -128,26 +130,30 @@ export const sortBooks = (books, sortBy) => {
     }
 };
 
-// Stock'ni yangilash
-export const updateStock = async (databases, bookId, newStock, reason = '') => {
+// Stock'ni yangilash (Firebase)
+export const updateStock = async (bookId, newStock, reason = '') => {
     try {
-        const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-        const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
+        const { db, COLLECTIONS } = await import('../firebaseConfig');
+        const { doc, getDoc, updateDoc, serverTimestamp } = await import('firebase/firestore');
         
-        // Hozirgi kitob ma'lumotlarini olish
-        const book = await databases.getDocument(DATABASE_ID, BOOKS_COLLECTION_ID, bookId);
+        // Firebase'dan kitob ma'lumotlarini olish
+        const bookRef = doc(db, COLLECTIONS.BOOKS, bookId);
+        const bookSnap = await getDoc(bookRef);
+        
+        if (!bookSnap.exists()) {
+            throw new Error('Kitob topilmadi');
+        }
+        
+        const book = bookSnap.data();
         
         // Yangi stock status'ni aniqlash
         const newStatus = getStockStatus(newStock, book.minStockLevel);
         
-        // Kitobni yangilash
-        const updatedBook = await databases.updateDocument(
-            DATABASE_ID,
-            BOOKS_COLLECTION_ID,
-            bookId,
-            {
-                stock: newStock,
-                stockStatus: newStatus,
+        // Firebase'da kitobni yangilash
+        await updateDoc(bookRef, {
+            stock: newStock,
+            stockStatus: newStatus,
+            updatedAt: serverTimestamp(),
                 isAvailable: newStock > 0 && newStatus !== STOCK_STATUS.DISCONTINUED,
                 lastRestocked: newStock > book.stock ? new Date().toISOString() : book.lastRestocked
             }

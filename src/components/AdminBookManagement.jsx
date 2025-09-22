@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { databases, Query, ID } from '../appwriteConfig';
+import { BooksAdmin, AuthorsAdmin, GenresAdmin } from '../utils/firebaseAdmin';
 import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinaryConfig';
-import { prepareSearchText } from '../utils/transliteration';
+
 import { highlightText } from '../utils/highlightText.jsx';
 import { toastMessages, toast } from '../utils/toastUtils';
 import { generateSlug, generateAuthorSlug } from '../utils/slugUtils';
 import ImageUpload from './ImageUpload';
 import ResponsiveImage from './ResponsiveImage';
 import ImageModal from './ImageModal';
-import siteConfig from '../config/siteConfig';
+import EnhancedBookForm from './admin/EnhancedBookForm';
+import CloudinaryService from '../services/CloudinaryService';
+
 import '../index.css';
 import '../styles/admin.css';
 import '../styles/admin/books.css';
@@ -18,12 +20,7 @@ import '../styles/admin/modal.css';
 import '../styles/admin/forms.css';
 import '../styles/responsive-images.css';
 import '../styles/admin/improved-books.css';
-
-// Appwrite konsolidan olingan ID'lar
-const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const BOOKS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_BOOKS_ID;
-const AUTHORS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_AUTHORS_ID;
-const GENRES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_GENRES_ID;
+import '../styles/admin/enhanced-book-form-modal.css';
 
 function AdminBookManagement() {
     const [books, setBooks] = useState([]);
@@ -44,21 +41,8 @@ function AdminBookManagement() {
     const [showBookForm, setShowBookForm] = useState(false);
     const [bookFormMode, setBookFormMode] = useState('add'); // 'add' or 'edit'
     const [selectedBook, setSelectedBook] = useState(null);
-    const [bookForm, setBookForm] = useState({
-        title: '',
-        description: '',
-        price: '',
-        author: '',
-        genres: [],
-        publishedYear: '',
-        isbn: '',
-        pages: '',
-        language: '',
-        isFeatured: false,
-        isNewArrival: false,
-        imageFile: null,
-        imageUrl: ''
-    });
+    const [bookFormData, setBookFormData] = useState({});
+    const [formLoading, setFormLoading] = useState(false);
 
     // Delete confirmation
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -77,8 +61,8 @@ function AdminBookManagement() {
         const fetchFilters = async () => {
             try {
                 const [authorsResponse, genresResponse] = await Promise.all([
-                    databases.listDocuments(DATABASE_ID, AUTHORS_COLLECTION_ID),
-                    databases.listDocuments(DATABASE_ID, GENRES_COLLECTION_ID)
+                    AuthorsAdmin.listDocuments(),
+                    GenresAdmin.listDocuments()
                 ]);
 
                 setAuthors(authorsResponse.documents);
@@ -97,30 +81,26 @@ function AdminBookManagement() {
         setError(null);
 
         try {
-            const queries = [];
+            const filters = {};
 
             // Add search and filters
             if (searchTerm) {
-                queries.push(Query.search('title', searchTerm));
+                filters.search = searchTerm;
             }
 
             if (filterAuthor) {
-                queries.push(Query.equal('author.$id', filterAuthor));
+                filters.authorId = filterAuthor;
             }
 
             if (filterGenre) {
-                queries.push(Query.equal('genres.$id', filterGenre));
+                filters.genreId = filterGenre;
             }
 
             // Add pagination
-            queries.push(Query.limit(itemsPerPage));
-            queries.push(Query.offset((currentPage - 1) * itemsPerPage));
+            filters.limit = itemsPerPage;
+            filters.offset = (currentPage - 1) * itemsPerPage;
 
-            const response = await databases.listDocuments(
-                DATABASE_ID,
-                BOOKS_COLLECTION_ID,
-                queries
-            );
+            const response = await BooksAdmin.listDocuments(filters);
 
             setBooks(response.documents);
             setTotalBooks(response.total);
@@ -165,29 +145,8 @@ function AdminBookManagement() {
     };
 
     // Book form handlers
-    const handleBookFormChange = (e) => {
-        const { name, value, type, files, checked } = e.target;
-
-        if (type === 'file') {
-            setBookForm({
-                ...bookForm,
-                imageFile: files[0]
-            });
-        } else if (type === 'checkbox') {
-            setBookForm({
-                ...bookForm,
-                [name]: checked
-            });
-        } else {
-            setBookForm({
-                ...bookForm,
-                [name]: value
-            });
-        }
-    };
-
     const openAddBookForm = () => {
-        setBookForm({
+        setBookFormData({
             title: '',
             description: '',
             price: '',
@@ -196,32 +155,39 @@ function AdminBookManagement() {
             publishedYear: '',
             isbn: '',
             pages: '',
-            language: '',
+            language: 'uz',
             isFeatured: false,
             isNewArrival: false,
-            imageFile: null,
-            imageUrl: ''
+            images: []
         });
         setBookFormMode('add');
+        setSelectedBook(null);
         setShowBookForm(true);
     };
 
     const openEditBookForm = (book) => {
         setSelectedBook(book);
-        setBookForm({
+        
+        // Convert existing book data to EnhancedBookForm format
+        const existingImages = book.imageUrl ? [{
+            url: book.imageUrl,
+            publicId: extractPublicIdFromUrl(book.imageUrl),
+            isExisting: true
+        }] : [];
+
+        setBookFormData({
             title: book.title || '',
             description: book.description || '',
-            price: book.price || '',
+            price: book.price?.toString() || '',
             author: book.author?.$id || '',
-            genres: book.genres || [],
-            publishedYear: book.publishedYear || '',
+            genres: Array.isArray(book.genres) ? book.genres.map(g => g.$id || g) : [],
+            publishedYear: book.publishedYear?.toString() || '',
             isbn: book.isbn || '',
-            pages: book.pages || '',
-            language: book.language || '',
+            pages: book.pages?.toString() || '',
+            language: book.language || 'uz',
             isFeatured: book.isFeatured || false,
             isNewArrival: book.isNewArrival || false,
-            imageFile: null,
-            imageUrl: book.imageUrl || ''
+            images: existingImages
         });
         setBookFormMode('edit');
         setShowBookForm(true);
@@ -230,23 +196,28 @@ function AdminBookManagement() {
     const closeBookForm = () => {
         setShowBookForm(false);
         setSelectedBook(null);
-        setBookForm({
-            title: '',
-            description: '',
-            price: '',
-            author: '',
-            genres: [],
-            publishedYear: '',
-            isbn: '',
-            pages: '',
-            language: '',
-            isFeatured: false,
-            isNewArrival: false,
-            imageFile: null,
-            imageUrl: ''
-        });
+        setBookFormData({});
+        setFormLoading(false);
         setShowNewAuthorForm(false);
         setNewAuthorForm({ name: '', bio: '' });
+    };
+
+    // Helper function to extract public ID from Cloudinary URL
+    const extractPublicIdFromUrl = (url) => {
+        if (!url || !url.includes('cloudinary.com')) return null;
+        
+        try {
+            const urlParts = url.split('/');
+            const uploadIndex = urlParts.findIndex(part => part === 'upload');
+            if (uploadIndex === -1) return null;
+            
+            const pathAfterUpload = urlParts.slice(uploadIndex + 2).join('/');
+            const publicIdWithExtension = pathAfterUpload.split('.')[0];
+            return publicIdWithExtension;
+        } catch (error) {
+            console.error('Error extracting public ID:', error);
+            return null;
+        }
     };
     
     // New author form handlers
@@ -270,15 +241,10 @@ function AdminBookManagement() {
             };
             
             // Create new author
-            const newAuthor = await databases.createDocument(
-                DATABASE_ID,
-                AUTHORS_COLLECTION_ID,
-                ID.unique(),
-                authorData
-            );
+            const newAuthor = await AuthorsAdmin.createDocument(authorData);
             
             // Refresh authors list
-            const authorsResponse = await databases.listDocuments(DATABASE_ID, AUTHORS_COLLECTION_ID);
+            const authorsResponse = await AuthorsAdmin.listDocuments();
             setAuthors(authorsResponse.documents);
             
             // Select the new author in book form
@@ -296,68 +262,83 @@ function AdminBookManagement() {
         }
     };
 
-    const handleBookSubmit = async (e) => {
-        e.preventDefault();
+    const handleBookSubmit = async (formData) => {
+        setFormLoading(true);
 
         try {
-            let imageUrl = bookForm.imageUrl;
+            // Process images - upload new ones and keep existing ones
+            let primaryImageUrl = '';
+            const processedImages = [];
 
-            // Upload image to Cloudinary if provided
-            if (bookForm.imageFile) {
-                try {
-                    const uploadResult = await uploadToCloudinary(bookForm.imageFile, 'books');
-                    imageUrl = uploadResult.url;
-                } catch (uploadError) {
-                    console.error('Cloudinary yuklash xatosi:', uploadError);
-                    toastMessages.uploadError();
-                    return; // Form submit'ni to'xtatish
+            for (const image of formData.images) {
+                if (image.isExisting) {
+                    // Keep existing image
+                    processedImages.push(image.url);
+                    if (!primaryImageUrl) primaryImageUrl = image.url;
+                } else if (image.file) {
+                    // Upload new image using CloudinaryService
+                    const cloudinaryService = new CloudinaryService();
+                    const uploadResult = await cloudinaryService.uploadImage(image.file, {
+                        folder: 'books',
+                        transformation: [
+                            { width: 800, height: 1200, crop: 'fill', quality: 'auto' },
+                            { format: 'auto' }
+                        ]
+                    });
+                    
+                    processedImages.push(uploadResult.secure_url);
+                    if (!primaryImageUrl) primaryImageUrl = uploadResult.secure_url;
                 }
             }
 
             // Get author name for slug generation
-            const authorName = authors.find(a => a.$id === bookForm.author)?.name || '';
+            const authorName = authors.find(a => a.$id === formData.author)?.name || '';
             
             // Generate slug automatically
-            const slug = generateSlug(bookForm.title, authorName);
+            const slug = generateSlug(formData.title, authorName);
 
             const bookData = {
-                title: bookForm.title,
-                description: bookForm.description,
-                price: parseFloat(bookForm.price),
-                author: bookForm.author,
-                genres: bookForm.genres,
-                publishedYear: bookForm.publishedYear ? parseInt(bookForm.publishedYear) : null,
-                isbn: bookForm.isbn,
-                pages: bookForm.pages ? parseInt(bookForm.pages) : null,
-                language: bookForm.language,
-                isFeatured: bookForm.isFeatured,
-                isNewArrival: bookForm.isNewArrival,
-                imageUrl: imageUrl,
+                title: formData.title,
+                description: formData.description,
+                price: parseFloat(formData.price),
+                author: formData.author,
+                genres: formData.genres,
+                publishedYear: formData.publishedYear ? parseInt(formData.publishedYear) : null,
+                isbn: formData.isbn,
+                pages: formData.pages ? parseInt(formData.pages) : null,
+                language: formData.language,
+                isFeatured: formData.isFeatured,
+                isNewArrival: formData.isNewArrival,
+                imageUrl: primaryImageUrl, // Primary image for backward compatibility
+                images: processedImages, // All images array
                 slug: slug // Auto-generated slug
             };
 
             if (bookFormMode === 'add') {
                 // Create new book
-                await databases.createDocument(
-                    DATABASE_ID,
-                    BOOKS_COLLECTION_ID,
-                    ID.unique(),
-                    bookData
-                );
+                await BooksAdmin.createDocument(bookData);
                 
                 // Success message with slug info
-                toast.success(`✅ Kitob yaratildi!\n📖 "${bookForm.title}"\n🔗 URL: /kitob/${slug}`);
+                toast.success(`✅ Kitob yaratildi!\n📖 "${formData.title}"\n🔗 URL: /kitob/${slug}`);
             } else {
+                // Delete old images that are no longer used
+                if (selectedBook?.imageUrl && !processedImages.includes(selectedBook.imageUrl)) {
+                    try {
+                        const publicId = extractPublicIdFromUrl(selectedBook.imageUrl);
+                        if (publicId) {
+                            const cloudinaryService = new CloudinaryService();
+                            await cloudinaryService.deleteImage(publicId);
+                        }
+                    } catch (deleteError) {
+                        console.warn('Failed to delete old image:', deleteError);
+                    }
+                }
+
                 // Update existing book
-                await databases.updateDocument(
-                    DATABASE_ID,
-                    BOOKS_COLLECTION_ID,
-                    selectedBook.$id,
-                    bookData
-                );
+                await BooksAdmin.updateDocument(selectedBook.$id, bookData);
                 
                 // Success message with slug info
-                toast.success(`✅ Kitob yangilandi!\n📖 "${bookForm.title}"\n🔗 URL: /kitob/${slug}`);
+                toast.success(`✅ Kitob yangilandi!\n📖 "${formData.title}"\n🔗 URL: /kitob/${slug}`);
             }
 
             // Close form and refresh books
@@ -367,6 +348,8 @@ function AdminBookManagement() {
         } catch (err) {
             console.error("Kitobni saqlashda xato:", err);
             toast.error(`Kitobni saqlashda xato: ${err.message}`);
+        } finally {
+            setFormLoading(false);
         }
     };
 
@@ -391,12 +374,8 @@ function AdminBookManagement() {
                 await deleteFromCloudinary(publicId);
             }
 
-            // Appwrite'dan kitobni o'chirish
-            await databases.deleteDocument(
-                DATABASE_ID,
-                BOOKS_COLLECTION_ID,
-                bookToDelete.$id
-            );
+            // Firebase'dan kitobni o'chirish
+            await BooksAdmin.deleteDocument(bookToDelete.$id);
 
             // Close modal and refresh books
             closeDeleteConfirm();
@@ -649,10 +628,10 @@ function AdminBookManagement() {
                 </>
             )}
 
-            {/* Book Form Modal */}
+            {/* Enhanced Book Form Modal */}
             {showBookForm && (
                 <div className="admin-modal">
-                    <div className="admin-modal-content">
+                    <div className="admin-modal-content enhanced-book-form-modal">
                         <div className="admin-modal-header">
                             <h3>{bookFormMode === 'add' ? 'Yangi kitob qo\'shish' : 'Kitobni tahrirlash'}</h3>
                             <button className="close-btn" onClick={closeBookForm}>
@@ -661,223 +640,20 @@ function AdminBookManagement() {
                         </div>
 
                         <div className="admin-modal-body">
-                            <form onSubmit={handleBookSubmit} className="admin-form">
-                                <div className="form-group">
-                                    <label htmlFor="title">Sarlavha</label>
-                                    <input
-                                        type="text"
-                                        id="title"
-                                        name="title"
-                                        value={bookForm.title}
-                                        onChange={handleBookFormChange}
-                                        required
-                                    />
-                                    {/* Auto-generated slug preview */}
-                                    {bookForm.title && (
-                                        <div style={{
-                                            marginTop: '8px',
-                                            padding: '8px 12px',
-                                            background: 'rgba(106, 138, 255, 0.1)',
-                                            borderRadius: '6px',
-                                            fontSize: '0.85rem',
-                                            color: 'var(--primary-color)'
-                                        }}>
-                                            <strong>🔗 Auto URL:</strong> /kitob/{generateSlug(bookForm.title, authors.find(a => a.$id === bookForm.author)?.name || '')}
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="form-group">
-                                    <label htmlFor="description">Tavsif</label>
-                                    <textarea
-                                        id="description"
-                                        name="description"
-                                        value={bookForm.description}
-                                        onChange={handleBookFormChange}
-                                        rows="4"
-                                    ></textarea>
-                                </div>
-
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label htmlFor="price">Narx (so'm)</label>
-                                        <input
-                                            type="number"
-                                            id="price"
-                                            name="price"
-                                            value={bookForm.price}
-                                            onChange={handleBookFormChange}
-                                            required
-                                            min="0"
-                                            step="1000"
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label htmlFor="publishedYear">Nashr yili</label>
-                                        <input
-                                            type="number"
-                                            id="publishedYear"
-                                            name="publishedYear"
-                                            value={bookForm.publishedYear}
-                                            onChange={handleBookFormChange}
-                                            min="1800"
-                                            max={new Date().getFullYear()}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label htmlFor="author">Muallif</label>
-                                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-                                            <div style={{ flex: 1 }}>
-                                                <select
-                                                    id="author"
-                                                    name="author"
-                                                    value={bookForm.author}
-                                                    onChange={handleBookFormChange}
-                                                    required
-                                                >
-                                                    <option value="">Muallifni tanlang</option>
-                                                    {authors.map(author => (
-                                                        <option key={author.$id} value={author.$id}>
-                                                            {author.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowNewAuthorForm(true)}
-                                                style={{
-                                                    padding: '8px 12px',
-                                                    background: 'var(--primary-color)',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    cursor: 'pointer',
-                                                    fontSize: '0.9rem',
-                                                    whiteSpace: 'nowrap'
-                                                }}
-                                            >
-                                                + Yangi
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label htmlFor="genres">Janrlar</label>
-                                        <div className="checkbox-group">
-                                            {genres.map(genre => (
-                                                <div key={genre.$id} className="checkbox-item">
-                                                    <input
-                                                        type="checkbox"
-                                                        id={`genre-${genre.$id}`}
-                                                        name="genres"
-                                                        value={genre.$id}
-                                                        checked={bookForm.genres.includes(genre.$id)}
-                                                        onChange={(e) => {
-                                                            const value = e.target.value;
-                                                            setBookForm(prev => ({
-                                                                ...prev,
-                                                                genres: e.target.checked
-                                                                    ? [...prev.genres, value]
-                                                                    : prev.genres.filter(g => g !== value)
-                                                            }));
-                                                        }}
-                                                    />
-                                                    <label htmlFor={`genre-${genre.$id}`}>{genre.name}</label>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label htmlFor="isbn">ISBN</label>
-                                        <input
-                                            type="text"
-                                            id="isbn"
-                                            name="isbn"
-                                            value={bookForm.isbn}
-                                            onChange={handleBookFormChange}
-                                            placeholder="978-3-16-148410-0"
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label htmlFor="pages">Sahifalar soni</label>
-                                        <input
-                                            type="number"
-                                            id="pages"
-                                            name="pages"
-                                            value={bookForm.pages}
-                                            onChange={handleBookFormChange}
-                                            min="1"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label htmlFor="language">Til</label>
-                                        <input
-                                            type="text"
-                                            id="language"
-                                            name="language"
-                                            value={bookForm.language}
-                                            onChange={handleBookFormChange}
-                                            placeholder="O'zbek, Rus, Ingliz..."
-                                        />
-                                    </div>
-
-                                    <div className="form-group checkbox-container">
-                                        <div className="checkbox-item">
-                                            <input
-                                                type="checkbox"
-                                                id="isFeatured"
-                                                name="isFeatured"
-                                                checked={bookForm.isFeatured}
-                                                onChange={handleBookFormChange}
-                                            />
-                                            <label htmlFor="isFeatured">Tavsiya etilgan</label>
-                                        </div>
-
-                                        <div className="checkbox-item">
-                                            <input
-                                                type="checkbox"
-                                                id="isNewArrival"
-                                                name="isNewArrival"
-                                                checked={bookForm.isNewArrival}
-                                                onChange={handleBookFormChange}
-                                            />
-                                            <label htmlFor="isNewArrival">Yangi kelgan</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Kitob rasmi</label>
-                                    <ImageUpload
-                                        imagePreview={bookForm.imageFile
-                                            ? URL.createObjectURL(bookForm.imageFile)
-                                            : bookForm.imageUrl}
-                                        onImageChange={(file) => setBookForm({ ...bookForm, imageFile: file })}
-                                        label="Kitob rasmi tanlash"
-                                    />
-                                </div>
-
-                                <div className="form-actions">
-                                    <button type="button" className="cancel-btn" onClick={closeBookForm}>
-                                        Bekor qilish
-                                    </button>
-                                    <button type="submit" className="submit-btn">
-                                        {bookFormMode === 'add' ? 'Qo\'shish' : 'Saqlash'}
-                                    </button>
-                                </div>
-                            </form>
+                            <EnhancedBookForm
+                                initialData={bookFormData}
+                                onSubmit={handleBookSubmit}
+                                onCancel={closeBookForm}
+                                authors={authors.map(author => ({
+                                    id: author.$id,
+                                    name: author.name
+                                }))}
+                                genres={genres.map(genre => ({
+                                    id: genre.$id,
+                                    name: genre.name
+                                }))}
+                                loading={formLoading}
+                            />
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { databases, Query, ID } from '../appwriteConfig';
+import { AuthorsAdmin, FirebaseQuery } from '../utils/firebaseAdmin';
 import { uploadToCloudinary } from '../config/cloudinaryConfig';
 import { prepareSearchText } from '../utils/transliteration';
 import { highlightText } from '../utils/highlightText.jsx';
@@ -16,10 +16,6 @@ import '../styles/admin/pagination.css';
 import '../styles/admin/modal.css';
 import '../styles/admin/forms.css';
 import '../styles/responsive-images.css';
-
-// Appwrite konsolidan olingan ID'lar
-const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const AUTHORS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_AUTHORS_ID;
 
 function AdminAuthorManagement() {
     const [authors, setAuthors] = useState([]);

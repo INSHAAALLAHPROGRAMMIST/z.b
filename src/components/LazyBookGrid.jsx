@@ -1,234 +1,211 @@
-// Lazy Loading Book Grid Component
-// Performance uchun kitoblarni lazy load qiladi
-
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import ResponsiveImage from './ResponsiveImage';
-import { getStockStatusColor, getStockStatusText } from '../utils/inventoryUtils';
-import { toastMessages } from '../utils/toastUtils';
+import OptimizedImage from './OptimizedImage';
+import firebaseService from '../services/FirebaseService';
 
 const LazyBookGrid = ({ 
-  books = [], 
-  loading = false, 
-  hasMore = false, 
-  onLoadMore = null,
-  onAddToCart = null,
-  className = "",
-  itemsPerPage = 12
+    books = [], 
+    loading = false, 
+    onAddToCart,
+    onAddToWishlist,
+    itemsPerPage = 12,
+    enableVirtualization = false 
 }) => {
-  const [visibleBooks, setVisibleBooks] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const observerRef = useRef();
-  const loadMoreRef = useRef();
+    const [visibleBooks, setVisibleBooks] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const observerRef = useRef(null);
+    const loadMoreRef = useRef(null);
 
-  // Initial load - faqat birinchi sahifani ko'rsatish
-  useEffect(() => {
-    if (books.length > 0) {
-      const initialBooks = books.slice(0, itemsPerPage);
-      setVisibleBooks(initialBooks);
-      setCurrentPage(1);
-    }
-  }, [books, itemsPerPage]);
+    // Memoize visible books calculation
+    const paginatedBooks = useMemo(() => {
+        if (enableVirtualization) {
+            return books.slice(0, currentPage * itemsPerPage);
+        }
+        return books;
+    }, [books, currentPage, itemsPerPage, enableVirtualization]);
 
-  // Lazy loading with Intersection Observer
-  const lastBookElementRef = useCallback((node) => {
-    if (loading) return;
-    if (observerRef.current) observerRef.current.disconnect();
-    
-    observerRef.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting) {
-        loadMoreBooks();
-      }
-    }, {
-      threshold: 0.1,
-      rootMargin: '100px' // 100px oldin yuklashni boshlash
-    });
-    
-    if (node) observerRef.current.observe(node);
-  }, [loading]);
+    // Intersection Observer for infinite scroll
+    useEffect(() => {
+        if (!enableVirtualization || !loadMoreRef.current) return;
 
-  // Load more books locally (client-side pagination)
-  const loadMoreBooks = useCallback(() => {
-    if (isLoadingMore) return;
-    
-    const nextPage = currentPage + 1;
-    const startIndex = currentPage * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    
-    // Local books'dan keyingi sahifani olish
-    if (startIndex < books.length) {
-      setIsLoadingMore(true);
-      
-      // Simulate loading delay for better UX
-      setTimeout(() => {
-        const newBooks = books.slice(startIndex, endIndex);
-        setVisibleBooks(prev => [...prev, ...newBooks]);
-        setCurrentPage(nextPage);
-        setIsLoadingMore(false);
-      }, 300);
-    } 
-    // Agar local books tugagan bo'lsa, server'dan ko'proq yuklash
-    else if (hasMore && onLoadMore) {
-      onLoadMore();
-    }
-  }, [currentPage, itemsPerPage, books, hasMore, onLoadMore, isLoadingMore]);
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && !isLoadingMore && paginatedBooks.length < books.length) {
+                    setIsLoadingMore(true);
+                    // Simulate loading delay
+                    setTimeout(() => {
+                        setCurrentPage(prev => prev + 1);
+                        setIsLoadingMore(false);
+                    }, 300);
+                }
+            },
+            {
+                rootMargin: '100px',
+                threshold: 0.1
+            }
+        );
 
-  // Add to cart handler
-  const handleAddToCart = async (book) => {
-    if (onAddToCart) {
-      try {
-        await onAddToCart(book);
-        toastMessages.addedToCart(book.title);
-      } catch (error) {
-        console.error('Add to cart error:', error);
-        toastMessages.cartError();
-      }
-    }
-  };
+        observer.observe(loadMoreRef.current);
+        observerRef.current = observer;
 
-  // Cleanup observer
-  useEffect(() => {
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
+        return () => {
+            if (observerRef.current) {
+                observerRef.current.disconnect();
+            }
+        };
+    }, [enableVirtualization, isLoadingMore, paginatedBooks.length, books.length]);
+
+    // Optimized add to cart handler
+    const handleAddToCart = async (book, e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (onAddToCart) {
+            try {
+                await onAddToCart(book);
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+            }
+        }
     };
-  }, []);
 
-  return (
-    <div className={`lazy-book-grid ${className}`}>
-      {/* Books Grid */}
-      <div className="books-grid">
-        {visibleBooks.map((book, index) => {
-          // Last element uchun ref qo'shish
-          const isLast = index === visibleBooks.length - 1;
-          const shouldLoadMore = isLast && 
-            (currentPage * itemsPerPage < books.length || hasMore);
+    // Optimized add to wishlist handler
+    const handleAddToWishlist = async (book, e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (onAddToWishlist) {
+            try {
+                await onAddToWishlist(book);
+            } catch (error) {
+                console.error('Error adding to wishlist:', error);
+            }
+        }
+    };
 
-          return (
-            <div 
-              key={book.$id} 
-              className="book-card glassmorphism-card"
-              ref={shouldLoadMore ? lastBookElementRef : null}
-            >
-              {/* Book Image */}
-              <div className="book-image-container">
-                <Link to={`/book/${book.$id}`}>
-                  <ResponsiveImage
-                    src={book.imageUrl}
-                    alt={book.title}
-                    className="book-image"
-                    loading={index < 6 ? "eager" : "lazy"} // Birinchi 6 ta eager
-                  />
-                </Link>
-                
-                {/* Stock Status Badge */}
-                {book.stockStatus && (
-                  <div 
-                    className="stock-badge"
-                    style={{ 
-                      backgroundColor: getStockStatusColor(book.stockStatus),
-                      color: 'white'
-                    }}
-                  >
-                    {getStockStatusText(book.stockStatus)}
-                  </div>
-                )}
+    // Generate SEO-friendly slug
+    const generateSlug = (title, id) => {
+        if (!title) return id;
+        return title
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .trim();
+    };
 
-                {/* Relevance Score (development uchun) */}
-                {import.meta.env.DEV && book.relevanceScore && (
-                  <div className="relevance-score">
-                    Score: {book.relevanceScore}
-                  </div>
-                )}
-              </div>
-
-              {/* Book Info */}
-              <div className="book-info">
-                <h3 className="book-title">
-                  <Link to={`/book/${book.$id}`}>
-                    {book.title}
-                  </Link>
-                </h3>
-                
-                {book.authorName && (
-                  <p className="book-author">{book.authorName}</p>
-                )}
-                
-                {/* Description Preview (agar description'dan topilgan bo'lsa) */}
-                {book.description && book.relevanceScore && book.relevanceScore < 10 && (
-                  <p className="book-description-preview">
-                    {book.description.length > 100 
-                      ? `${book.description.substring(0, 100)}...`
-                      : book.description
-                    }
-                  </p>
-                )}
-                
-                <div className="book-price">
-                  {book.price ? `${book.price.toLocaleString()} so'm` : 'Narx ko\'rsatilmagan'}
-                </div>
-
-                {/* Quick Actions */}
-                <div className="book-actions">
-                  <button
-                    onClick={() => handleAddToCart(book)}
-                    className="glassmorphism-button add-to-cart-btn"
-                    disabled={!book.isAvailable || book.stock <= 0}
-                  >
-                    <i className="fas fa-shopping-cart"></i>
-                    Savatga
-                  </button>
-                  
-                  <Link 
-                    to={`/book/${book.$id}`}
-                    className="glassmorphism-button view-btn"
-                  >
-                    <i className="fas fa-eye"></i>
-                    Ko'rish
-                  </Link>
-                </div>
-              </div>
+    if (loading) {
+        return (
+            <div className="book-grid">
+                {Array.from({ length: itemsPerPage }).map((_, index) => (
+                    <div key={index} className="book-card glassmorphism-card">
+                        <div className="book-skeleton">
+                            <div className="skeleton-image"></div>
+                            <div className="skeleton-content">
+                                <div className="skeleton-title"></div>
+                                <div className="skeleton-author"></div>
+                                <div className="skeleton-price"></div>
+                                <div className="skeleton-button"></div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
             </div>
-          );
-        })}
-      </div>
+        );
+    }
 
-      {/* Loading More Indicator */}
-      {(isLoadingMore || loading) && (
-        <div className="loading-more-container">
-          <div className="loading-spinner">
-            <i className="fas fa-spinner fa-spin"></i>
-            <p>Ko'proq kitoblar yuklanmoqda...</p>
-          </div>
-        </div>
-      )}
-
-      {/* Load More Button (fallback) */}
-      {!loading && !isLoadingMore && 
-       (currentPage * itemsPerPage < books.length || hasMore) && (
-        <div className="load-more-container">
-          <button
-            onClick={loadMoreBooks}
-            className="glassmorphism-button load-more-btn"
-            ref={loadMoreRef}
-          >
-            <i className="fas fa-plus"></i>
-            Ko'proq yuklash ({visibleBooks.length}/{books.length})
-          </button>
-        </div>
-      )}
-
-      {/* End Message */}
-      {!loading && !hasMore && visibleBooks.length === books.length && 
-       books.length > 0 && (
-        <div className="end-message">
-          <p>Barcha kitoblar ko'rsatildi ({books.length} ta)</p>
-        </div>
-      )}
-    </div>
-  );
+    return (
+        <>
+            <div className="book-grid">
+                {paginatedBooks.map((book, index) => {
+                    const slug = generateSlug(book.title, book.$id);
+                    const bookUrl = `/kitob/${slug}`;
+                    
+                    return (
+                        <Link 
+                            key={book.$id} 
+                            to={bookUrl}
+                            className="book-card glassmorphism-card"
+                            style={{ textDecoration: 'none' }}
+                        >
+                            <OptimizedImage
+                                src={book.imageUrl || book.image}
+                                alt={book.title}
+                                width={220}
+                                height={300}
+                                className="book-image"
+                                lazy={index > 6} // First 6 images load immediately
+                                placeholder={true}
+                                quality="auto"
+                                format="auto"
+                            />
+                            
+                            <div className="book-info">
+                                <h3 title={book.title}>{book.title}</h3>
+                                <p className="author" title={book.author}>
+                                    {book.author}
+                                </p>
+                                <p className="genre" title={book.genre}>
+                                    {book.genre}
+                                </p>
+                                <p className="price">
+                                    {book.price ? `${book.price.toLocaleString()} so'm` : 'Narx ko\'rsatilmagan'}
+                                </p>
+                            </div>
+                            
+                            <div className="book-actions">
+                                <button
+                                    className="add-to-cart glassmorphism-button"
+                                    onClick={(e) => handleAddToCart(book, e)}
+                                    aria-label={`${book.title} ni savatga qo'shish`}
+                                >
+                                    <i className="fas fa-shopping-cart"></i>
+                                    Savatga
+                                </button>
+                                
+                                <button
+                                    className="add-to-wishlist glassmorphism-button wishlist-btn"
+                                    onClick={(e) => handleAddToWishlist(book, e)}
+                                    aria-label={`${book.title} ni sevimlilarga qo'shish`}
+                                >
+                                    <i className="fas fa-heart"></i>
+                                </button>
+                            </div>
+                        </Link>
+                    );
+                })}
+            </div>
+            
+            {/* Load more trigger for infinite scroll */}
+            {enableVirtualization && paginatedBooks.length < books.length && (
+                <div 
+                    ref={loadMoreRef} 
+                    className="load-more-trigger"
+                    style={{ 
+                        height: '20px', 
+                        margin: '20px 0',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}
+                >
+                    {isLoadingMore && (
+                        <div className="loading-spinner">
+                            <div style={{
+                                width: '30px',
+                                height: '30px',
+                                border: '2px solid rgba(106, 138, 255, 0.2)',
+                                borderTop: '2px solid var(--primary-color)',
+                                borderRadius: '50%',
+                                animation: 'spin 1s linear infinite'
+                            }}></div>
+                        </div>
+                    )}
+                </div>
+            )}
+        </>
+    );
 };
 
 export default LazyBookGrid;

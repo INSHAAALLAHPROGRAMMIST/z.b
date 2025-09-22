@@ -9,6 +9,9 @@ import { BrowserRouter } from 'react-router-dom';
 import { initImageProtection } from './utils/imageProtection.js';
 import './styles/image-protection.css';
 
+// Admin creation utility (always available for setup)
+import('./utils/createAdmin.js');
+
 // Clear console in development for cleaner debugging
 if (import.meta.env.DEV) {
     console.clear();

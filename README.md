@@ -3,7 +3,6 @@
 [![Zamonbooks](https://res.cloudinary.com/dcn4maral/image/upload/v1752326416/favicon_xgeaxu.svg)](https://www.zamonbooks.uz/)
 
 # 📚 Zamon Books - Zamonaviy Kitoblar Do'koni
-[![Zamonbooks](https://res.cloudinary.com/dcn4maral/image/upload/v1752326416/favicon_xgeaxu.svg)](https://www.zamonbooks.uz/)
 
 [![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-7.0.6-green.svg)](https://vitejs.dev/)
@@ -29,12 +28,12 @@ Modern va responsive kitoblar do'koni - React, Vite, Firebase va enhanced admin 
 - **🔔 Real-time Notifications** - Toast xabarlari va yangilanishlar
 
 ### 🔧 Enhanced Admin Paneli
-- **� Realb-time Analytics Dashboard** - Live statistics va performance metrics
-- **� Advlanced Order Management** - Comprehensive order tracking va customer communication
-- **�  Customer Relationship Management (CRM)** - Complete customer profiles va communication history
-- **� Advdanced Inventory Management** - Stock tracking, alerts, bulk operations va reporting
-- **� Real-ttime Messaging System** - Customer support chat va admin messaging dashboard
-- **� Seacurity & Access Control** - Role-based permissions, audit logs va security monitoring
+- **📊 Real-time Analytics Dashboard** - Live statistics va performance metrics
+- **📋 Advanced Order Management** - Comprehensive order tracking va customer communication
+- **👥 Customer Relationship Management (CRM)** - Complete customer profiles va communication history
+- **📦 Advanced Inventory Management** - Stock tracking, alerts, bulk operations va reporting
+- **💬 Real-time Messaging System** - Customer support chat va admin messaging dashboard
+- **🔒 Security & Access Control** - Role-based permissions, audit logs va security monitoring
 - **📈 Sales Analytics & Reporting** - Detailed sales analysis, trends va export functionality
 - **🛠️ System Monitoring** - Health checks, error logs va performance monitoring
 - **🎯 SEO Tools** - Content management, bulk operations va SEO optimization
@@ -312,7 +311,6 @@ Bu loyiha MIT License ostida. Batafsil: [LICENSE](LICENSE) fayli.
 - 🐛 Issues: [GitHub Issues](https://github.com/your-username/zamon-books-frontend/issues)
 
 ---
-
 
 ⭐ **Loyiha yoqsa, star bering!** ⭐
 

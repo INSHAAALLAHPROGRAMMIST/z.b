@@ -37,22 +37,22 @@ Bu hujjat **Zamon Books** loyihasining AI yordamida yaratilish jarayonini batafs
 - Project architecture planning
 
 **Natijalar:**
-- Modern React + Vite + Appwrite stack tanlandi
+- Modern React + Vite + Firebase stack tanlandi
 - 40+ feature requirement aniqlandi
 - Database schema loyihalandi
 - Component hierarchy yaratildi
 
 ### Phase 2: Backend Architecture (6 soat)
 **AI Contributions:**
-- Appwrite database schema design
-- Collection relationships planning
-- API endpoints planning
-- Security permissions design
+- Firebase database schema design
+- Firestore collection relationships planning
+- Firebase Functions endpoints planning
+- Security rules design
 
 **Yaratilgan Elementlar:**
-- 8 ta optimallashtirilgan collection
-- 50+ database attribute
-- Comprehensive permissions system
+- 8 ta optimallashtirilgan Firestore collection
+- 50+ database field
+- Comprehensive security rules
 - Scalable data relationships
 
 ### Phase 3: Frontend Development (20 soat)
@@ -104,13 +104,13 @@ Utility & Service Components (15+):
 
 ### Phase 5: Integration va Testing (6 soat)
 **AI Contributions:**
-- Appwrite backend integration
+- Firebase backend integration
 - Cloudinary image management
 - Telegram bot notifications
 - PWA implementation
 
 **Integration Results:**
-- Real-time database operations
+- Real-time Firestore operations
 - Optimized image handling
 - Automated order notifications
 - Progressive Web App features

@@ -8,9 +8,18 @@
 
 ```bash
 # Firebase Configuration
-VITE_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
-VITE_APPWRITE_PROJECT_ID=your_production_project_id
-VITE_DATABASE_ID=your_production_database_id
+VITE_FIREBASE_API_KEY=your_production_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_production_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project_id.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+
+# Enhanced Admin Dashboard
+VITE_ADMIN_PANEL_ENABLED=true
+VITE_MESSAGING_ENABLED=true
+VITE_ANALYTICS_ENABLED=true
+VITE_SECURITY_MONITORING_ENABLED=true
 
 # Cloudinary Production Settings
 VITE_CLOUDINARY_CLOUD_NAME=your_production_cloud_name
@@ -53,8 +62,14 @@ npm run preview
 ### 4. Firebase Hosting ga Deploy Qilish
 
 ```bash
-# Faqat hosting deploy qilish
-npm run deploy:production
+# Firebase functions deploy (Enhanced Admin uchun)
+firebase deploy --only functions
+
+# Firestore rules deploy
+firebase deploy --only firestore:rules
+
+# Hosting deploy
+firebase deploy --only hosting
 
 # Barcha Firebase xizmatlarini deploy qilish
 npm run deploy:full

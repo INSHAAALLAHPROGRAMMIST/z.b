@@ -2,10 +2,10 @@
 
 ## 📋 UMUMIY REJА
 
-Bu qo'llanma orqali siz loyihangizni **0 dan 100% ishlaydigan holatgacha** olib borasiz.
+Bu qo'llanma orqali siz Zamon Books loyihangizni **0 dan 100% ishlaydigan holatgacha** olib borasiz.
 
-### ⏱️ VAQT: ~30-45 daqiqa
-### 🎯 NATIJA: To'liq ishlaydigan e-commerce platform
+### ⏱️ VAQT: ~45-60 daqiqa
+### 🎯 NATIJA: To'liq ishlaydigan e-commerce platform + Enhanced Admin Dashboard
 
 ---
 
@@ -59,6 +59,14 @@ Analytics Account: Default Account for Firebase
 2. "Get started" tugmasini bosing
 3. Security rules: "Start in production mode"
 4. Location: us-central1 (bir xil region)
+```
+
+### 2.4 Functions Setup (Enhanced Admin uchun)
+```
+1. Firebase Console > Functions
+2. "Get started" tugmasini bosing
+3. Upgrade to Blaze plan (pay-as-you-go)
+4. Enable Functions API
 ```
 
 **✅ Natija:** Barcha Firebase services yoqildi

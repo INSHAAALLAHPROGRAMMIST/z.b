@@ -1,6 +1,6 @@
-# 🚀 Enhanced Inventory Management Setup
+# 🚀 Enhanced Inventory Management Setup - Zamon Books
 
-Bu guide Enhanced Inventory Management tizimini sozlash uchun.
+Bu guide Zamon Books loyihasida Enhanced Inventory Management tizimini sozlash uchun.
 
 ## 📋 Yangi Funksiyalar
 
@@ -13,12 +13,12 @@ Bu guide Enhanced Inventory Management tizimini sozlash uchun.
 
 ## 🗄️ Database Setup (Qo'lda)
 
-### 1. Appwrite Console'da Collection'lar Yaratish
+### 1. Firebase Console'da Collection'lar Yaratish
 
 #### A. Waitlist Collection
 ```
 Collection Name: waitlist
-Collection ID: [unique ID yarating]
+Collection ID: waitlist
 
 Attributes:
 - bookId: String (255, required)
@@ -39,7 +39,7 @@ Permissions:
 #### B. PreOrder Collection
 ```
 Collection Name: preorder
-Collection ID: [unique ID yarating]
+Collection ID: preorder
 
 Attributes:
 - bookId: String (255, required)
@@ -62,13 +62,15 @@ Permissions:
 
 `.env` fayliga qo'shing:
 ```env
-VITE_APPWRITE_COLLECTION_WAITLIST_ID=your_waitlist_collection_id
-VITE_APPWRITE_COLLECTION_PREORDER_ID=your_preorder_collection_id
+# Enhanced Inventory Collections
+VITE_FIREBASE_COLLECTION_WAITLIST=waitlist
+VITE_FIREBASE_COLLECTION_PREORDER=preorder
+VITE_ENHANCED_INVENTORY_ENABLED=true
 ```
 
 ### 3. Books Collection'ga Yangi Fieldlar
 
-Appwrite Console → Books Collection → Attributes:
+Firebase Console → Firestore → Books Collection:
 ```
 // Pre-order & Waitlist
 allowPreOrder: Boolean (default: true)
@@ -137,10 +139,11 @@ Kitob sahifasida → Stock status: out_of_stock → "Navbatga qo'shilish"
 
 ### Collection'lar ko'rinmayapti
 ```
-1. Appwrite Console'da collection'lar yaratilganligini tekshiring
+1. Firebase Console'da collection'lar yaratilganligini tekshiring
 2. Collection ID'lar to'g'ri ekanligini tekshiring
 3. Environment variables to'g'ri sozlanganligini tekshiring
-4. Loyihani qayta ishga tushiring
+4. Firebase security rules'ni tekshiring
+5. Loyihani qayta ishga tushiring
 ```
 
 ### Migration ishlamayapti

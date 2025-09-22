@@ -1,6 +1,6 @@
 # Production Environment Setup Guide
 
-This guide walks you through setting up the complete production environment for Zamon Books e-commerce platform.
+This guide walks you through setting up the complete production environment for Zamon Books e-commerce platform with Enhanced Admin Dashboard.
 
 ## 📋 Prerequisites
 
@@ -51,7 +51,8 @@ Before starting, ensure you have:
    **Firebase Configuration:**
    - Get values from [Firebase Console](https://console.firebase.google.com)
    - Create a new project or use existing one
-   - Enable Firestore and Authentication
+   - Enable Firestore, Authentication, and Functions
+   - Set up security rules for enhanced admin features
 
    **Cloudinary Configuration:**
    - Sign up at [Cloudinary](https://cloudinary.com)
@@ -62,6 +63,11 @@ Before starting, ensure you have:
    - Create a bot via [@BotFather](https://t.me/botfather)
    - Get bot token and set up webhook
    - Create channels for notifications
+
+   **Enhanced Admin Dashboard:**
+   - Configure real-time messaging system
+   - Set up analytics data aggregation
+   - Enable security monitoring features
 
 ### Step 2: Service Account Setup
 

@@ -1,6 +1,6 @@
 # 🚀 Zamon Books - To'liq O'rnatish Yo'riqnomasi
 
-Bu yo'riqnoma sizga Zamon Books loyihasini noldan to'liq ishga tushirishda yordam beradi. Har bir qadam batafsil tushuntirilgan.
+Bu yo'riqnoma sizga Zamon Books loyihasini Enhanced Admin Dashboard bilan noldan to'liq ishga tushirishda yordam beradi. Har bir qadam batafsil tushuntirilgan.
 
 ## 📋 Oldindan Tayyorgarlik
 
@@ -11,7 +11,7 @@ Bu yo'riqnoma sizga Zamon Books loyihasini noldan to'liq ishga tushirishda yorda
 
 ### Kerakli Hisoblar
 - **GitHub** - [github.com](https://github.com)
-- **Appwrite** - [cloud.appwrite.io](https://cloud.appwrite.io)
+- **Firebase** - [console.firebase.google.com](https://console.firebase.google.com)
 - **Cloudinary** - [cloudinary.com](https://cloudinary.com)
 - **Telegram** - Bot yaratish uchun
 
@@ -44,29 +44,29 @@ zamon-books-frontend/
 └── README.md         # Asosiy dokumentatsiya
 ```
 
-## 📊 2. Appwrite Backend Sozlash
+## 🔥 2. Firebase Backend Sozlash
 
-### 2.1 Appwrite Account va Project
-1. [cloud.appwrite.io](https://cloud.appwrite.io) ga o'ting
-2. **"Sign Up"** tugmasini bosing
-3. Email va parol bilan ro'yxatdan o'ting
-4. **"Create Project"** tugmasini bosing
-5. Project nomi: `Zamon Books`
-6. Project ID: `zamon-books` (yoki boshqa unique nom)
+### 2.1 Firebase Account va Project
+1. [console.firebase.google.com](https://console.firebase.google.com) ga o'ting
+2. **"Create a project"** tugmasini bosing
+3. Project nomi: `Zamon Books`
+4. Project ID: `zamon-books-2025` (yoki boshqa unique nom)
+5. Google Analytics'ni yoqing (ixtiyoriy)
 
-### 2.2 Database Yaratish
-1. Chap sidebar'da **"Databases"** ni tanlang
-2. **"Create Database"** tugmasini bosing
-3. Database ID: `main-database`
-4. Name: `Main Database`
-5. **"Create"** tugmasini bosing
+### 2.2 Firebase Services Yoqish
+1. **Firestore Database** - NoSQL database
+2. **Authentication** - User management
+3. **Storage** - File storage
+4. **Functions** - Serverless functions (Enhanced Admin uchun)
+5. **Hosting** - Web hosting (ixtiyoriy)
 
-### 2.3 Collection'larni Yaratish
+### 2.3 Firestore Collections Yaratish
+
+Firebase Console > Firestore Database > Start collection
 
 #### 📚 Books Collection
 ```bash
 Collection ID: books
-Name: Books
 ```
 
 **Attributes (har birini alohida qo'shing):**
@@ -257,17 +257,19 @@ Har bir collection uchun **"Settings"** → **"Permissions"** ga o'ting:
 ### 2.5 Environment Variables
 `.env` fayliga quyidagilarni kiriting:
 ```env
-VITE_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
-VITE_APPWRITE_PROJECT_ID=your_project_id_here
-VITE_APPWRITE_DATABASE_ID=main-database
-VITE_APPWRITE_COLLECTION_BOOKS_ID=books
-VITE_APPWRITE_COLLECTION_AUTHORS_ID=authors
-VITE_APPWRITE_COLLECTION_GENRES_ID=genres
-VITE_APPWRITE_COLLECTION_CART_ITEMS_ID=cart_items
-VITE_APPWRITE_COLLECTION_USERS_ID=users
-VITE_APPWRITE_COLLECTION_ORDERS_ID=orders
-VITE_APPWRITE_COLLECTION_WAITLIST_ID=waitlist
-VITE_APPWRITE_COLLECTION_PREORDER_ID=preorder
+# Firebase Configuration
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project_id.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
+
+# Enhanced Admin Dashboard
+VITE_ADMIN_PANEL_ENABLED=true
+VITE_MESSAGING_ENABLED=true
+VITE_ANALYTICS_ENABLED=true
 ```
 
 ## 🖼️ 3. Cloudinary Sozlash
@@ -390,7 +392,15 @@ git commit -m "Initial commit"
 git push origin main
 ```
 
-### 6.2 Netlify Sozlash
+### 6.2 Firebase Hosting yoki Netlify Sozlash
+
+**Firebase Hosting:**
+```bash
+firebase init hosting
+firebase deploy --only hosting
+```
+
+**Yoki Netlify:**
 1. [netlify.com](https://netlify.com) ga o'ting
 2. GitHub account bilan kiring
 3. **"New site from Git"** tugmasini bosing

@@ -1,3 +1,7 @@
+<div align="center">
+
+[![Zamonbooks](https://res.cloudinary.com/dcn4maral/image/upload/v1752326416/favicon_xgeaxu.svg)](https://www.zamonbooks.uz/)
+
 # 📚 Zamon Books - Zamonaviy Kitoblar Do'koni
 
 [![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)
@@ -6,9 +10,11 @@
 [![AI Powered](https://img.shields.io/badge/AI%20Powered-Kiro%20Assistant-purple.svg)](https://github.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Modern va responsive kitoblar do'koni - React, Vite, Firebase va Cloudinary texnologiyalari asosida qurilgan professional e-commerce platforma.
+</div>
 
-> 🤖 **AI-Powered Development**: Bu loyiha deyarli to'liq **Kiro AI Assistant** yordamida ishlab chiqilgan. Arxitekturadan tortib, UI/UX dizayn, kod yozish, optimizatsiya va hatto bu README gacha - barchasi AI texnologiyalari yordamida yaratilgan. Bu zamonaviy AI-driven development'ning namunasi hisoblanadi.
+Modern va responsive kitoblar do'koni - React, Vite, Firebase va enhanced admin dashboard bilan qurilgan professional e-commerce platforma.
+
+> 🤖 **AI-Powered Development**: Bu loyiha deyarli to'liq **Kiro AI Assistant** yordamida ishlab chiqilgan. Arxitekturadan tortib, UI/UX dizayn, enhanced admin dashboard, real-time messaging, kod yozish, optimizatsiya va hatto bu README gacha - barchasi AI texnologiyalari yordamida yaratilgan. Bu zamonaviy AI-driven development'ning namunasi hisoblanadi.
 
 ## 🌟 Asosiy Xususiyatlar
 
@@ -21,14 +27,17 @@ Modern va responsive kitoblar do'koni - React, Vite, Firebase va Cloudinary texn
 - **📦 Pre-order & Waitlist** - Oldindan buyurtma va navbat tizimi
 - **🔔 Real-time Notifications** - Toast xabarlari va yangilanishlar
 
-### 🔧 Admin Paneli
-- **📚 Kitoblar Boshqaruvi** - To'liq CRUD operatsiyalari
-- **👥 Mualliflar va Janrlar** - Kategoriya boshqaruvi
-- **📋 Buyurtmalar Nazorati** - Real-time order tracking
-- **👤 Foydalanuvchilar** - User management va role assignment
-- **📊 Inventory Management** - Stock tracking va analytics
-- **🖼️ Rasm Yuklash** - Cloudinary integratsiyasi
-- **📈 Dashboard Analytics** - Biznes statistikalari
+### 🔧 Enhanced Admin Paneli
+- **� Realb-time Analytics Dashboard** - Live statistics va performance metrics
+- **� Advlanced Order Management** - Comprehensive order tracking va customer communication
+- **�  Customer Relationship Management (CRM)** - Complete customer profiles va communication history
+- **� Advdanced Inventory Management** - Stock tracking, alerts, bulk operations va reporting
+- **� Real-ttime Messaging System** - Customer support chat va admin messaging dashboard
+- **� Seacurity & Access Control** - Role-based permissions, audit logs va security monitoring
+- **📈 Sales Analytics & Reporting** - Detailed sales analysis, trends va export functionality
+- **🛠️ System Monitoring** - Health checks, error logs va performance monitoring
+- **🎯 SEO Tools** - Content management, bulk operations va SEO optimization
+- **📞 Communication Center** - Telegram integration, notifications va message templates
 
 ### 🎨 Dizayn va UX
 - **✨ Neo-Glassmorphism** - Zamonaviy UI/UX dizayn
@@ -52,8 +61,9 @@ CSS3 + Modern APIs    - Flexbox, Grid, Custom Properties
 Firebase 12.1.0       - Backend-as-a-Service
 Firestore             - NoSQL Database
 Firebase Auth         - Authentication
-Cloudinary            - Image management
-Netlify Functions     - Serverless API
+Firebase Functions    - Serverless backend functions
+Cloudinary            - Image management & CDN
+Real-time Database    - Live data synchronization
 ```
 
 ### Development Tools
@@ -90,7 +100,7 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
 VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
 
-# Firebase Admin SDK (Netlify Functions uchun)
+# Firebase Admin SDK
 FIREBASE_CLIENT_EMAIL=your_service_account_email
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nyour_private_key\n-----END PRIVATE KEY-----"
 
@@ -103,52 +113,89 @@ VITE_TELEGRAM_BOT_TOKEN=your_bot_token
 VITE_TELEGRAM_CHAT_ID=your_chat_id
 VITE_ADMIN_TELEGRAM=@your_admin_username
 
-# Analytics
+# Enhanced Admin Dashboard
+VITE_ADMIN_PANEL_ENABLED=true
+VITE_MESSAGING_ENABLED=true
+VITE_ANALYTICS_ENABLED=true
+VITE_SECURITY_MONITORING_ENABLED=true
+
+# Analytics & Monitoring
 VITE_GA_MEASUREMENT_ID=your_ga_measurement_id
+VITE_SENTRY_DSN=your_sentry_dsn
 ```
 
 ### 4. Firebase Sozlash
 ```bash
+# Firebase CLI login
+firebase login
+
+# Firebase project initialize
+firebase init
+
 # Sample data qo'shish
 npm run firebase:setup
 
-# Admin user yaratish
+# Enhanced admin user yaratish
 npm run firebase:admin create admin@zamonbooks.uz admin123456
+
+# Security rules deploy
+firebase deploy --only firestore:rules
 ```
 
 ### 5. Development Server Ishga Tushiring
 ```bash
-# Oddiy development
+# Development server
 npm run dev
 
-# Netlify Functions bilan
-npm run dev:netlify
+# Enhanced admin dashboard bilan
+npm run dev:admin
+
+# Firebase emulators bilan
+npm run dev:emulators
 ```
 
 Loyiha `http://localhost:5173` da ochiladi.
+Enhanced Admin Dashboard: `http://localhost:5173/admin/enhanced`
 
 ## 📁 Loyiha Strukturasi
 
 ```
-zamon-books-frontend/
-├── public/                 # Static fayllar
+zamon-books/
+├── public/                          # Static fayllar
 ├── src/
-│   ├── components/         # React komponentlar
-│   │   ├── admin/         # Admin panel komponentlari
-│   │   ├── Analytics/     # Google Analytics
-│   │   ├── PWA/          # Progressive Web App
-│   │   └── SEO/          # SEO komponentlari
-│   ├── hooks/             # Custom React hooks
-│   ├── pages/             # Sahifa komponentlari
-│   ├── styles/            # CSS fayllar
-│   ├── utils/             # Utility funksiyalar
-│   ├── config/            # Konfiguratsiya fayllar
-│   └── constants/         # Konstantalar
-├── netlify/
-│   └── functions/         # Serverless functions
-├── firebase-setup.js      # Firebase setup script
-├── create-firebase-admin.js # Admin yaratish script
-└── FIREBASE_SETUP_GUIDE.md # Batafsil setup qo'llanma
+│   ├── components/                  # React komponentlar
+│   │   ├── admin/                  # Standard admin components
+│   │   │   └── enhanced/           # Enhanced admin dashboard
+│   │   │       ├── Dashboard/      # Real-time dashboard
+│   │   │       ├── OrderManagement/ # Advanced order management
+│   │   │       ├── CRM/           # Customer relationship management
+│   │   │       ├── Inventory/     # Advanced inventory management
+│   │   │       ├── Analytics/     # Sales analytics & reporting
+│   │   │       ├── Messaging/     # Real-time messaging system
+│   │   │       ├── Security/      # Security & access control
+│   │   │       ├── System/        # System monitoring
+│   │   │       ├── SEO/           # SEO tools
+│   │   │       ├── Communication/ # Communication center
+│   │   │       └── Performance/   # Performance optimization
+│   │   ├── chat/                  # Customer chat components
+│   │   └── profile/               # User profile components
+│   ├── services/                   # Business logic services
+│   │   ├── AnalyticsService.js    # Analytics data processing
+│   │   ├── MessagingService.js    # Real-time messaging
+│   │   ├── AuthService.js         # Enhanced authentication
+│   │   ├── InventoryService.js    # Inventory management
+│   │   ├── AuditService.js        # Security audit logging
+│   │   └── NotificationService.js # Multi-channel notifications
+│   ├── contexts/                   # React contexts
+│   ├── hooks/                      # Custom React hooks
+│   ├── utils/                      # Utility funksiyalar
+│   └── styles/                     # CSS fayllar
+├── deployment/                     # Deployment configuration
+│   ├── docker/                    # Docker setup
+│   ├── scripts/                   # Deployment scripts
+│   └── monitoring/                # Monitoring configuration
+├── firebase-setup.js              # Firebase setup script
+└── docs/                          # Documentation
 ```
 
 ## 🔧 Backend Sozlamalari
